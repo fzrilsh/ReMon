@@ -51,10 +51,10 @@
         <div class="text-right shrink-0">
           <p class="text-lg font-bold text-gcore-900">Rp <%= Number(d.amount).toLocaleString('id-ID') %></p>
           <div class="flex gap-1 mt-1 justify-end">
-            <form action="<%= basePath %>/debts/<%= d.id %>/settle?_method=PATCH" method="POST" style="display:inline;">
+            <form action="<%= basePath %>/debts/<%= d.id %>/settle" method="POST" style="display:inline;"><input type="hidden" name="_method" value="PATCH">
               <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Tandai lunas?')"><i class="fas fa-check"></i></button>
             </form>
-            <form action="<%= basePath %>/debts/<%= d.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <form action="<%= basePath %>/debts/<%= d.id %>" method="POST" style="display:inline;"><input type="hidden" name="_method" value="DELETE">
               <button type="submit" class="btn btn-ghost btn-sm text-expense" onclick="return confirm('Hapus?')"><i class="fas fa-trash"></i></button>
             </form>
           </div>
