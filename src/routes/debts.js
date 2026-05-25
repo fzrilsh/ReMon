@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const debtController = require('../controllers/debtController');
 const { requireAuth } = require('../middleware/auth');
 
-// Temporary stub — will be implemented in Phase 4
-router.get('/', requireAuth, (req, res) => {
-  res.redirect(`${req.basePath}/dashboard`);
-});
-
-router.get('/create', requireAuth, (req, res) => {
-  res.redirect(`${req.basePath}/dashboard`);
-});
+router.get('/', requireAuth, debtController.index);
+router.get('/create', requireAuth, debtController.showCreate);
+router.post('/', requireAuth, debtController.store);
+router.patch('/:id/settle', requireAuth, debtController.settle);
+router.delete('/:id', requireAuth, debtController.destroy);
 
 module.exports = router;

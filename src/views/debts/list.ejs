@@ -1,0 +1,87 @@
+<%- include("../partials/header") %>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+  <div>
+    <h2 style="font-size:24px;font-weight:700;color:#150c18;">Hutang</h2>
+    <p style="font-size:14px;color:#403842;margin-top:4px;">Catat dan pantau hutang piutang</p>
+  </div>
+  <a href="<%= basePath %>/debts/create" class="btn btn-primary">+ Catat Hutang</a>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid" style="margin-bottom:20px;">
+  <div class="card card-stat" style="border-left-color:#c0392b;">
+    <div class="card-stat-label">Hutang Saya (I Owe)</div>
+    <div class="card-stat-value" style="color:#c0392b;font-size:24px;">Rp <%= typeof totalIOwe !== 'undefined' ? Number(totalIOwe).toLocaleString('id-ID') : 0 %></div>
+  </div>
+  <div class="card card-stat" style="border-left-color:#2d7d2d;">
+    <div class="card-stat-label">Dihutangi (They Owe)</div>
+    <div class="card-stat-value" style="color:#2d7d2d;font-size:24px;">Rp <%= typeof totalTheyOwe !== 'undefined' ? Number(totalTheyOwe).toLocaleString('id-ID') : 0 %></div>
+  </div>
+  <div class="card card-stat" style="border-left-color:<%= typeof netBalance !== 'undefined' && netBalance >= 0 ? '#2d7d2d' : '#c0392b' %>;">
+    <div class="card-stat-label">Net Balance</div>
+    <div class="card-stat-value" style="font-size:24px;color:<%= typeof netBalance !== 'undefined' && netBalance >= 0 ? '#2d7d2d' : '#c0392b' %>;">
+      Rp <%= typeof netBalance !== 'undefined' ? Number(Math.abs(netBalance)).toLocaleString('id-ID') : 0 %>
+      <% if (typeof netBalance !== 'undefined' && netBalance >= 0) { %>(🇲🇨 Dihutangi)<% } else { %>(🇲🇨 Hutang)<% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs: Active / Settled -->
+<% if (typeof active !== 'undefined' && active.length > 0) { %>
+  <h3 style="font-size:16px;color:#150c18;margin-bottom:12px;">Aktif (<%= active.length %>)</h3>
+  <% active.forEach(function(d) { %>
+    <div class="card" style="margin-bottom:8px;padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span class="badge <%= d.direction === 'I_OWE' ? 'badge-danger' : 'badge-success' %>">
+              <%= d.direction === 'I_OWE' ? '🇲🇨 Saya hutang' : '🇲🇨 Dia hutang' %>
+            </span>
+            <% if (d.dueDate) { %>
+              <span class="badge <%= new Date(d.dueDate) <= new Date() ? 'badge-danger' : 'badge-warning' %>">
+                <%= new Date(d.dueDate) <= new Date() ? '🔴 Overdue' : '📅 ' + new Date(d.dueDate).toLocaleDateString('id-ID') %>
+              </span>
+            <% } %>
+          </div>
+          <p style="font-size:14px;font-weight:600;color:#150c18;"><%= d.otherPersonName %></p>
+          <p style="font-size:13px;color:#403842;"><%= d.description %></p>
+        </div>
+        <div style="text-align:right;">
+          <p style="font-size:18px;font-weight:700;color:#150c18;">Rp <%= Number(d.amount).toLocaleString('id-ID') %></p>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <form action="<%= basePath %>/debts/<%= d.id %>/settle?_method=PATCH" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Tandai hutang ini sebagai lunas?')">Lunas</button>
+            </form>
+            <form action="<%= basePath %>/debts/<%= d.id %>?_method=DELETE" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#c0392b;" onclick="return confirm('Hapus hutang ini?')">Hapus</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% }); %>
+<% } else { %>
+  <div class="card" style="padding:32px;text-align:center;margin-bottom:16px;">
+    <div style="font-size:36px;margin-bottom:12px;">💸</div>
+    <h3 style="margin-bottom:4px;">Tidak ada hutang aktif</h3>
+    <p style="font-size:14px;color:#403842;">Catat hutang pertama kamu</p>
+  </div>
+<% } %>
+
+<% if (typeof settled !== 'undefined' && settled.length > 0) { %>
+  <h3 style="font-size:16px;color:#150c18;margin-bottom:12px;margin-top:24px;">Lunas (<%= settled.length %>)</h3>
+  <% settled.forEach(function(d) { %>
+    <div class="card" style="margin-bottom:8px;padding:12px 16px;opacity:0.6;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <p style="font-size:14px;font-weight:600;color:#150c18;"><%= d.otherPersonName %></p>
+          <p style="font-size:13px;color:#403842;"><%= d.description %></p>
+        </div>
+        <p style="font-size:16px;font-weight:700;color:#2d7d2d;">✅ Rp <%= Number(d.amount).toLocaleString('id-ID') %></p>
+      </div>
+    </div>
+  <% }); %>
+<% } %>
+
+<%- include("../partials/footer") %>

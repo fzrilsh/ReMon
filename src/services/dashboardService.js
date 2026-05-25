@@ -33,6 +33,18 @@ async function getDashboardData(userId) {
     where: { userId, isRead: false },
   });
 
+  const activeDebts = await prisma.debt.findMany({
+    where: { userId, status: 'UNPAID' },
+  });
+
+  const totalIOwe = activeDebts
+    .filter(d => d.direction === 'I_OWE')
+    .reduce((sum, d) => sum + Number(d.amount), 0);
+
+  const totalTheyOwe = activeDebts
+    .filter(d => d.direction === 'THEY_OWE')
+    .reduce((sum, d) => sum + Number(d.amount), 0);
+
   return {
     recentTransactions: transactions,
     monthlyIncome,
@@ -41,6 +53,8 @@ async function getDashboardData(userId) {
     activeSplitBills,
     unpaidDebts,
     pendingNotifications,
+    totalIOwe,
+    totalTheyOwe,
   };
 }
 
