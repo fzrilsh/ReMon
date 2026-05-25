@@ -129,6 +129,7 @@ async function getExpenseTransactions(userId) {
       userId,
       type: 'EXPENSE',
       splitBillTransactions: { none: {} },
+      isSplitBill: false,
     },
     include: { category: true },
     orderBy: { date: 'desc' },
