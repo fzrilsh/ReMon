@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - ReMon</title>
+  <link rel="stylesheet" href="<%= basePath %>/css/app.css">
+</head>
+<body class="bg-neutral-900 text-white">
+  <main style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:20px;text-align:center;">
+    <h1 style="font-size:72px;color:#ff4c00;margin:0;">Oops!</h1>
+    <h2><%= title %></h2>
+    <p style="color:#403842;max-width:400px;"><%= message %></p>
+    <a href="<%= basePath %>/auth/login" style="background:#ff4c00;color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;">
+      Kembali ke Beranda
+    </a>
+    <% if (typeof error !== 'undefined' && error.stack) { %>
+      <details style="margin-top:20px;text-align:left;max-width:600px;">
+        <summary style="cursor:pointer;color:#403842;">Detail Error</summary>
+        <pre style="font-size:12px;color:#403842;overflow-x:auto;"><%= error.stack %></pre>
+      </details>
+    <% } %>
+  </main>
+</body>
+</html>

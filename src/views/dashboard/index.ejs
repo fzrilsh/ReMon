@@ -1,0 +1,58 @@
+<%- include('../layouts/main') %>
+<%- include('../partials/navbar') %>
+<div class="grid">
+  <div class="card card-stat">
+    <div class="card-stat-label">Pemasukan Bulan Ini</div>
+    <div class="card-stat-value" style="color:#2d7d2d;">Rp <%= (typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome).toLocaleString('id-ID') : 0) %></div>
+  </div>
+  <div class="card card-stat" style="border-left-color:#c0392b;">
+    <div class="card-stat-label">Pengeluaran Bulan Ini</div>
+    <div class="card-stat-value" style="color:#c0392b;">Rp <%= (typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense).toLocaleString('id-ID') : 0) %></div>
+  </div>
+  <div class="card card-stat" style="border-left-color:#150c18;">
+    <div class="card-stat-label">Saldo</div>
+    <div class="card-stat-value">Rp <%= (typeof balance !== 'undefined' ? Number(balance).toLocaleString('id-ID') : 0) %></div>
+  </div>
+  <div class="card card-stat" style="border-left-color:#3b2b42;">
+    <div class="card-stat-label">Split Bill Aktif</div>
+    <div class="card-stat-value"><%= typeof activeSplitBills !== 'undefined' ? activeSplitBills : 0 %></div>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns:1fr;">
+  <div class="card">
+    <h3 style="margin-bottom:16px;">Transaksi Terbaru</h3>
+    <% if (typeof recentTransactions !== 'undefined' && recentTransactions.length > 0) { %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Deskripsi</th>
+              <th>Kategori</th>
+              <th>Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentTransactions.forEach(function(t) { %>
+              <tr>
+                <td><%= new Date(t.date).toLocaleDateString('id-ID') %></td>
+                <td><%= t.description %></td>
+                <td><span class="badge badge-neutral"><%= t.category ? t.category.name : '-' %></span></td>
+                <td style="color:<%= t.type === 'INCOME' ? '#2d7d2d' : '#c0392b' %>;font-weight:600;">
+                  <%= t.type === 'INCOME' ? '+' : '-' %> Rp <%= Number(t.amount).toLocaleString('id-ID') %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <p class="empty-state-text">Belum ada transaksi bulan ini.</p>
+        <a href="<%= basePath %>/transactions/create" class="btn btn-primary">Catat Transaksi Baru</a>
+      </div>
+    <% } %>
+  </div>
+</div>

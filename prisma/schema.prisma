@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum SplitBillStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum ParticipantStatus {
+  UNPAID
+  PAID
+  DISPUTED
+}
+
+enum DebtDirection {
+  I_OWE
+  THEY_OWE
+}
+
+enum DebtStatus {
+  UNPAID
+  PAID
+}
+
+enum NotificationType {
+  SPLIT_PAID
+  SPLIT_DISPUTED
+  DEBT_DUE
+  DEBT_OVERDUE
+  DEBT_SETTLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+  splitBills   SplitBill[]
+  debts        Debt[]
+  notifications Notification[]
+  categories   Category[]
+}
+
+model Category {
+  id        String          @id @default(uuid())
+  name      String
+  type      TransactionType
+  icon      String?
+  userId    String?
+  user      User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           String          @id @default(uuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Decimal
+  description  String
+  categoryId   String?
+  category     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  type         TransactionType
+  date         DateTime
+  receiptImage String?
+  isSplitBill  Boolean         @default(false)
+  splitBillId  String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  splitBill SplitBill?
+}
+
+model SplitBill {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionId String          @unique
+  transaction   Transaction     @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  totalAmount   Decimal
+  slug          String          @unique
+  status        SplitBillStatus @default(ACTIVE)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  participants SplitBillParticipant[]
+}
+
+model SplitBillParticipant {
+  id                String            @id @default(uuid())
+  splitBillId       String
+  splitBill         SplitBill         @relation(fields: [splitBillId], references: [id], onDelete: Cascade)
+  name              String
+  amount            Decimal
+  status            ParticipantStatus @default(UNPAID)
+  paymentProofImage String?
+  paymentVerified   Boolean           @default(false)
+  aiFeedback        String?
+  paidAt            DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model Debt {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  otherPersonName String
+  amount          Decimal
+  description     String
+  direction       DebtDirection
+  status          DebtStatus  @default(UNPAID)
+  dueDate         DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}

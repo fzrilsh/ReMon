@@ -1,0 +1,25 @@
+<header class="navbar">
+  <button class="navbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 12h18M3 6h18M3 18h18"/>
+    </svg>
+  </button>
+  <h2 class="navbar-title"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></h2>
+  <div class="navbar-actions">
+    <a href="<%= basePath %>/notifications/unread" class="navbar-icon" id="notificationBell" aria-label="Notifikasi">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <% if (typeof pendingNotifications !== 'undefined' && pendingNotifications > 0) { %>
+        <span class="navbar-badge"><%= pendingNotifications %></span>
+      <% } %>
+    </a>
+    <div class="navbar-user">
+      <span class="navbar-user-name"><%= user ? user.name : 'Guest' %></span>
+      <form action="<%= basePath %>/auth/logout" method="POST" class="navbar-logout-form">
+        <button type="submit" class="btn btn-ghost btn-sm" aria-label="Logout">Keluar</button>
+      </form>
+    </div>
+  </div>
+</header>

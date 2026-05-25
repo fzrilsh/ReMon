@@ -1,0 +1,14 @@
+node_modules/
+.env
+public/uploads/receipts/*
+public/uploads/proofs/*
+!public/uploads/receipts/.gitkeep
+!public/uploads/proofs/.gitkeep
+.DS_Store
+*.log
+
+# Planning & design docs (not for production)
+PLANNING.md
+DESIGN.md
+SKILL.md
+GCORE-*
