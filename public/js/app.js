@@ -67,4 +67,13 @@
   document.querySelectorAll('.alert').forEach(function (alert) {
     setTimeout(function () { alert.style.display = 'none'; }, 5000);
   });
+
+  // Service Worker registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/ReMon/sw.js')
+        .then(function (reg) { console.log('SW registered:', reg.scope); })
+        .catch(function (err) { console.log('SW failed:', err); });
+    });
+  }
 })();
