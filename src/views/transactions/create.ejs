@@ -19,11 +19,11 @@
       <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tipe</label>
       <div class="flex gap-2">
         <label class="flex-1 p-2.5 border-2 <%= errors && errors.type ? 'border-expense' : 'border-gray-200' %> rounded-gsm text-center cursor-pointer <%= oldInput.type === 'EXPENSE' || !oldInput.type ? 'bg-gray-100 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="type" value="EXPENSE" <%= oldInput.type === 'EXPENSE' || !oldInput.type ? 'checked' : '' %> class="hidden" onchange="this.closest('label').className='flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer bg-gray-100 font-semibold';var s=document.querySelectorAll('input[name=\\'type\\']');s.forEach(function(i){if(i!==this&&!i.checked)i.closest('label').className='flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer bg-white';});">
+          <input type="radio" name="type" value="EXPENSE" <%= oldInput.type === 'EXPENSE' || !oldInput.type ? 'checked' : '' %> class="hidden">
           <i class="fas fa-arrow-down text-expense"></i> Pengeluaran
         </label>
         <label class="flex-1 p-2.5 border-2 <%= errors && errors.type ? 'border-expense' : 'border-gray-200' %> rounded-gsm text-center cursor-pointer <%= oldInput.type === 'INCOME' ? 'bg-gray-100 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="type" value="INCOME" <%= oldInput.type === 'INCOME' ? 'checked' : '' %> class="hidden" onchange="this.closest('label').className='flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer bg-gray-100 font-semibold';var s=document.querySelectorAll('input[name=\\'type\\']');s.forEach(function(i){if(i!==this&&!i.checked)i.closest('label').className='flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer bg-white';});">
+          <input type="radio" name="type" value="INCOME" <%= oldInput.type === 'INCOME' ? 'checked' : '' %> class="hidden">
           <i class="fas fa-arrow-up text-income"></i> Pemasukan
         </label>
       </div>

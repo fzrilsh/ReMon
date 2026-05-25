@@ -9,11 +9,11 @@
       <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tipe</label>
       <div class="flex gap-2">
         <label class="flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer transition-all <%= transaction.type === 'EXPENSE' ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="type" value="EXPENSE" <%= transaction.type === 'EXPENSE' ? 'checked' : '' %> class="hidden" onchange="toggleTypeRadio(this)">
+          <input type="radio" name="type" value="EXPENSE" <%= transaction.type === 'EXPENSE' ? 'checked' : '' %> class="hidden">
           <i class="fas fa-arrow-down text-expense"></i> Pengeluaran
         </label>
         <label class="flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer transition-all <%= transaction.type === 'INCOME' ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="type" value="INCOME" <%= transaction.type === 'INCOME' ? 'checked' : '' %> class="hidden" onchange="toggleTypeRadio(this)">
+          <input type="radio" name="type" value="INCOME" <%= transaction.type === 'INCOME' ? 'checked' : '' %> class="hidden">
           <i class="fas fa-arrow-up text-income"></i> Pemasukan
         </label>
       </div>
