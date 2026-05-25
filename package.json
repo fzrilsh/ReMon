@@ -11,24 +11,29 @@
     "db:studio": "npx prisma studio",
     "db:generate": "npx prisma generate"
   },
-  "keywords": ["finance", "tracker", "split-bill", "pwa"],
+  "keywords": [
+    "finance",
+    "tracker",
+    "split-bill",
+    "pwa"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.21.x",
-    "ejs": "^3.1.x",
     "@prisma/client": "^6.x",
-    "bcrypt": "^5.x",
-    "express-session": "^1.18.x",
+    "axios": "^1.x",
+    "bcryptjs": "^3.0.3",
     "connect-pg-simple": "^10.x",
+    "dotenv": "^16.x",
+    "ejs": "^3.1.x",
+    "express": "^4.21.x",
+    "express-session": "^1.18.x",
     "multer": "^1.4.x",
     "nanoid": "^5.x",
-    "zod": "^3.x",
-    "axios": "^1.x",
-    "dotenv": "^16.x"
+    "zod": "^3.x"
   },
   "devDependencies": {
-    "prisma": "^6.x",
-    "nodemon": "^3.x"
+    "nodemon": "^3.x",
+    "prisma": "^6.x"
   }
 }

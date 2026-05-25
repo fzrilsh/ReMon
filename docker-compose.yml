@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: remon-postgres
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: remon_user
+      POSTGRES_PASSWORD: "remon_dev_pass"
+      POSTGRES_DB: remon_dev
+    volumes:
+      - remon_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U remon_user -d remon_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  remon_pgdata:
