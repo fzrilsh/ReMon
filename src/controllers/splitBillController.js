@@ -88,8 +88,10 @@ async function closeSplitBill(req, res, next) {
     res.redirect(`${req.basePath}/split-bills`);
   } catch (err) {
     if (err.statusCode) {
-      return res.status(err.statusCode).render('split-bill/manage', {
-        title: 'Split Bill',
+      const splitBill = await splitBillService.getById(req.params.id);
+      return res.status(err.statusCode).render('split-bill/detail', {
+        title: 'Detail Split Bill',
+        splitBill,
         error: err.message,
       });
     }

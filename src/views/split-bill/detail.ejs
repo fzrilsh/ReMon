@@ -1,6 +1,11 @@
 <%- include("../partials/header") %>
 
 <div class="max-w-[640px]">
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-gsm mb-5 text-gsm">
+      <i class="fas fa-exclamation-circle"></i> <%= error %>
+    </div>
+  <% } %>
   <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
     <div>
       <h2 class="text-2xl font-bold text-gcore-900 mb-1">Detail Split Bill</h2>
