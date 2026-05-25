@@ -85,7 +85,8 @@ async function create(userId, { transactionIds, participants }) {
     error.statusCode = 400;
     throw error;
   }
-  const amounts = calculateEqualSplit(totalAmount, participantNames.length);
+  // Include the owner (+1) so total is split among all people including the one who paid
+  const amounts = calculateEqualSplit(totalAmount, participantNames.length + 1);
   const slug = nanoid(10);
 
   const splitBill = await splitBillRepository.create({
