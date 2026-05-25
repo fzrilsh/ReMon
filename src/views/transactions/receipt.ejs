@@ -23,9 +23,9 @@
 </div>
 
 <script>
-document.getElementById("parseBtn").addEventListener("click", function() {
-  this.disabled = true;
-  this.innerHTML = "<i class=\"fas fa-spinner fa-spin\"></i> Memproses...";
+document.querySelector("form").addEventListener("submit", function() {
+  var btn = document.getElementById("parseBtn");
+  btn.textContent = "Memproses...";
 });
 document.getElementById("dropzone").addEventListener("dragover", function(e) { e.preventDefault(); this.style.borderColor="#ff4c00"; this.style.background="#fafafa"; });
 document.getElementById("dropzone").addEventListener("dragleave", function(e) { e.preventDefault(); this.style.borderColor=""; this.style.background=""; });
