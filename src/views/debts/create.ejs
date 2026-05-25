@@ -1,60 +1,97 @@
 <%- include("../partials/header") %>
 
-<div class="max-w-[560px]">
-  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Catat Hutang</h2>
-  <p class="text-gsm text-gcore-400 mb-6">Apakah kamu hutang ke teman atau teman hutang ke kamu?</p>
+  <div class="max-w-[560px]">
+    <h2 class="text-2xl font-bold text-gcore-900 mb-1">Catat Hutang</h2>
+    <p class="text-gsm text-gcore-400 mb-6">Apakah kamu hutang ke teman atau teman hutang ke kamu?</p>
 
-  <% if (errors && errors.general) { %>
-    <div class="bg-white border-l-4 border-expense rounded-gsm p-3 mb-4">
-      <p class="text-gsm text-expense"><i class="fas fa-exclamation-circle"></i> <%= errors.general[0] %></p>
-    </div>
-  <% } %>
-
-  <form action="<%= basePath %>/debts" method="POST" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
-    <div class="mb-4">
-      <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Arah Hutang</label>
-      <div class="flex gap-2">
-        <label class="flex-1 py-2.5 border-2 <%= errors && errors.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center cursor-pointer cursor-pointer font-medium transition-all duration-150 <%= oldInput.direction === 'I_OWE' || !oldInput.direction ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="direction" value="I_OWE" <%= oldInput.direction === 'I_OWE' || !oldInput.direction ? 'checked' : '' %> class="hidden">
-          <i class="fas fa-arrow-right text-expense"></i> Saya hutang dia
-        </label>
-        <label class="flex-1 py-2.5 border-2 <%= errors && errors.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center cursor-pointer cursor-pointer font-medium transition-all duration-150 <%= oldInput.direction === 'THEY_OWE' ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="direction" value="THEY_OWE" <%= oldInput.direction === 'THEY_OWE' ? 'checked' : '' %> class="hidden">
-          <i class="fas fa-arrow-left text-income"></i> Dia hutang saya
-        </label>
+    <% if (errors && errors.general) { %>
+      <div class="bg-white border-l-4 border-expense rounded-gsm p-3 mb-4">
+        <p class="text-gsm text-expense"><i class="fas fa-exclamation-circle"></i>
+          <%= errors.general[0] %>
+        </p>
       </div>
-      <% if (errors && errors.direction) { %><span class="block text-gxs text-expense mt-1"><%= errors.direction[0] %></span><% } %>
-    </div>
+      <% } %>
 
-    <div class="mb-4">
-      <label for="otherPersonName" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nama Orang</label>
-      <input type="text" id="otherPersonName" name="otherPersonName" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.otherPersonName ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" placeholder="Nama teman / kenalan" value="<%= oldInput.otherPersonName || '' %>" required />
-      <% if (errors && errors.otherPersonName) { %><span class="block text-gxs text-expense mt-1"><%= errors.otherPersonName[0] %></span><% } %>
-    </div>
+        <form action="<%= basePath %>/debts" method="POST" class="bg-white border-2 border-gray-200 rounded-gsm p-6"
+          novalidate>
+          <div class="mb-4">
+            <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Arah Hutang</label>
+            <div class="flex gap-2">
+              <label class="flex-1 cursor-pointer">
+                <input type="radio" name="direction" value="I_OWE" <%=locals.oldInput?.direction==='I_OWE' ||
+                  !locals.oldInput?.direction ? 'checked' : '' %>
+                class="peer hidden"
+                >
+                <div
+                  class="py-2.5 border-2 <%= locals.errors?.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center font-medium bg-white peer-checked:bg-gray-100 peer-checked:border-gcore-900 peer-checked:font-semibold transition-all duration-150">
+                  <i class="fas fa-arrow-right text-expense"></i> Saya hutang dia
+                </div>
+              </label>
 
-    <div class="mb-4">
-      <label for="amount" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
-      <input type="number" id="amount" name="amount" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" placeholder="0" value="<%= oldInput.amount || '' %>" required step="0.01" min="0" />
-      <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1"><%= errors.amount[0] %></span><% } %>
-    </div>
+              <label class="flex-1 cursor-pointer">
+                <input type="radio" name="direction" value="THEY_OWE" <%=locals.oldInput?.direction==='THEY_OWE'
+                  ? 'checked' : '' %>
+                class="peer hidden"
+                >
+                <div
+                  class="py-2.5 border-2 <%= locals.errors?.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center font-medium bg-white peer-checked:bg-gray-100 peer-checked:border-gcore-900 peer-checked:font-semibold transition-all duration-150">
+                  <i class="fas fa-arrow-left text-income"></i> Dia hutang saya
+                </div>
+              </label>
+            </div>
+            <% if (errors && errors.direction) { %><span class="block text-gxs text-expense mt-1">
+                <%= errors.direction[0] %>
+              </span>
+              <% } %>
+          </div>
 
-    <div class="mb-4">
-      <label for="description" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Deskripsi</label>
-      <input type="text" id="description" name="description" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.description ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" placeholder="Mis: Bayarin makan" value="<%= oldInput.description || '' %>" required />
-      <% if (errors && errors.description) { %><span class="block text-gxs text-expense mt-1"><%= errors.description[0] %></span><% } %>
-    </div>
+          <div class="mb-4">
+            <label for="otherPersonName" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nama Orang</label>
+            <input type="text" id="otherPersonName" name="otherPersonName"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.otherPersonName ? 'border-expense' : 'border-gcore-500' %> rounded-gsm"
+              placeholder="Nama teman / kenalan" value="<%= oldInput.otherPersonName || '' %>" required />
+            <% if (errors && errors.otherPersonName) { %><span class="block text-gxs text-expense mt-1">
+                <%= errors.otherPersonName[0] %>
+              </span>
+              <% } %>
+          </div>
 
-    <div class="mb-4">
-      <label for="dueDate" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jatuh Tempo (opsional)</label>
-      <input type="date" id="dueDate" name="dueDate" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 border-gcore-500 rounded-gsm" value="<%= oldInput.dueDate || '' %>" />
-      <span class="block text-gxs text-gcore-400 mt-1">Kosongkan jika tidak ada jatuh tempo</span>
-    </div>
+          <div class="mb-4">
+            <label for="amount" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
+            <input type="number" id="amount" name="amount"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gcore-500' %> rounded-gsm"
+              placeholder="0" value="<%= oldInput.amount || '' %>" required step="0.01" min="0" />
+            <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1">
+                <%= errors.amount[0] %>
+              </span>
+              <% } %>
+          </div>
 
-    <div class="flex gap-2 mt-4">
-      <a href="<%= basePath %>/debts" class="btn btn-secondary">Batal</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Hutang</button>
-    </div>
-  </form>
-</div>
+          <div class="mb-4">
+            <label for="description" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Deskripsi</label>
+            <input type="text" id="description" name="description"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.description ? 'border-expense' : 'border-gcore-500' %> rounded-gsm"
+              placeholder="Mis: Bayarin makan" value="<%= oldInput.description || '' %>" required />
+            <% if (errors && errors.description) { %><span class="block text-gxs text-expense mt-1">
+                <%= errors.description[0] %>
+              </span>
+              <% } %>
+          </div>
 
-<%- include("../partials/footer") %>
+          <div class="mb-4">
+            <label for="dueDate" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jatuh Tempo
+              (opsional)</label>
+            <input type="date" id="dueDate" name="dueDate"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 border-gcore-500 rounded-gsm"
+              value="<%= oldInput.dueDate || '' %>" />
+            <span class="block text-gxs text-gcore-400 mt-1">Kosongkan jika tidak ada jatuh tempo</span>
+          </div>
+
+          <div class="flex gap-2 mt-4">
+            <a href="<%= basePath %>/debts" class="btn btn-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Hutang</button>
+          </div>
+        </form>
+  </div>
+
+  <%- include("../partials/footer") %>

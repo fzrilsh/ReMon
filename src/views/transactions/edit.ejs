@@ -1,59 +1,90 @@
 <%- include("../partials/header") %>
 
-<div class="max-w-[560px]">
-  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Edit Transaksi</h2>
-  <p class="text-gsm text-gcore-400 mb-6">Ubah detail transaksi</p>
+  <div class="max-w-[560px]">
+    <h2 class="text-2xl font-bold text-gcore-900 mb-1">Edit Transaksi</h2>
+    <p class="text-gsm text-gcore-400 mb-6">Ubah detail transaksi</p>
 
-  <form action="<%= basePath %>/transactions/<%= transaction.id %>?_method=PUT" method="POST" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
-    <div class="mb-4">
-      <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tipe</label>
-      <div class="flex gap-2">
-        <label class="flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer transition-all <%= transaction.type === 'EXPENSE' ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="type" value="EXPENSE" <%= transaction.type === 'EXPENSE' ? 'checked' : '' %> class="hidden">
-          <i class="fas fa-arrow-down text-expense"></i> Pengeluaran
-        </label>
-        <label class="flex-1 p-2.5 border-2 border-gray-200 rounded-gsm text-center cursor-pointer transition-all <%= transaction.type === 'INCOME' ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="type" value="INCOME" <%= transaction.type === 'INCOME' ? 'checked' : '' %> class="hidden">
-          <i class="fas fa-arrow-up text-income"></i> Pemasukan
-        </label>
+    <form action="<%= basePath %>/transactions/<%= transaction.id %>?_method=PUT" method="POST"
+      class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
+      <div class="mb-4">
+        <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tipe</label>
+        <div class="flex gap-2">
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="type" value="EXPENSE" <%=locals.transaction?.type==='EXPENSE' ? 'checked' : '' %>
+            class="peer hidden"
+            >
+            <div
+              class="p-2.5 border-2 border-gray-200 rounded-gsm text-center bg-white peer-checked:bg-gray-100 peer-checked:border-gcore-900 peer-checked:font-semibold transition-all duration-150">
+              <i class="fas fa-arrow-down text-expense"></i> Pengeluaran
+            </div>
+          </label>
+
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="type" value="INCOME" <%=locals.transaction?.type==='INCOME' ? 'checked' : '' %>
+            class="peer hidden"
+            >
+            <div
+              class="p-2.5 border-2 border-gray-200 rounded-gsm text-center bg-white peer-checked:bg-gray-100 peer-checked:border-gcore-900 peer-checked:font-semibold transition-all duration-150">
+              <i class="fas fa-arrow-up text-income"></i> Pemasukan
+            </div>
+          </label>
+        </div>
+        <% if (errors && errors.type) { %><span class="block text-gxs text-expense mt-1">
+            <%= errors.type[0] %>
+          </span>
+          <% } %>
       </div>
-      <% if (errors && errors.type) { %><span class="block text-gxs text-expense mt-1"><%= errors.type[0] %></span><% } %>
-    </div>
 
-    <div class="mb-4">
-      <label for="amount" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
-      <input type="number" id="amount" name="amount" class="w-full border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors" placeholder="0" value="<%= Number(transaction.amount) %>" required />
-      <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1"><%= errors.amount[0] %></span><% } %>
-    </div>
+      <div class="mb-4">
+        <label for="amount" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
+        <input type="number" id="amount" name="amount"
+          class="w-full border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
+          placeholder="0" value="<%= Number(transaction.amount) %>" required />
+        <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1">
+            <%= errors.amount[0] %>
+          </span>
+          <% } %>
+      </div>
 
-    <div class="mb-4">
-      <label for="description" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Deskripsi</label>
-      <input type="text" id="description" name="description" class="w-full border-2 <%= errors && errors.description ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors" value="<%= transaction.description %>" required />
-      <% if (errors && errors.description) { %><span class="block text-gxs text-expense mt-1"><%= errors.description[0] %></span><% } %>
-    </div>
+      <div class="mb-4">
+        <label for="description" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Deskripsi</label>
+        <input type="text" id="description" name="description"
+          class="w-full border-2 <%= errors && errors.description ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
+          value="<%= transaction.description %>" required />
+        <% if (errors && errors.description) { %><span class="block text-gxs text-expense mt-1">
+            <%= errors.description[0] %>
+          </span>
+          <% } %>
+      </div>
 
-    <div class="mb-4">
-      <label for="categoryId" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Kategori</label>
-      <select id="categoryId" name="categoryId" class="w-full border-2 border-gray-200 rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors">
-        <option value="">Pilih kategori (opsional)</option>
-        <% if (typeof categories !== 'undefined') { %>
-          <% categories.forEach(function(cat) { %>
-            <option value="<%= cat.id %>" <%= transaction.categoryId === cat.id ? 'selected' : '' %>><%= cat.icon || '' %> <%= cat.name %></option>
-          <% }); %>
-        <% } %>
-      </select>
-    </div>
+      <div class="mb-4">
+        <label for="categoryId" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Kategori</label>
+        <select id="categoryId" name="categoryId"
+          class="w-full border-2 border-gray-200 rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors">
+          <option value="">Pilih kategori (opsional)</option>
+          <% if (typeof categories !=='undefined' ) { %>
+            <% categories.forEach(function(cat) { %>
+              <option value="<%= cat.id %>" <%=transaction.categoryId===cat.id ? 'selected' : '' %>><%= cat.icon || ''
+                  %>
+                  <%= cat.name %>
+              </option>
+              <% }); %>
+                <% } %>
+        </select>
+      </div>
 
-    <div class="mb-4">
-      <label for="date" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tanggal</label>
-      <input type="date" id="date" name="date" class="w-full border-2 border-gray-200 rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors" value="<%= new Date(transaction.date).toISOString().split('T')[0] %>" required />
-    </div>
+      <div class="mb-4">
+        <label for="date" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tanggal</label>
+        <input type="date" id="date" name="date"
+          class="w-full border-2 border-gray-200 rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
+          value="<%= new Date(transaction.date).toISOString().split('T')[0] %>" required />
+      </div>
 
-    <div class="flex gap-2 mt-6">
-      <a href="<%= basePath %>/transactions" class="btn btn-secondary">Batal</a>
-      <button type="submit" class="btn btn-primary">Simpan</button>
-    </div>
-  </form>
-</div>
+      <div class="flex gap-2 mt-6">
+        <a href="<%= basePath %>/transactions" class="btn btn-secondary">Batal</a>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
 
-<%- include("../partials/footer") %>
+  <%- include("../partials/footer") %>
