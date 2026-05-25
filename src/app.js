@@ -15,12 +15,12 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 
-// Method override (for PUT/DELETE forms)
-app.use(methodOverride('_method'));
-
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Method override (for PUT/DELETE forms) — MUST be after body parsers
+app.use(methodOverride('_method'));
 
 // Session
 app.use(session({
