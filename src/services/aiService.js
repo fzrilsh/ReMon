@@ -1,5 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
+const path = require('path');
+const { createWorker } = require('tesseract.js');
 const env = require('../config/env');
 
 function getApiKey() {
@@ -12,12 +14,37 @@ function getApiKey() {
   return key;
 }
 
+async function ocrImage(imagePath) {
+  const worker = await createWorker('eng+ind');
+  try {
+    const { data } = await worker.recognize(imagePath);
+    return data.text;
+  } finally {
+    await worker.terminate();
+  }
+}
+
 async function parseReceipt(imagePath) {
   const apiKey = getApiKey();
-  const imageBuffer = fs.readFileSync(imagePath);
-  const base64Image = imageBuffer.toString('base64');
 
-  const prompt = `You are a receipt parser. Extract information from this receipt image.
+  // Step 1: OCR the image
+  let ocrText;
+  try {
+    ocrText = await ocrImage(imagePath);
+  } catch (err) {
+    return { success: false, error: 'Gagal membaca gambar: ' + err.message };
+  }
+
+  if (!ocrText || ocrText.trim().length < 5) {
+    return { success: false, error: 'Tidak dapat membaca teks dari gambar. Pastikan gambar struk jelas.' };
+  }
+
+  // Step 2: Send OCR text to DeepSeek for parsing
+  const prompt = `You are a receipt parser. Extract information from the following OCR text of a receipt.
+
+OCR TEXT:
+${ocrText}
+
 Return ONLY valid JSON with this exact structure (no markdown, no extra text):
 {
   "store_name": "string or null",
@@ -28,33 +55,24 @@ Return ONLY valid JSON with this exact structure (no markdown, no extra text):
 }
 
 Rules:
-- store_name: Name of store/business. If can't determine, use null.
-- date: Parse into YYYY-MM-DD format. If can't determine, use null.
-- items: Array of items purchased. Each item has name (string) and price (number). If can't determine items, use empty array.
-- total_amount: The total amount paid (number, no currency symbols). This is REQUIRED - if you can see any number, use it. If truly can't find, use 0.
-- payment_method: Cash, QRIS, Debit, Credit, or null.
-- If the image is not a receipt, return: {"error": "Bukan struk atau gambar tidak jelas"}`;
+- store_name: Name of store/business from the text
+- date: Parse into YYYY-MM-DD format
+- items: Array of items with their prices
+- total_amount: The total amount paid (number). This is REQUIRED.
+- payment_method: Cash, QRIS, Debit, Credit, or null
+- If the text is not a receipt, return: {"error": "Bukan struk atau gambar tidak jelas"}`;
 
   try {
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
       {
-        model: 'deepseek-chat',
+        model: 'deepseek-v4-flash',
         messages: [
           {
             role: 'system',
-            content: 'You are a precise receipt parser. You ONLY return valid JSON. No explanations, no markdown, no extra text. If the image is unclear or not a receipt, return {"error": "message"}.',
+            content: 'You are a precise receipt parser. You ONLY return valid JSON. No explanations, no markdown.',
           },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              {
-                type: 'image_url',
-                image_url: { url: `data:image/jpeg;base64,${base64Image}` },
-              },
-            ],
-          },
+          { role: 'user', content: prompt },
         ],
         max_tokens: 1000,
         temperature: 0.1,
@@ -69,11 +87,9 @@ Rules:
     );
 
     const content = response.data.choices[0].message.content.trim();
-    
     const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    
     const result = JSON.parse(jsonStr);
-    
+
     if (result.error) {
       return { success: false, error: result.error };
     }
@@ -104,10 +120,34 @@ Rules:
 
 async function verifyPaymentProof(imagePath, expectedAmount) {
   const apiKey = getApiKey();
-  const imageBuffer = fs.readFileSync(imagePath);
-  const base64Image = imageBuffer.toString('base64');
 
-  const prompt = `You are a payment proof verifier. Analyze this transfer receipt/bukti transfer image.
+  // Step 1: OCR the image
+  let ocrText;
+  try {
+    ocrText = await ocrImage(imagePath);
+  } catch (err) {
+    return {
+      valid: false,
+      detectedAmount: null,
+      detectedPurpose: null,
+      reason: 'Gagal membaca gambar: ' + err.message,
+    };
+  }
+
+  if (!ocrText || ocrText.trim().length < 5) {
+    return {
+      valid: false,
+      detectedAmount: null,
+      detectedPurpose: null,
+      reason: 'Tidak dapat membaca teks dari gambar. Pastikan gambar bukti transfer jelas.',
+    };
+  }
+
+  // Step 2: Send OCR text to DeepSeek for verification
+  const prompt = `You are a payment proof verifier. Analyze this OCR text extracted from a transfer receipt/bukti transfer image.
+
+OCR TEXT:
+${ocrText}
 
 Return ONLY valid JSON with this exact structure (no markdown, no extra text):
 {
@@ -118,34 +158,25 @@ Return ONLY valid JSON with this exact structure (no markdown, no extra text):
 }
 
 Rules:
-- valid: true ONLY if this is a legitimate transfer receipt/bukti transfer with a clear amount
-- detected_amount: The amount shown in the receipt (number, remove dots/commas). null if can't determine.
+- valid: true ONLY if this looks like a legitimate transfer receipt/bukti transfer
+- detected_amount: The amount found in the text
 - detected_purpose: The purpose/description of payment if visible
-- reason: If valid is false, explain why (e.g. "Bukan bukti transfer", "Jumlah tidak terbaca")
+- reason: If valid is false, explain why
 - Expected payment amount: ${expectedAmount}
 
-Compare detected_amount with the expected amount (${expectedAmount}). If they match (within reasonable range), set valid to true.`;
+Compare detected_amount with the expected amount. If they match (within reasonable range) and it appears to be a valid transfer receipt, set valid to true.`;
 
   try {
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
       {
-        model: 'deepseek-chat',
+        model: 'deepseek-v4-flash',
         messages: [
           {
             role: 'system',
-            content: 'You are a payment proof verification system. You ONLY return valid JSON. No explanations, no markdown.',
+            content: 'You are a payment proof verification system. You ONLY return valid JSON.',
           },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              {
-                type: 'image_url',
-                image_url: { url: `data:image/jpeg;base64,${base64Image}` },
-              },
-            ],
-          },
+          { role: 'user', content: prompt },
         ],
         max_tokens: 1000,
         temperature: 0.1,
@@ -172,9 +203,6 @@ Compare detected_amount with the expected amount (${expectedAmount}). If they ma
   } catch (err) {
     if (err.response && err.response.status === 401) {
       throw new Error('DeepSeek API key tidak valid');
-    }
-    if (err.code === 'ECONNABORTED') {
-      throw new Error('Koneksi ke DeepSeek timeout');
     }
     return {
       valid: false,
