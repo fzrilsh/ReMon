@@ -129,7 +129,17 @@ async function close(id, userId) {
 }
 
 async function getExpenseTransactions(userId) {
-  return transactionRepository.findByUserId(userId, { type: 'EXPENSE', isSplitBill: false });
+  const { PrismaClient } = require('@prisma/client');
+  const prisma = new PrismaClient();
+  return prisma.transaction.findMany({
+    where: {
+      userId,
+      type: 'EXPENSE',
+      splitBillTransactions: { none: {} },
+    },
+    include: { category: true },
+    orderBy: { date: 'desc' },
+  });
 }
 
 // Public: Get split bill for pay page
