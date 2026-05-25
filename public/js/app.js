@@ -149,10 +149,15 @@
     notifList.addEventListener('click', function (e) {
       var item = e.target.closest('.notif-item');
       if (item) {
+        e.preventDefault();
         var id = item.getAttribute('data-id');
+        var link = item.getAttribute('href');
         if (id) {
           fetch('/ReMon/notifications/' + id + '/read', { method: 'PATCH' })
-            .then(function () { fetchNotifications(); })
+            .then(function () {
+              fetchNotifications();
+              if (link && link !== '#') { window.location.href = link; }
+            })
             .catch(function () {});
         }
       }
