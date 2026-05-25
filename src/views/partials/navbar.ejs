@@ -4,12 +4,25 @@
   </button>
   <h2 class="flex-1 text-xl max-sm:text-base font-bold text-gcore-900 truncate"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></h2>
   <div class="flex items-center gap-3 shrink-0">
-    <span class="navbar-icon relative text-gcore-500 p-1.5 rounded-gxs" aria-label="Notifikasi">
-      <i class="fas fa-bell text-lg"></i>
-      <% if (typeof pendingNotifications !== 'undefined' && pendingNotifications > 0) { %>
-        <span class="absolute -top-0.5 -right-0.5 bg-gcore-accent text-white text-2xs w-4 h-4 rounded-full flex items-center justify-center font-bold" style="font-size:10px;"><%= pendingNotifications %></span>
-      <% } %>
-    </span>
+    <div class="relative" id="notificationWrap">
+      <button id="notifToggle" class="navbar-icon relative text-gcore-500 p-1.5 rounded-gxs transition-colors hover:text-gcore-accent bg-none border-0 cursor-pointer" aria-label="Notifikasi">
+        <i class="fas fa-bell text-lg"></i>
+        <span class="notif-badge absolute -top-0.5 -right-0.5 bg-gcore-accent text-white w-4 h-4 rounded-full flex items-center justify-center font-bold" style="font-size:10px;display:none;"></span>
+      </button>
+      <!-- Dropdown -->
+      <div id="notifDropdown" class="absolute right-0 top-full mt-2 w-80 max-sm:w-[calc(100vw-24px)] bg-white rounded-gsm shadow-lg border border-gray-200 z-[999] hidden" style="max-height:400px;overflow-y:auto;">
+        <div class="p-3 border-b border-gray-100 flex items-center justify-between">
+          <span class="text-gxs font-semibold text-gcore-900 uppercase tracking-wide">Notifikasi</span>
+          <button id="notifMarkAllRead" class="text-gxs text-gcore-accent bg-none border-0 cursor-pointer hover:underline hidden">Tandai dibaca</button>
+        </div>
+        <div id="notifList" class="p-0">
+          <div class="p-6 text-center text-gsm text-gcore-400">
+            <i class="fas fa-bell-slash text-2xl mb-2"></i>
+            <p>Tidak ada notifikasi</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="flex items-center gap-2">
       <span class="text-sm font-semibold text-gcore-900 max-[480px]:hidden"><%= user ? user.name : 'Guest' %></span>
       <form action="<%= basePath %>/auth/logout" method="POST">

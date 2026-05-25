@@ -53,3 +53,8 @@ table { min-width: 500px; }
 
 /* ─── Dropzone ─── */
 #dropzone:hover { border-color: #ff4c00 !important; background: #fafafa !important; }
+
+/* ─── Notification dropdown ─── */
+.notif-item { transition: background 150ms; }
+.notif-item:hover { background: #f9fafb; }
+.text-2xs { font-size: 10px; line-height: 1.2; }
