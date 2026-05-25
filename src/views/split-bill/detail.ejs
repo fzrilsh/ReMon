@@ -1,0 +1,75 @@
+<%- include("../partials/header") %>
+<div style="max-width:640px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <div>
+      <h2 style="font-size:24px;font-weight:700;color:#150c18;margin-bottom:4px;">Detail Split Bill</h2>
+      <p style="font-size:14px;color:#403842;">
+        <%= splitBill.transaction.description %> — Rp <%= Number(splitBill.totalAmount).toLocaleString('id-ID') %>
+      </p>
+    </div>
+    <span class="badge <%= splitBill.status === 'ACTIVE' ? 'badge-warning' : 'badge-success' %>" style="font-size:14px;padding:6px 16px;">
+      <%= splitBill.status === 'ACTIVE' ? 'Aktif' : 'Ditutup' %>
+    </span>
+  </div>
+
+  <!-- Public Link -->
+  <div class="card" style="margin-bottom:20px;">
+    <h3 style="margin-bottom:8px;">Link Pembayaran</h3>
+    <div style="display:flex;gap:8px;">
+      <input type="text" class="form-input" value="https://fazrilsh.com<%= basePath %>/split/<%= splitBill.slug %>" readonly style="flex:1;font-size:13px;" onclick="this.select()" />
+      <button class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText('https://fazrilsh.com<%= basePath %>/split/<%= splitBill.slug %>');this.textContent='Tersalin!';setTimeout(()=>this.textContent='Salin',2000);">Salin</button>
+    </div>
+  </div>
+
+  <!-- Participants -->
+  <div class="card">
+    <h3 style="margin-bottom:16px;">Peserta (<%= splitBill.participants.length %> orang)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Jumlah</th>
+            <th>Status</th>
+            <th>Bukti</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% splitBill.participants.forEach(function(p) { %>
+            <tr>
+              <td style="font-weight:600;"><%= p.name %></td>
+              <td>Rp <%= Number(p.amount).toLocaleString('id-ID') %></td>
+              <td>
+                <% if (p.status === 'PAID') { %>
+                  <span class="badge badge-success">✅ Lunas</span>
+                <% } else if (p.status === 'DISPUTED') { %>
+                  <span class="badge badge-danger">⚠️ Ditolak</span>
+                  <% if (p.aiFeedback) { %><br><small style="color:#403842;"><%= p.aiFeedback %></small><% } %>
+                <% } else { %>
+                  <span class="badge badge-neutral">⏳ Menunggu</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (p.paymentVerified) { %>
+                  <span class="badge badge-success">✅</span>
+                <% } else if (p.paymentProofImage) { %>
+                  <span class="badge badge-warning">Pending</span>
+                <% } else { %>
+                  <span class="badge badge-neutral">—</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Close button -->
+  <% if (splitBill.status === 'ACTIVE') { %>
+    <form action="<%= basePath %>/split-bills/<%= splitBill.id %>/close?_method=PATCH" method="POST" style="margin-top:20px;text-align:right;" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');">
+      <button type="submit" class="btn btn-danger">Tutup Split Bill</button>
+    </form>
+  <% } %>
+</div>
+<%- include("../partials/footer") %>

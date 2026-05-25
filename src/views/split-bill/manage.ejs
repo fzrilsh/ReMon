@@ -1,0 +1,38 @@
+<%- include("../partials/header") %>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+  <div>
+    <h2 style="font-size:24px;font-weight:700;color:#150c18;">Split Bill</h2>
+    <p style="font-size:14px;color:#403842;margin-top:4px;">Kelola pembagian biaya dengan teman</p>
+  </div>
+  <a href="<%= basePath %>/split-bills/create" class="btn btn-primary">+ Buat Split Bill</a>
+</div>
+
+<% if (typeof splitBills !== 'undefined' && splitBills.length > 0) { %>
+  <% splitBills.forEach(function(sb) { %>
+    <a href="<%= basePath %>/split-bills/<%= sb.id %>" style="display:block;text-decoration:none;">
+      <div class="card" style="margin-bottom:12px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h3 style="font-size:16px;color:#150c18;margin-bottom:4px;"><%= sb.transaction.description %></h3>
+            <p style="font-size:13px;color:#403842;">
+              Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> 
+              &middot; <%= sb.participants.length %> peserta
+              &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
+            </p>
+          </div>
+          <span class="badge <%= sb.status === 'ACTIVE' ? 'badge-warning' : 'badge-success' %>">
+            <%= sb.status === 'ACTIVE' ? 'Aktif' : 'Ditutup' %>
+          </span>
+        </div>
+      </div>
+    </a>
+  <% }); %>
+<% } else { %>
+  <div class="card" style="padding:48px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">🤝</div>
+    <h3 style="margin-bottom:8px;">Belum ada split bill</h3>
+    <p style="color:#403842;margin-bottom:24px;">Bagi pengeluaran dengan teman dan generate link pembayaran</p>
+    <a href="<%= basePath %>/split-bills/create" class="btn btn-primary">Buat Split Bill</a>
+  </div>
+<% } %>
+<%- include("../partials/footer") %>

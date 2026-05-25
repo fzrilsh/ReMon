@@ -2,7 +2,6 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const methodOverride = require('method-override');
-const expressLayouts = require('express-ejs-layouts');
 const env = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
 const { requireAuth } = require('./middleware/auth');
@@ -14,8 +13,7 @@ const app = express();
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
-app.set('layout', 'layouts/main');
+
 
 // Method override (for PUT/DELETE forms)
 app.use(methodOverride('_method'));

@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const publicController = require('../controllers/publicController');
+const upload = require('../middleware/upload');
 
-// Temporary stub — will be implemented in Phase 3
-router.get('/:slug', (req, res) => {
-  res.status(404).send('Split bill page not available yet');
-});
-
-router.post('/:slug/pay', (req, res) => {
-  res.status(404).send('Split bill payment not available yet');
-});
+router.get('/:slug', publicController.showPay);
+router.post('/:slug/pay', upload.single('proof'), publicController.submitPay);
 
 module.exports = router;

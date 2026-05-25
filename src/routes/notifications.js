@@ -1,18 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const notificationController = require('../controllers/notificationController');
 const { requireAuth } = require('../middleware/auth');
 
-// Temporary stub — will be implemented in Phase 3
-router.get('/unread', requireAuth, (req, res) => {
-  res.json([]);
-});
-
-router.patch('/:id/read', requireAuth, (req, res) => {
-  res.json({ ok: true });
-});
-
-router.patch('/read-all', requireAuth, (req, res) => {
-  res.json({ ok: true });
-});
+router.get('/unread', requireAuth, notificationController.getUnread);
+router.patch('/:id/read', requireAuth, notificationController.markAsRead);
+router.patch('/read-all', requireAuth, notificationController.markAllAsRead);
 
 module.exports = router;

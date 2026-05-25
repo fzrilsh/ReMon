@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const splitBillController = require('../controllers/splitBillController');
 const { requireAuth } = require('../middleware/auth');
 
-// Temporary stub — will be implemented in Phase 3
-router.get('/', requireAuth, (req, res) => {
-  res.redirect(`${req.basePath}/dashboard`);
-});
-
-router.get('/create', requireAuth, (req, res) => {
-  res.redirect(`${req.basePath}/dashboard`);
-});
+router.get('/', requireAuth, splitBillController.index);
+router.get('/create', requireAuth, splitBillController.showCreate);
+router.post('/', requireAuth, splitBillController.store);
+router.get('/:id', requireAuth, splitBillController.detail);
+router.patch('/:id/close', requireAuth, splitBillController.closeSplitBill);
 
 module.exports = router;

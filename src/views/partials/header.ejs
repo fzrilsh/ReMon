@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>ReMon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<%= basePath %>/css/app.css">
+  <link rel="manifest" href="<%= basePath %>/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="ReMon — Pencatat keuangan pribadi dengan split bill dan tracking hutang">
+</head>
+<body>
+  <div class="app-shell">
+    <%- include('../partials/sidebar') %>
+    <div class="app-main">
+      <%- include('../partials/navbar') %>
+      <main class="app-content">
