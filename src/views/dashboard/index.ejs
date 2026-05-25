@@ -1,7 +1,5 @@
-<%- include('../layouts/main') %>
-<%- include('../partials/navbar') %>
 <div class="grid">
-  <div class="card card-stat">
+  <div class="card card-stat" style="border-left-color:#2d7d2d;">
     <div class="card-stat-label">Pemasukan Bulan Ini</div>
     <div class="card-stat-value" style="color:#2d7d2d;">Rp <%= (typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome).toLocaleString('id-ID') : 0) %></div>
   </div>
@@ -19,24 +17,37 @@
   </div>
 </div>
 
-<div class="grid" style="grid-template-columns:1fr;">
+<!-- Quick Actions -->
+<div class="card" style="margin-bottom:24px;">
+  <h3 style="margin-bottom:16px;">Aksi Cepat</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="<%= basePath %>/transactions/create" class="btn btn-primary">+ Catat Transaksi</a>
+    <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary">📸 Upload Struk</a>
+    <a href="<%= basePath %>/split-bills/create" class="btn btn-secondary">🤝 Split Bill</a>
+    <a href="<%= basePath %>/debts/create" class="btn btn-secondary">💸 Catat Hutang</a>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns:2fr 1fr;">
+  <!-- Recent Transactions -->
   <div class="card">
-    <h3 style="margin-bottom:16px;">Transaksi Terbaru</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3>Transaksi Terbaru</h3>
+      <a href="<%= basePath %>/transactions" class="btn btn-ghost btn-sm">Lihat Semua</a>
+    </div>
     <% if (typeof recentTransactions !== 'undefined' && recentTransactions.length > 0) { %>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Tanggal</th>
               <th>Deskripsi</th>
               <th>Kategori</th>
               <th>Jumlah</th>
             </tr>
           </thead>
           <tbody>
-            <% recentTransactions.forEach(function(t) { %>
+            <% recentTransactions.slice(0, 5).forEach(function(t) { %>
               <tr>
-                <td><%= new Date(t.date).toLocaleDateString('id-ID') %></td>
                 <td><%= t.description %></td>
                 <td><span class="badge badge-neutral"><%= t.category ? t.category.name : '-' %></span></td>
                 <td style="color:<%= t.type === 'INCOME' ? '#2d7d2d' : '#c0392b' %>;font-weight:600;">
@@ -51,8 +62,39 @@
       <div class="empty-state">
         <div class="empty-state-icon">📊</div>
         <p class="empty-state-text">Belum ada transaksi bulan ini.</p>
-        <a href="<%= basePath %>/transactions/create" class="btn btn-primary">Catat Transaksi Baru</a>
       </div>
     <% } %>
   </div>
+
+  <!-- Monthly Chart -->
+  <div class="card">
+    <h3 style="margin-bottom:16px;">Grafik Bulanan</h3>
+    <canvas id="monthlyChart" width="200" height="200"></canvas>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+  var ctx = document.getElementById('monthlyChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pemasukan', 'Pengeluaran'],
+      datasets: [{
+        data: [<%= typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome) : 0 %>, <%= typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense) : 0 %>],
+        backgroundColor: ['#2d7d2d', '#c0392b'],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '70%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 12 }, color: '#403842', padding: 16 } }
+      }
+    }
+  });
+})();
+</script>

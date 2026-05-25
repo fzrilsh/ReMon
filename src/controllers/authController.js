@@ -2,7 +2,7 @@ const authService = require('../services/authService');
 const { registerSchema, loginSchema } = require('../validators/authSchema');
 
 function showRegister(req, res) {
-  res.render('auth/register', { title: 'Daftar', errors: null, oldInput: {} });
+  res.render('auth/register', { layout: false, title: 'Daftar', errors: null, oldInput: {} });
 }
 
 async function register(req, res, next) {
@@ -11,6 +11,7 @@ async function register(req, res, next) {
     if (!parsed.success) {
       const errors = parsed.error.flatten().fieldErrors;
       return res.status(400).render('auth/register', {
+        layout: false,
         title: 'Daftar',
         errors,
         oldInput: req.body,
@@ -23,6 +24,7 @@ async function register(req, res, next) {
   } catch (err) {
     if (err.statusCode === 400) {
       return res.status(400).render('auth/register', {
+        layout: false,
         title: 'Daftar',
         errors: { email: [err.message] },
         oldInput: req.body,
@@ -33,7 +35,7 @@ async function register(req, res, next) {
 }
 
 function showLogin(req, res) {
-  res.render('auth/login', { title: 'Masuk', errors: null, oldInput: {} });
+  res.render('auth/login', { layout: false, title: 'Masuk', errors: null, oldInput: {} });
 }
 
 async function login(req, res, next) {
@@ -42,6 +44,7 @@ async function login(req, res, next) {
     if (!parsed.success) {
       const errors = parsed.error.flatten().fieldErrors;
       return res.status(400).render('auth/login', {
+        layout: false,
         title: 'Masuk',
         errors,
         oldInput: req.body,
@@ -54,6 +57,7 @@ async function login(req, res, next) {
   } catch (err) {
     if (err.statusCode === 401) {
       return res.status(401).render('auth/login', {
+        layout: false,
         title: 'Masuk',
         errors: { email: [err.message] },
         oldInput: req.body,

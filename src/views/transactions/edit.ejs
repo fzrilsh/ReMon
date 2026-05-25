@@ -1,0 +1,55 @@
+<div style="max-width:560px;">
+  <h2 style="font-size:24px;font-weight:700;color:#150c18;margin-bottom:4px;">Edit Transaksi</h2>
+  <p style="font-size:14px;color:#403842;margin-bottom:24px;">Ubah detail transaksi</p>
+
+  <form action="<%= basePath %>/transactions/<%= transaction.id %>?_method=PUT" method="POST" class="card" novalidate>
+    <div class="form-group">
+      <label class="form-label">Tipe</label>
+      <div style="display:flex;gap:8px;">
+        <label style="flex:1;padding:10px;border:2px solid #403842;border-radius:12px;text-align:center;cursor:pointer;transition:all 150ms;background:<%= transaction.type === 'EXPENSE' ? '#f8f8f8' : '#fff' %>;font-weight:<%= transaction.type === 'EXPENSE' ? '600' : '400' %>;">
+          <input type="radio" name="type" value="EXPENSE" <%= transaction.type === 'EXPENSE' ? 'checked' : '' %> style="display:none;" onchange="this.parentElement.style.background='#f8f8f8';this.parentElement.nextElementSibling.style.background='#fff'">
+          💸 Pengeluaran
+        </label>
+        <label style="flex:1;padding:10px;border:2px solid #403842;border-radius:12px;text-align:center;cursor:pointer;transition:all 150ms;background:<%= transaction.type === 'INCOME' ? '#f8f8f8' : '#fff' %>;font-weight:<%= transaction.type === 'INCOME' ? '600' : '400' %>;">
+          <input type="radio" name="type" value="INCOME" <%= transaction.type === 'INCOME' ? 'checked' : '' %> style="display:none;" onchange="this.parentElement.style.background='#f8f8f8';this.parentElement.previousElementSibling.style.background='#fff'">
+          💰 Pemasukan
+        </label>
+      </div>
+      <% if (errors && errors.type) { %><span class="form-error"><%= errors.type[0] %></span><% } %>
+    </div>
+
+    <div class="form-group">
+      <label for="amount" class="form-label">Jumlah (Rp)</label>
+      <input type="number" id="amount" name="amount" class="form-input <%= errors && errors.amount ? 'form-input--error' : '' %>" placeholder="0" value="<%= Number(transaction.amount) %>" required />
+      <% if (errors && errors.amount) { %><span class="form-error"><%= errors.amount[0] %></span><% } %>
+    </div>
+
+    <div class="form-group">
+      <label for="description" class="form-label">Deskripsi</label>
+      <input type="text" id="description" name="description" class="form-input <%= errors && errors.description ? 'form-input--error' : '' %>" value="<%= transaction.description %>" required />
+      <% if (errors && errors.description) { %><span class="form-error"><%= errors.description[0] %></span><% } %>
+    </div>
+
+    <div class="form-group">
+      <label for="categoryId" class="form-label">Kategori</label>
+      <select id="categoryId" name="categoryId" class="form-input">
+        <option value="">Pilih kategori (opsional)</option>
+        <% if (typeof categories !== 'undefined') { %>
+          <% categories.forEach(function(cat) { %>
+            <option value="<%= cat.id %>" <%= transaction.categoryId === cat.id ? 'selected' : '' %>><%= cat.icon || '' %> <%= cat.name %></option>
+          <% }); %>
+        <% } %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="date" class="form-label">Tanggal</label>
+      <input type="date" id="date" name="date" class="form-input" value="<%= new Date(transaction.date).toISOString().split('T')[0] %>" required />
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:24px;">
+      <a href="<%= basePath %>/transactions" class="btn btn-secondary">Batal</a>
+      <button type="submit" class="btn btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
