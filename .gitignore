@@ -6,6 +6,7 @@ public/uploads/proofs/*
 !public/uploads/proofs/.gitkeep
 .DS_Store
 *.log
+logs/
 
 # Planning & design docs (not for production)
 PLANNING.md
