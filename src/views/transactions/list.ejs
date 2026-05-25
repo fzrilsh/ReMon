@@ -39,7 +39,7 @@
             <td class="p-2.5 border-b border-gray-100 max-sm:hidden">
               <div class="flex gap-1.5">
                 <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></a>
-                <form action="<%= basePath %>/transactions/<%= t.id %>" method="POST"><input type="hidden" name="_method" value="DELETE" onsubmit="return confirm('Hapus?')" class="inline">
+                <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus?')" class="inline">
                   <button type="submit" class="btn btn-ghost btn-sm text-expense"><i class="fas fa-trash"></i></button>
                 </form>
               </div>

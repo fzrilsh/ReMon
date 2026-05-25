@@ -4,7 +4,7 @@
     <h2 class="text-2xl font-bold text-gcore-900 mb-1">Edit Transaksi</h2>
     <p class="text-gsm text-gcore-400 mb-6">Ubah detail transaksi</p>
 
-    <form action="<%= basePath %>/transactions/<%= transaction.id %>" method="POST"><input type="hidden" name="_method" value="PUT"
+    <form action="<%= basePath %>/transactions/<%= transaction.id %>?_method=PUT" method="POST"
       class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
       <div class="mb-4">
         <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tipe</label>

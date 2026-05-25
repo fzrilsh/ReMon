@@ -81,8 +81,7 @@
   </div>
 
   <% if (splitBill.status === 'ACTIVE') { %>
-    <form action="<%= basePath %>/split-bills/<%= splitBill.id %>/close" method="POST" class="text-right mt-5" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');">
-      <input type="hidden" name="_method" value="PATCH">
+    <form action="<%= basePath %>/split-bills/<%= splitBill.id %>/close?_method=PATCH" method="POST" class="text-right mt-5" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');">
       <button type="submit" class="btn btn-danger"><i class="fas fa-lock"></i> Tutup Split Bill</button>
     </form>
   <% } %>
