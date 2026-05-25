@@ -128,8 +128,6 @@ async function getExpenseTransactions(userId) {
     where: {
       userId,
       type: 'EXPENSE',
-      splitBillTransactions: { none: {} },
-      isSplitBill: false,
     },
     include: { category: true },
     orderBy: { date: 'desc' },
