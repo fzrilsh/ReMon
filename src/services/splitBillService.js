@@ -118,13 +118,6 @@ async function close(id, userId) {
     throw error;
   }
   
-  const unpaid = splitBill.participants.filter(p => p.status === 'UNPAID');
-  if (unpaid.length > 0) {
-    const error = new Error('Masih ada peserta yang belum membayar');
-    error.statusCode = 400;
-    throw error;
-  }
-  
   return splitBillRepository.updateStatus(id, 'CLOSED');
 }
 
