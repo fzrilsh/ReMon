@@ -1,5 +1,4 @@
 const splitBillService = require('../services/splitBillService');
-const { createSplitBillSchema } = require('../validators/splitBillSchema');
 
 async function index(req, res, next) {
   try {
@@ -29,27 +28,34 @@ async function showCreate(req, res, next) {
 
 async function store(req, res, next) {
   try {
-    const parsed = createSplitBillSchema.safeParse(req.body);
-    if (!parsed.success) {
-      const transactions = await splitBillService.getExpenseTransactions(req.session.user.id);
-      const errors = parsed.error.flatten().fieldErrors;
-      return res.status(400).render('split-bill/create', {
-        title: 'Buat Split Bill',
-        transactions,
-        errors,
-        oldInput: req.body,
-      });
+    // Handle both single and array transactionIds
+    let transactionIds = req.body.transactionIds;
+    if (!transactionIds) transactionIds = [];
+    if (!Array.isArray(transactionIds)) transactionIds = [transactionIds];
+
+    const splitBill = await splitBillService.create(req.session.user.id, {
+      transactionIds,
+      participants: req.body.participants || '',
+    });
+
+    // Mark transactions as split
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    for (const id of transactionIds) {
+      await prisma.transaction.update({ where: { id }, data: { isSplitBill: true } });
     }
 
-    const splitBill = await splitBillService.create(req.session.user.id, parsed.data);
     res.redirect(`${req.basePath}/split-bills/${splitBill.id}`);
   } catch (err) {
     if (err.statusCode) {
       const transactions = await splitBillService.getExpenseTransactions(req.session.user.id);
+      const errors = {};
+      if (err.message.includes('transaksi')) errors.transactionIds = [err.message];
+      else errors.general = [err.message];
       return res.status(err.statusCode).render('split-bill/create', {
         title: 'Buat Split Bill',
         transactions,
-        errors: { general: [err.message] },
+        errors,
         oldInput: req.body,
       });
     }

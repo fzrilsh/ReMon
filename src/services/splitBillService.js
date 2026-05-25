@@ -43,37 +43,48 @@ function calculateEqualSplit(totalAmount, participantCount) {
   return amounts;
 }
 
-async function create(userId, { transactionId, participants }) {
-  const transaction = await transactionRepository.findById(transactionId);
-  if (!transaction) {
-    const error = new Error('Transaksi tidak ditemukan');
-    error.statusCode = 404;
-    throw error;
-  }
-  
-  if (transaction.userId !== userId) {
-    const error = new Error('Transaksi tidak ditemukan');
-    error.statusCode = 404;
-    throw error;
-  }
-  
-  if (transaction.type !== 'EXPENSE') {
-    const error = new Error('Hanya transaksi pengeluaran yang bisa di-split');
+async function create(userId, { transactionIds, participants }) {
+  if (!transactionIds || transactionIds.length === 0) {
+    const error = new Error('Pilih minimal 1 transaksi');
     error.statusCode = 400;
     throw error;
   }
 
-  const totalAmount = Number(transaction.amount);
-  const participantNames = [...new Set(participants)]; // Remove duplicates
+  const transactions = [];
+  let totalAmount = 0;
+  let descriptions = [];
+
+  for (const id of transactionIds) {
+    const transaction = await transactionRepository.findById(id);
+    if (!transaction) {
+      const error = new Error('Transaksi tidak ditemukan: ' + id);
+      error.statusCode = 404;
+      throw error;
+    }
+    if (transaction.userId !== userId) {
+      const error = new Error('Transaksi tidak ditemukan');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (transaction.type !== 'EXPENSE') {
+      const error = new Error('Hanya transaksi pengeluaran yang bisa di-split');
+      error.statusCode = 400;
+      throw error;
+    }
+    transactions.push(transaction);
+    totalAmount += Number(transaction.amount);
+    descriptions.push(transaction.description);
+  }
+
+  const participantNames = [...new Set(participants)];
   const amounts = calculateEqualSplit(totalAmount, participantNames.length);
-  
   const slug = nanoid(10);
-  
+
   const splitBill = await splitBillRepository.create({
     userId,
-    transactionId,
     totalAmount,
     slug,
+    description: descriptions.join(', '),
     status: 'ACTIVE',
     participants: {
       create: participantNames.map((name, i) => ({
@@ -81,6 +92,9 @@ async function create(userId, { transactionId, participants }) {
         amount: amounts[i],
         status: 'UNPAID',
       })),
+    },
+    transactions: {
+      create: transactions.map(t => ({ transactionId: t.id })),
     },
   });
 
@@ -106,7 +120,7 @@ async function close(id, userId) {
 }
 
 async function getExpenseTransactions(userId) {
-  return transactionRepository.findByUserId(userId, { type: 'EXPENSE' });
+  return transactionRepository.findByUserId(userId, { type: 'EXPENSE', isSplitBill: false });
 }
 
 // Public: Get split bill for pay page

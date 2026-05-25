@@ -27,7 +27,7 @@
         <h1 class="text-3xl font-bold text-white"><i class="fas fa-user-friends text-gcore-accent"></i> Split Bill</h1>
       </div>
       <div class="bg-white rounded-gsm p-4 mb-4">
-        <h3 class="font-semibold text-gcore-900"><%= splitBill.transaction.description %></h3>
+        <h3 class="font-semibold text-gcore-900"><%= splitBill.description %></h3>
         <p class="text-gxs text-gcore-500 mt-1">Total: Rp <%= Number(splitBill.totalAmount).toLocaleString('id-ID') %></p>
       </div>
       <% if (errors && errors.general) { %>

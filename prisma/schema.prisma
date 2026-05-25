@@ -80,26 +80,25 @@ model Transaction {
   date         DateTime
   receiptImage String?
   isSplitBill  Boolean         @default(false)
-  splitBillId  String?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
-  splitBill SplitBill?
+  splitBillTransactions SplitBillTransaction[]
 }
 
 model SplitBill {
   id            String          @id @default(uuid())
   userId        String
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactionId String          @unique
-  transaction   Transaction     @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   totalAmount   Decimal
   slug          String          @unique
+  description   String          @default("")
   status        SplitBillStatus @default(ACTIVE)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
   participants SplitBillParticipant[]
+  transactions SplitBillTransaction[]
 }
 
 model SplitBillParticipant {
@@ -115,6 +114,17 @@ model SplitBillParticipant {
   paidAt            DateTime?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+}
+
+model SplitBillTransaction {
+  id            String    @id @default(uuid())
+  splitBillId   String
+  splitBill     SplitBill @relation(fields: [splitBillId], references: [id], onDelete: Cascade)
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+
+  @@unique([splitBillId, transactionId])
 }
 
 model Debt {

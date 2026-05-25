@@ -2,37 +2,53 @@
 
 <div class="max-w-[560px]">
   <h2 class="text-2xl font-bold text-gcore-900 mb-1">Buat Split Bill</h2>
-  <p class="text-gsm text-gcore-400 mb-6">Pilih pengeluaran dan masukkan teman-teman yang ikut patungan</p>
+  <p class="text-gsm text-gcore-400 mb-6">Pilih satu atau lebih pengeluaran untuk dibagi dengan teman</p>
 
   <% if (errors && errors.general) { %>
     <div class="bg-white border-l-4 border-expense rounded-gsm p-3 mb-4">
-      <p class="text-gsm text-expense"><i class="fas fa-exclamation-circle"></i> <%= errors.general[0] %></p>
+      <p class="text-gsm text-expense"><%= errors.general[0] %></p>
     </div>
   <% } %>
 
   <form action="<%= basePath %>/split-bills" method="POST" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
     <div class="mb-4">
-      <label for="transactionId" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Pilih Pengeluaran</label>
-      <select id="transactionId" name="transactionId" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.transactionId ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" required>
-        <option value="">Pilih transaksi...</option>
-        <% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
+      <label class="block text-gsm font-semibold text-gcore-900 mb-2">Pilih Pengeluaran</label>
+      <% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
+        <div class="space-y-2 max-h-60 overflow-y-auto border-2 border-gray-200 rounded-gsm p-2">
           <% transactions.forEach(function(t) { %>
-            <option value="<%= t.id %>" <%= oldInput.transactionId === t.id ? 'selected' : '' %>>Rp <%= Number(t.amount).toLocaleString('id-ID') %> — <%= t.description %></option>
-          <% }); %>
-        <% } %>
-      </select>
-      <% if (errors && errors.transactionId) { %><span class="block text-gxs text-expense mt-1"><%= errors.transactionId[0] %></span><% } %>
+            <label class="flex items-center gap-3 p-3 border border-gray-100 rounded-gsm cursor-pointer hover:bg-gray-50 transition-colors peer-checked:bg-gray-100 peer-checked:border-gcore-900">
+              <input type="checkbox" name="transactionIds" value="<%= t.id %>" class="peer hidden" <%= (oldInput.transactionIds && oldInput.transactionIds.includes(t.id)) ? 'checked' : '' %>>
+              <span class="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center peer-checked:bg-gcore-900 peer-checked:border-gcore-900 text-white text-xs transition-all"><i class="fas fa-check peer-checked:opacity-100 opacity-0"></i></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-gsm font-medium text-gcore-900 truncate"><%= t.description %></p>
+                <p class="text-gxs text-gcore-400">Rp <%= Number(t.amount).toLocaleString('id-ID') %> &middot; <%= new Date(t.date).toLocaleDateString('id-ID') %></p>
+              </div>
+            </label>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="text-gsm text-gcore-400 py-4 text-center">Tidak ada transaksi pengeluaran. <a href="<%= basePath %>/transactions/create" class="text-gcore-accent">Buat transaksi dulu</a></p>
+      <% } %>
+      <% if (errors && errors.transactionIds) { %><span class="block text-gxs text-expense mt-1"><%= errors.transactionIds[0] %></span><% } %>
     </div>
+
+    <div class="mb-4">
+      <label for="description" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Deskripsi Split Bill</label>
+      <input type="text" id="description" name="description" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 border-gray-200 rounded-gsm" placeholder="Mis: Makan bareng di KFC" value="<%= oldInput.description || '' %>" />
+    </div>
+
     <div class="mb-4">
       <label for="participants" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nama Peserta</label>
-      <textarea id="participants" name="participants" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.participants ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" rows="4" placeholder="Tulis nama per baris atau pisah dengan koma" required><%= oldInput.participants || '' %></textarea>
+      <textarea id="participants" name="participants" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.participants ? 'border-expense' : 'border-gray-200' %> rounded-gsm" rows="4" placeholder="Tulis nama per baris atau pisah dengan koma" required><%= oldInput.participants || '' %></textarea>
       <% if (errors && errors.participants) { %><span class="block text-gxs text-expense mt-1"><%= errors.participants[0] %></span><% } %>
     </div>
+
     <div class="mb-4">
       <div class="bg-gray-50 rounded-gsm p-3">
-        <p class="text-gxs text-gcore-500"><i class="fas fa-info-circle text-gcore-accent"></i> Jumlah akan dibagi rata ke semua peserta. Link pembayaran akan digenerate otomatis setelah dibuat.</p>
+        <p class="text-gxs text-gcore-500"><i class="fas fa-info-circle text-gcore-accent"></i> Jumlah akan dihitung dari total semua transaksi yang dipilih, lalu dibagi rata ke semua peserta.</p>
       </div>
     </div>
+
     <div class="flex gap-2">
       <a href="<%= basePath %>/split-bills" class="btn btn-secondary">Batal</a>
       <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Buat Split Bill</button>

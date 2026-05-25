@@ -5,7 +5,7 @@ async function findByUserId(userId) {
   return prisma.splitBill.findMany({
     where: { userId },
     include: {
-      transaction: true,
+      transactions: { include: { transaction: true } },
       participants: true,
     },
     orderBy: { createdAt: 'desc' },
@@ -16,7 +16,7 @@ async function findById(id) {
   return prisma.splitBill.findUnique({
     where: { id },
     include: {
-      transaction: true,
+      transactions: { include: { transaction: true } },
       participants: true,
       user: { select: { name: true } },
     },
@@ -27,7 +27,7 @@ async function findBySlug(slug) {
   return prisma.splitBill.findUnique({
     where: { slug },
     include: {
-      transaction: true,
+      transactions: { include: { transaction: true } },
       participants: true,
     },
   });
