@@ -1,38 +1,38 @@
 <%- include("../partials/header") %>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+
+<div class="flex flex-wrap items-start justify-between gap-3 mb-6">
   <div>
-    <h2 style="font-size:24px;font-weight:700;color:#150c18;">Split Bill</h2>
-    <p style="font-size:14px;color:#403842;margin-top:4px;">Kelola pembagian biaya dengan teman</p>
+    <h2 class="text-2xl font-bold text-gcore-900">Split Bill</h2>
+    <p class="text-gsm text-gcore-400 mt-1">Kelola pembagian biaya dengan teman</p>
   </div>
-  <a href="<%= basePath %>/split-bills/create" class="btn btn-primary">+ Buat Split Bill</a>
+  <a href="<%= basePath %>/split-bills/create" class="btn btn-primary"><i class="fas fa-plus"></i> Buat Split Bill</a>
 </div>
 
 <% if (typeof splitBills !== 'undefined' && splitBills.length > 0) { %>
   <% splitBills.forEach(function(sb) { %>
-    <a href="<%= basePath %>/split-bills/<%= sb.id %>" style="display:block;text-decoration:none;">
-      <div class="card" style="margin-bottom:12px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
+    <a href="<%= basePath %>/split-bills/<%= sb.id %>" class="block no-underline">
+      <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
           <div>
-            <h3 style="font-size:16px;color:#150c18;margin-bottom:4px;"><%= sb.transaction.description %></h3>
-            <p style="font-size:13px;color:#403842;">
-              Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> 
-              &middot; <%= sb.participants.length %> peserta
-              &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
+            <h3 class="font-semibold text-gcore-900"><%= sb.transaction.description %></h3>
+            <p class="text-gxs text-gcore-500 mt-1">
+              Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> &middot; <%= sb.participants.length %> peserta &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
             </p>
           </div>
-          <span class="badge <%= sb.status === 'ACTIVE' ? 'badge-warning' : 'badge-success' %>">
-            <%= sb.status === 'ACTIVE' ? 'Aktif' : 'Ditutup' %>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-gxs font-semibold <%= sb.status === 'ACTIVE' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+            <i class="fas <%= sb.status === 'ACTIVE' ? 'fa-clock' : 'fa-check-circle' %>"></i> <%= sb.status === 'ACTIVE' ? 'Aktif' : 'Ditutup' %>
           </span>
         </div>
       </div>
     </a>
   <% }); %>
 <% } else { %>
-  <div class="card" style="padding:48px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">🤝</div>
-    <h3 style="margin-bottom:8px;">Belum ada split bill</h3>
-    <p style="color:#403842;margin-bottom:24px;">Bagi pengeluaran dengan teman dan generate link pembayaran</p>
-    <a href="<%= basePath %>/split-bills/create" class="btn btn-primary">Buat Split Bill</a>
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-12 text-center">
+    <div class="text-4xl text-gcore-400 mb-4"><i class="fas fa-user-friends"></i></div>
+    <h3 class="font-semibold text-gcore-900 mb-2">Belum ada split bill</h3>
+    <p class="text-gsm text-gcore-400 mb-4">Bagi pengeluaran dengan teman dan generate link pembayaran</p>
+    <a href="<%= basePath %>/split-bills/create" class="btn btn-primary"><i class="fas fa-plus"></i> Buat Split Bill</a>
   </div>
 <% } %>
+
 <%- include("../partials/footer") %>

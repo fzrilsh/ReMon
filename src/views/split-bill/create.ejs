@@ -1,47 +1,43 @@
 <%- include("../partials/header") %>
-<div style="max-width:560px;">
-  <h2 style="font-size:24px;font-weight:700;color:#150c18;margin-bottom:4px;">Buat Split Bill</h2>
-  <p style="font-size:14px;color:#403842;margin-bottom:24px;">Pilih pengeluaran dan masukkan teman-teman yang ikut patungan</p>
+
+<div class="max-w-[560px]">
+  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Buat Split Bill</h2>
+  <p class="text-gsm text-gcore-400 mb-6">Pilih pengeluaran dan masukkan teman-teman yang ikut patungan</p>
 
   <% if (errors && errors.general) { %>
-    <div class="card" style="margin-bottom:16px;border-left:4px solid #c0392b;padding:12px 16px;">
-      <p style="font-size:14px;color:#c0392b;"><%= errors.general[0] %></p>
+    <div class="bg-white border-l-4 border-expense rounded-gsm p-3 mb-4">
+      <p class="text-gsm text-expense"><i class="fas fa-exclamation-circle"></i> <%= errors.general[0] %></p>
     </div>
   <% } %>
 
-  <form action="<%= basePath %>/split-bills" method="POST" class="card" novalidate>
-    <div class="form-group">
-      <label for="transactionId" class="form-label">Pilih Pengeluaran</label>
-      <select id="transactionId" name="transactionId" class="form-input <%= errors && errors.transactionId ? 'form-input--error' : '' %>" required>
+  <form action="<%= basePath %>/split-bills" method="POST" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
+    <div class="mb-4">
+      <label for="transactionId" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Pilih Pengeluaran</label>
+      <select id="transactionId" name="transactionId" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.transactionId ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" required>
         <option value="">Pilih transaksi...</option>
         <% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
           <% transactions.forEach(function(t) { %>
-            <option value="<%= t.id %>" <%= oldInput.transactionId === t.id ? 'selected' : '' %>>
-              Rp <%= Number(t.amount).toLocaleString('id-ID') %> — <%= t.description %> (<%= new Date(t.date).toLocaleDateString('id-ID') %>)
-            </option>
+            <option value="<%= t.id %>" <%= oldInput.transactionId === t.id ? 'selected' : '' %>>Rp <%= Number(t.amount).toLocaleString('id-ID') %> — <%= t.description %></option>
           <% }); %>
         <% } %>
       </select>
-      <% if (errors && errors.transactionId) { %><span class="form-error"><%= errors.transactionId[0] %></span><% } %>
+      <% if (errors && errors.transactionId) { %><span class="block text-gxs text-expense mt-1"><%= errors.transactionId[0] %></span><% } %>
     </div>
-
-    <div class="form-group">
-      <label for="participants" class="form-label">Nama Peserta</label>
-      <textarea id="participants" name="participants" class="form-input <%= errors && errors.participants ? 'form-input--error' : '' %>" rows="4" placeholder="Tulis nama per baris atau pisah dengan koma&#10;Contoh:&#10;Juan&#10;Kent&#10;Rooney" required><%= oldInput.participants || '' %></textarea>
-      <span class="form-error" style="color:#403842;font-weight:400;">Pisah dengan baris baru atau koma. Nama kamu akan diisi otomatis.</span>
-      <% if (errors && errors.participants) { %><span class="form-error"><%= errors.participants[0] %></span><% } %>
+    <div class="mb-4">
+      <label for="participants" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nama Peserta</label>
+      <textarea id="participants" name="participants" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.participants ? 'border-expense' : 'border-gcore-500' %> rounded-gsm" rows="4" placeholder="Tulis nama per baris atau pisah dengan koma" required><%= oldInput.participants || '' %></textarea>
+      <% if (errors && errors.participants) { %><span class="block text-gxs text-expense mt-1"><%= errors.participants[0] %></span><% } %>
     </div>
-
-    <div class="form-group">
-      <div class="card" style="background:#f8f8f8;padding:12px 16px;">
-        <p style="font-size:13px;color:#403842;">💡 Jumlah akan dibagi rata ke semua peserta. Link pembayaran akan digenerate otomatis setelah dibuat.</p>
+    <div class="mb-4">
+      <div class="bg-gray-50 rounded-gsm p-3">
+        <p class="text-gxs text-gcore-500"><i class="fas fa-info-circle text-gcore-accent"></i> Jumlah akan dibagi rata ke semua peserta. Link pembayaran akan digenerate otomatis setelah dibuat.</p>
       </div>
     </div>
-
-    <div style="display:flex;gap:8px;">
+    <div class="flex gap-2">
       <a href="<%= basePath %>/split-bills" class="btn btn-secondary">Batal</a>
-      <button type="submit" class="btn btn-primary">Buat Split Bill</button>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Buat Split Bill</button>
     </div>
   </form>
 </div>
+
 <%- include("../partials/footer") %>

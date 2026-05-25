@@ -1,47 +1,35 @@
 <%- include("../partials/header") %>
-<div style="max-width:560px;">
-  <h2 style="font-size:24px;font-weight:700;color:#150c18;margin-bottom:4px;">Upload Struk</h2>
-  <p style="font-size:14px;color:#403842;margin-bottom:24px;">Foto struk belanja, kami akan ekstrak datanya secara otomatis</p>
 
-  <form action="<%= basePath %>/transactions/receipt/parse" method="POST" enctype="multipart/form-data" class="card" novalidate>
-    <div class="form-group">
-      <label for="receipt" class="form-label">Foto Struk</label>
-      <div id="dropzone" style="border:2px dashed #403842;border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all 150ms;" onclick="document.getElementById('receipt').click()">
-        <div style="font-size:48px;margin-bottom:8px;">📸</div>
-        <p style="font-size:14px;color:#403842;">Klik atau taruh file di sini</p>
-        <p style="font-size:12px;color:#403842;margin-top:4px;">JPEG, PNG, WEBP — Maks 5MB</p>
-        <input type="file" id="receipt" name="receipt" accept="image/jpeg,image/png,image/webp" required style="display:none;" onchange="document.getElementById('filename').textContent = this.files[0].name" />
-        <p id="filename" style="font-size:13px;color:#150c18;margin-top:8px;font-weight:600;"></p>
+<div class="max-w-[560px]">
+  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Upload Struk</h2>
+  <p class="text-gsm text-gcore-400 mb-6">Foto struk belanja, kami akan ekstrak datanya secara otomatis</p>
+
+  <form action="<%= basePath %>/transactions/receipt/parse" method="POST" enctype="multipart/form-data" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
+    <div class="mb-4">
+      <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Foto Struk</label>
+      <div id="dropzone" class="border-2 border-dashed border-gcore-400 rounded-gsm p-8 text-center cursor-pointer hover:border-gcore-accent hover:bg-gray-50 transition-colors" onclick="document.getElementById('receipt').click()">
+        <div class="text-4xl text-gcore-400 mb-2"><i class="fas fa-camera"></i></div>
+        <p class="text-gsm text-gcore-500">Klik atau taruh file di sini</p>
+        <p class="text-gxs text-gcore-400 mt-1">JPEG, PNG, WEBP &mdash; Maks 5MB</p>
+        <input type="file" id="receipt" name="receipt" accept="image/jpeg,image/png,image/webp" required class="hidden" onchange="document.getElementById('filename').textContent=this.files[0].name" />
+        <p id="filename" class="text-gxs font-semibold text-gcore-900 mt-2"></p>
       </div>
-      <% if (errors && errors.receipt) { %><span class="form-error"><%= errors.receipt %></span><% } %>
+      <% if (errors && errors.receipt) { %><span class="block text-gxs text-expense mt-1"><%= errors.receipt %></span><% } %>
     </div>
-
-    <button type="submit" class="btn btn-primary btn-full" id="parseBtn" onclick="this.disabled=true;this.textContent='Memproses...'">
-      Ekstrak Data
+    <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 cursor-pointer" id="parseBtn" onclick="this.disabled=true;this.innerHTML='<i class=\\'fas fa-spinner fa-spin\\'></i> Memproses...'">
+      <i class="fas fa-magic"></i> Ekstrak Data
     </button>
   </form>
 </div>
 
 <script>
-document.getElementById('dropzone').addEventListener('dragover', function(e) {
-  e.preventDefault();
-  this.style.borderColor = '#ff4c00';
-  this.style.background = '#fafafa';
-});
-document.getElementById('dropzone').addEventListener('dragleave', function(e) {
-  e.preventDefault();
-  this.style.borderColor = '#403842';
-  this.style.background = '';
-});
+document.getElementById('dropzone').addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor='#ff4c00'; this.style.background='#fafafa'; });
+document.getElementById('dropzone').addEventListener('dragleave', function(e) { e.preventDefault(); this.style.borderColor=''; this.style.background=''; });
 document.getElementById('dropzone').addEventListener('drop', function(e) {
-  e.preventDefault();
-  this.style.borderColor = '#403842';
-  this.style.background = '';
+  e.preventDefault(); this.style.borderColor=''; this.style.background='';
   var file = e.dataTransfer.files[0];
-  if (file) {
-    document.getElementById('receipt').files = e.dataTransfer.files;
-    document.getElementById('filename').textContent = file.name;
-  }
+  if (file) { document.getElementById('receipt').files = e.dataTransfer.files; document.getElementById('filename').textContent = file.name; }
 });
 </script>
+
 <%- include("../partials/footer") %>

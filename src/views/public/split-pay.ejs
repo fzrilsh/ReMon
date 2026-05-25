@@ -6,81 +6,66 @@
   <title>Bayar Split Bill — ReMon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{fontFamily:{sans:['Montserrat','sans-serif']},extend:{colors:{gcore:{'900':'#150c18','accent':'#ff4c00','500':'#403842','surface':'#000000'}},borderRadius:{gsm:'12px',gmd:'24px'}}}}</script>
   <link rel="stylesheet" href="<%= basePath %>/css/app.css">
   <meta name="theme-color" content="#000000">
 </head>
-<body style="background:#000000;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;">
-  <div style="width:100%;max-width:440px;">
-
+<body class="bg-gcore-surface min-h-screen flex items-center justify-center p-4 font-sans">
+  <div class="w-full max-w-[440px]">
     <% if (typeof paid !== 'undefined' && paid) { %>
-      <!-- Success State -->
-      <div class="card" style="text-align:center;padding:32px;">
-        <div style="font-size:64px;margin-bottom:16px;">✅</div>
-        <h2 style="font-size:24px;color:#150c18;margin-bottom:8px;">Pembayaran Terverifikasi!</h2>
-        <p style="font-size:14px;color:#403842;margin-bottom:4px;"><strong><%= paidParticipant %></strong> telah membayar</p>
-        <p style="font-size:24px;font-weight:700;color:#2d7d2d;margin-bottom:16px;">Rp <%= paidAmount %></p>
-        <p style="font-size:13px;color:#403842;">Progress: <%= progress %> peserta sudah bayar</p>
+      <div class="bg-white rounded-gmd p-8 text-center">
+        <div class="text-5xl text-green-500 mb-4"><i class="fas fa-check-circle"></i></div>
+        <h2 class="text-2xl font-bold text-gcore-900 mb-2">Pembayaran Terverifikasi!</h2>
+        <p class="text-gsm text-gcore-500 mb-4"><strong><%= paidParticipant %></strong> telah membayar</p>
+        <p class="text-2xl font-bold text-income mb-4">Rp <%= paidAmount %></p>
+        <p class="text-gxs text-gcore-500">Progress: <%= progress %> peserta sudah bayar</p>
       </div>
-    <% } else if (typeof splitBill !== 'undefined' && splitBill.id) { %>
-      <!-- Payment Form -->
-      <div style="text-align:center;margin-bottom:24px;">
-        <h1 style="font-size:30px;font-weight:700;color:#ffffff;">💰 Split Bill</h1>
+    <% } else if (typeof splitBill !== 'undefined' && splitBill && splitBill.id) { %>
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-white"><i class="fas fa-user-friends text-gcore-accent"></i> Split Bill</h1>
       </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <h3 style="font-size:16px;margin-bottom:4px;"><%= splitBill.transaction.description %></h3>
-        <p style="font-size:13px;color:#403842;">
-          Total: Rp <%= Number(splitBill.totalAmount).toLocaleString('id-ID') %>
-        </p>
+      <div class="bg-white rounded-gsm p-4 mb-4">
+        <h3 class="font-semibold text-gcore-900"><%= splitBill.transaction.description %></h3>
+        <p class="text-gxs text-gcore-500 mt-1">Total: Rp <%= Number(splitBill.totalAmount).toLocaleString('id-ID') %></p>
       </div>
-
       <% if (errors && errors.general) { %>
-        <div class="card" style="margin-bottom:16px;border-left:4px solid #c0392b;padding:12px;">
-          <p style="font-size:14px;color:#c0392b;"><%= errors.general %></p>
+        <div class="bg-white rounded-gsm p-3 mb-4 border-l-4 border-expense">
+          <p class="text-gsm text-expense"><i class="fas fa-exclamation-circle"></i> <%= errors.general %></p>
         </div>
       <% } %>
-
-      <form action="<%= basePath %>/split/<%= splitBill.slug %>/pay" method="POST" enctype="multipart/form-data" class="card" novalidate>
-        <div class="form-group">
-          <label for="name" class="form-label">Bayar sebagai</label>
-          <select id="name" name="name" class="form-input" required>
+      <form action="<%= basePath %>/split/<%= splitBill.slug %>/pay" method="POST" enctype="multipart/form-data" class="bg-white rounded-gmd p-6" novalidate>
+        <div class="mb-4">
+          <label for="name" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Bayar sebagai</label>
+          <select id="name" name="name" class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 border-gcore-500 rounded-gsm" required>
             <option value="">Pilih nama kamu...</option>
             <% splitBill.participants.forEach(function(p) { %>
-              <option value="<%= p.name %>" <%= p.status === 'PAID' ? 'disabled' : '' %>>
-                <%= p.name %> — Rp <%= Number(p.amount).toLocaleString('id-ID') %>
-                <%= p.status === 'PAID' ? '(Sudah bayar)' : '' %>
-              </option>
+              <option value="<%= p.name %>" <%= p.status === 'PAID' ? 'disabled' : '' %>><%= p.name %> — Rp <%= Number(p.amount).toLocaleString('id-ID') %><%= p.status === 'PAID' ? ' (Sudah bayar)' : '' %></option>
             <% }) %>
           </select>
-          <% if (errors && errors.name) { %><span class="form-error"><%= errors.name[0] %></span><% } %>
+          <% if (errors && errors.name) { %><span class="block text-gxs text-expense mt-1"><%= errors.name[0] %></span><% } %>
         </div>
-
-        <div class="form-group">
-          <label for="proof" class="form-label">Upload Bukti Transfer</label>
-          <div onclick="document.getElementById('proof').click()" style="border:2px dashed #403842;border-radius:12px;padding:24px;text-align:center;cursor:pointer;">
-            <div style="font-size:36px;margin-bottom:8px;">📎</div>
-            <p style="font-size:14px;color:#403842;">Klik untuk upload screenshot transfer</p>
+        <div class="mb-4">
+          <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Upload Bukti Transfer</label>
+          <div onclick="document.getElementById('proof').click()" class="border-2 border-dashed border-gcore-500 rounded-gsm p-6 text-center cursor-pointer hover:border-gcore-accent hover:bg-gray-50 transition-colors">
+            <div class="text-3xl text-gcore-400 mb-2"><i class="fas fa-paperclip"></i></div>
+            <p class="text-gsm text-gcore-500">Klik untuk upload screenshot transfer</p>
             <input type="file" id="proof" name="proof" accept="image/jpeg,image/png,image/webp" required style="display:none;" onchange="document.getElementById('proof_name').textContent=this.files[0].name" />
-            <p id="proof_name" style="font-size:13px;color:#150c18;margin-top:8px;font-weight:600;"></p>
+            <p id="proof_name" class="text-gxs font-semibold text-gcore-900 mt-2"></p>
           </div>
-          <% if (errors && errors.proof) { %><span class="form-error"><%= errors.proof %></span><% } %>
+          <% if (errors && errors.proof) { %><span class="block text-gxs text-expense mt-1"><%= errors.proof %></span><% } %>
         </div>
-
-        <button type="submit" class="btn btn-primary btn-full">Kirim Pembayaran</button>
+        <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 cursor-pointer"><i class="fas fa-paper-plane"></i> Kirim Pembayaran</button>
       </form>
-
-      <p style="text-align:center;font-size:12px;color:#403842;margin-top:16px;">
-        Pembayaran akan diverifikasi oleh AI. Pastikan upload bukti transfer yang valid.
-      </p>
+      <p class="text-center text-gxs text-gcore-500 mt-4">Pembayaran akan diverifikasi oleh AI. Pastikan upload bukti transfer yang valid.</p>
     <% } else { %>
-      <!-- Error state -->
-      <div class="card" style="text-align:center;padding:32px;">
-        <div style="font-size:64px;margin-bottom:16px;">🔗</div>
-        <h2 style="font-size:20px;color:#150c18;margin-bottom:8px;">Link Tidak Valid</h2>
-        <p style="font-size:14px;color:#403842;">Split bill tidak ditemukan atau sudah tidak aktif</p>
+      <div class="bg-white rounded-gmd p-8 text-center">
+        <div class="text-5xl text-gcore-400 mb-4"><i class="fas fa-link"></i></div>
+        <h2 class="text-xl font-bold text-gcore-900 mb-2">Link Tidak Valid</h2>
+        <p class="text-gsm text-gcore-500">Split bill tidak ditemukan atau sudah tidak aktif</p>
       </div>
     <% } %>
-
   </div>
 </body>
 </html>

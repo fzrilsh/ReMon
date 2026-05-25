@@ -4,19 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> - ReMon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{fontFamily:{sans:['Montserrat','sans-serif']},extend:{colors:{gcore:{'900':'#150c18','accent':'#ff4c00','500':'#403842','surface':'#000000'}},borderRadius:{gsm:'12px'}}}}</script>
   <link rel="stylesheet" href="<%= basePath %>/css/app.css">
 </head>
-<body style="background:#000000;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;text-align:center;">
-  <h1 style="font-size:72px;color:#ff4c00;margin:0;">Oops!</h1>
-  <h2 style="color:#ffffff;"><%= title %></h2>
-  <p style="color:#403842;max-width:400px;"><%= message %></p>
-  <a href="<%= basePath %>/auth/login" style="background:#ff4c00;color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:600;">
-    Kembali ke Beranda
-  </a>
+<body class="bg-gcore-surface min-h-screen flex items-center justify-center flex-col gap-4 p-5 text-center font-sans">
+  <h1 class="text-6xl text-gcore-accent font-bold m-0">Oops!</h1>
+  <h2 class="text-white font-bold text-2xl"><%= title %></h2>
+  <p class="text-gcore-500 max-w-[400px] text-gsm"><%= message %></p>
+  <a href="<%= basePath %>/auth/login" class="bg-gcore-accent text-white px-6 py-3 rounded-gsm font-semibold no-underline hover:bg-gcore-700"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a>
   <% if (error && error.stack) { %>
-    <details style="margin-top:20px;text-align:left;max-width:600px;">
-      <summary style="cursor:pointer;color:#403842;font-weight:600;">Detail Error</summary>
-      <pre style="font-size:12px;color:#403842;overflow-x:auto;"><%= error.stack %></pre>
+    <details class="mt-5 text-left max-w-[600px]">
+      <summary class="cursor-pointer text-gcore-500 font-semibold">Detail Error</summary>
+      <pre class="text-gxs text-gcore-500 overflow-x-auto mt-2"><%= error.stack %></pre>
     </details>
   <% } %>
 </body>

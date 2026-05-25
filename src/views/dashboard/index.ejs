@@ -1,89 +1,86 @@
 <%- include("../partials/header") %>
-<div class="grid">
-  <div class="card card-stat" style="border-left-color:#2d7d2d;">
-    <div class="card-stat-label">Pemasukan Bulan Ini</div>
-    <div class="card-stat-value" style="color:#2d7d2d;">Rp <%= (typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome).toLocaleString('id-ID') : 0) %></div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-income">
+    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-up text-income"></i> Pemasukan Bulan Ini</p>
+    <p class="text-2xl font-bold text-income"><%= (typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome).toLocaleString('id-ID') : 0) %></p>
   </div>
-  <div class="card card-stat" style="border-left-color:#c0392b;">
-    <div class="card-stat-label">Pengeluaran Bulan Ini</div>
-    <div class="card-stat-value" style="color:#c0392b;">Rp <%= (typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense).toLocaleString('id-ID') : 0) %></div>
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-expense">
+    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-down text-expense"></i> Pengeluaran Bulan Ini</p>
+    <p class="text-2xl font-bold text-expense"><%= (typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense).toLocaleString('id-ID') : 0) %></p>
   </div>
-  <div class="card card-stat" style="border-left-color:#150c18;">
-    <div class="card-stat-label">Saldo</div>
-    <div class="card-stat-value">Rp <%= (typeof balance !== 'undefined' ? Number(balance).toLocaleString('id-ID') : 0) %></div>
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gcore-900">
+    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-wallet"></i> Saldo</p>
+    <p class="text-2xl font-bold text-gcore-900">Rp <%= (typeof balance !== 'undefined' ? Number(balance).toLocaleString('id-ID') : 0) %></p>
   </div>
-  <div class="card card-stat" style="border-left-color:#3b2b42;">
-    <div class="card-stat-label">Split Bill Aktif</div>
-    <div class="card-stat-value"><%= typeof activeSplitBills !== 'undefined' ? activeSplitBills : 0 %></div>
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gcore-700">
+    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-user-friends"></i> Split Bill Aktif</p>
+    <p class="text-2xl font-bold text-gcore-900"><%= typeof activeSplitBills !== 'undefined' ? activeSplitBills : 0 %></p>
   </div>
 </div>
 
 <!-- Quick Actions -->
-<div class="card" style="margin-bottom:24px;">
-  <h3 style="margin-bottom:16px;">Aksi Cepat</h3>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <a href="<%= basePath %>/transactions/create" class="btn btn-primary">+ Catat Transaksi</a>
-    <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary">📸 Upload Struk</a>
-    <a href="<%= basePath %>/split-bills/create" class="btn btn-secondary">🤝 Split Bill</a>
-    <a href="<%= basePath %>/debts/create" class="btn btn-secondary">💸 Catat Hutang</a>
+<div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-6">
+  <h3 class="font-semibold text-gcore-900 mb-3">Aksi Cepat</h3>
+  <div class="flex flex-wrap gap-2">
+    <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat Transaksi</a>
+    <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary"><i class="fas fa-camera"></i> Upload Struk</a>
+    <a href="<%= basePath %>/split-bills/create" class="btn btn-secondary"><i class="fas fa-user-friends"></i> Split Bill</a>
+    <a href="<%= basePath %>/debts/create" class="btn btn-secondary"><i class="fas fa-hand-holding-usd"></i> Catat Hutang</a>
   </div>
 </div>
 
 <!-- Debt Summary -->
-<div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:24px;">
-  <div class="card" style="border-left:4px solid #c0392b;">
-    <p style="font-size:12px;color:#403842;">Hutang Saya</p>
-    <p style="font-size:20px;font-weight:700;color:#c0392b;">Rp <%= typeof totalIOwe !== 'undefined' ? Number(totalIOwe).toLocaleString('id-ID') : 0 %></p>
-    <a href="<%= basePath %>/debts" style="font-size:12px;color:#ff4c00;">Lihat detail</a>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-expense">
+    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-right text-expense"></i> Hutang Saya</p>
+    <p class="text-xl font-bold text-expense">Rp <%= typeof totalIOwe !== 'undefined' ? Number(totalIOwe).toLocaleString('id-ID') : 0 %></p>
+    <a href="<%= basePath %>/debts" class="text-gxs text-gcore-accent hover:text-gcore-700">Lihat detail</a>
   </div>
-  <div class="card" style="border-left:4px solid #2d7d2d;">
-    <p style="font-size:12px;color:#403842;">Dihutangi</p>
-    <p style="font-size:20px;font-weight:700;color:#2d7d2d;">Rp <%= typeof totalTheyOwe !== 'undefined' ? Number(totalTheyOwe).toLocaleString('id-ID') : 0 %></p>
-    <a href="<%= basePath %>/debts" style="font-size:12px;color:#ff4c00;">Lihat detail</a>
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-income">
+    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-left text-income"></i> Dihutangi</p>
+    <p class="text-xl font-bold text-income">Rp <%= typeof totalTheyOwe !== 'undefined' ? Number(totalTheyOwe).toLocaleString('id-ID') : 0 %></p>
+    <a href="<%= basePath %>/debts" class="text-gxs text-gcore-accent hover:text-gcore-700">Lihat detail</a>
   </div>
 </div>
 
-<div class="grid" style="grid-template-columns:2fr 1fr;">
-  <!-- Recent Transactions -->
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3>Transaksi Terbaru</h3>
+<!-- Recent Transactions + Chart -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 lg:col-span-2">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-semibold text-gcore-900">Transaksi Terbaru</h3>
       <a href="<%= basePath %>/transactions" class="btn btn-ghost btn-sm">Lihat Semua</a>
     </div>
     <% if (typeof recentTransactions !== 'undefined' && recentTransactions.length > 0) { %>
       <div class="table-wrap">
-        <table>
+        <table class="w-full border-collapse">
           <thead>
             <tr>
-              <th>Deskripsi</th>
-              <th>Kategori</th>
-              <th>Jumlah</th>
+              <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap">Deskripsi</th>
+              <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 max-sm:hidden">Kategori</th>
+              <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">Jumlah</th>
             </tr>
           </thead>
           <tbody>
             <% recentTransactions.slice(0, 5).forEach(function(t) { %>
-              <tr>
-                <td><%= t.description %></td>
-                <td><span class="badge badge-neutral"><%= t.category ? t.category.name : '-' %></span></td>
-                <td style="color:<%= t.type === 'INCOME' ? '#2d7d2d' : '#c0392b' %>;font-weight:600;">
-                  <%= t.type === 'INCOME' ? '+' : '-' %> Rp <%= Number(t.amount).toLocaleString('id-ID') %>
-                </td>
+              <tr class="hover:bg-gray-50">
+                <td class="p-2.5 border-b border-gray-100 text-gsm text-gcore-900"><%= t.description %></td>
+                <td class="p-2.5 border-b border-gray-100 max-sm:hidden"><span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold"><%= t.category ? t.category.name : '-' %></span></td>
+                <td class="p-2.5 border-b border-gray-100 font-semibold whitespace-nowrap <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %>"><%= t.type === 'INCOME' ? '+' : '-' %> Rp <%= Number(t.amount).toLocaleString('id-ID') %></td>
               </tr>
             <% }) %>
           </tbody>
         </table>
       </div>
     <% } else { %>
-      <div class="empty-state">
-        <div class="empty-state-icon">📊</div>
-        <p class="empty-state-text">Belum ada transaksi bulan ini.</p>
+      <div class="text-center py-10">
+        <div class="text-3xl text-gcore-400 mb-3"><i class="fas fa-chart-bar"></i></div>
+        <p class="text-gsm text-gcore-400">Belum ada transaksi bulan ini.</p>
       </div>
     <% } %>
   </div>
-
-  <!-- Monthly Chart -->
-  <div class="card">
-    <h3 style="margin-bottom:16px;">Grafik Bulanan</h3>
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
+    <h3 class="font-semibold text-gcore-900 mb-4">Grafik Bulanan</h3>
     <canvas id="monthlyChart" width="200" height="200"></canvas>
   </div>
 </div>
@@ -104,13 +101,14 @@
       }]
     },
     options: {
-      responsive: true,
+      responsive: true, maintainAspectRatio: true,
       cutout: '70%',
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 12 }, color: '#403842', padding: 16 } }
+        legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, color: '#9CA3AF', padding: 12 } }
       }
     }
   });
 })();
 </script>
+
 <%- include("../partials/footer") %>

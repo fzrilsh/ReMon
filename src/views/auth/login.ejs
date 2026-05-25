@@ -3,63 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - ReMon</title>
+  <title>Masuk - ReMon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{fontFamily:{sans:['Montserrat','sans-serif']},extend:{colors:{gcore:{'900':'#150c18','800':'#251b29','700':'#3b2b42','500':'#403842','400':'#9CA3AF',accent:'#ff4c00',surface:'#000000'}},borderRadius:{gsm:'12px',gmd:'24px'}}}}</script>
   <link rel="stylesheet" href="<%= basePath %>/css/app.css">
   <link rel="manifest" href="<%= basePath %>/manifest.json">
   <meta name="theme-color" content="#000000">
 </head>
-<body class="auth-page">
-  <main class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <h1 class="auth-logo">ReMon</h1>
-        <p class="auth-tagline">Catat pengeluaran, kelola hutang, split bill</p>
+<body class="flex items-center justify-center min-h-screen bg-gcore-surface p-4 font-sans">
+  <main class="w-full max-w-[420px]">
+    <div class="bg-white rounded-gmd p-8 max-sm:p-5 shadow-lg">
+      <div class="text-center mb-6">
+        <h1 class="text-g3xl max-sm:text-3xl font-bold text-gcore-900 mb-1">ReMon</h1>
+        <p class="text-gsm text-gcore-500">Catat pengeluaran, kelola hutang, split bill</p>
       </div>
-
-      <form action="<%= basePath %>/auth/login" method="POST" class="auth-form" novalidate>
-        <div class="form-group">
-          <label for="email" class="form-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="form-input <%= errors && errors.email ? 'form-input--error' : '' %>"
-            placeholder="Masukkan email"
-            value="<%= oldInput.email || '' %>"
-            required
-            autofocus
-          />
-          <% if (errors && errors.email) { %>
-            <span class="form-error"><%= errors.email[0] %></span>
-          <% } %>
+      <form action="<%= basePath %>/auth/login" method="POST" novalidate>
+        <div class="mb-4">
+          <label for="email" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Email</label>
+          <input type="email" id="email" name="email" class="w-full px-3.5 py-2.5 font-sans text-glg font-medium text-gcore-900 bg-white border-2 <%= errors && errors.email ? 'border-expense' : 'border-gcore-500' %> rounded-gsm transition-colors focus:outline-none focus:border-gcore-accent focus-visible:outline-2 focus-visible:outline-gcore-accent focus-visible:outline-offset-2 placeholder:text-gcore-400" placeholder="Masukkan email" value="<%= oldInput.email || '' %>" required autofocus />
+          <% if (errors && errors.email) { %><span class="block text-gxs text-expense mt-1"><%= errors.email[0] %></span><% } %>
         </div>
-
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-input <%= errors && errors.password ? 'form-input--error' : '' %>"
-            placeholder="Masukkan password"
-            required
-          />
-          <% if (errors && errors.password) { %>
-            <span class="form-error"><%= errors.password[0] %></span>
-          <% } %>
+        <div class="mb-4">
+          <label for="password" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Password</label>
+          <input type="password" id="password" name="password" class="w-full px-3.5 py-2.5 font-sans text-glg font-medium text-gcore-900 bg-white border-2 <%= errors && errors.password ? 'border-expense' : 'border-gcore-500' %> rounded-gsm transition-colors focus:outline-none focus:border-gcore-accent focus-visible:outline-2 focus-visible:outline-gcore-accent placeholder:text-gcore-400" placeholder="Masukkan password" required />
+          <% if (errors && errors.password) { %><span class="block text-gxs text-expense mt-1"><%= errors.password[0] %></span><% } %>
         </div>
-
-        <button type="submit" class="btn btn-primary btn-full">
-          Masuk
-        </button>
+        <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 focus-visible:outline-2 focus-visible:outline-gcore-accent cursor-pointer">Masuk</button>
       </form>
-
-      <p class="auth-footer-text">
-        Belum punya akun?
-        <a href="<%= basePath %>/auth/register" class="auth-link">Daftar</a>
-      </p>
+      <p class="text-center text-gsm text-gcore-500 mt-4">Belum punya akun? <a href="<%= basePath %>/auth/register" class="text-gcore-accent no-underline hover:text-gcore-700">Daftar</a></p>
     </div>
   </main>
 </body>

@@ -6,6 +6,54 @@
   <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>ReMon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+  tailwind.config = {
+    theme: {
+      fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+      extend: {
+        colors: {
+          gcore: {
+            '900': '#150c18',
+            '800': '#251b29',
+            '700': '#3b2b42',
+            '500': '#403842',
+            '400': '#9CA3AF',
+            accent: '#ff4c00',
+            surface: '#000000',
+          },
+          income: '#2d7d2d',
+          expense: '#c0392b',
+        },
+        spacing: {
+          '1.5': '6px',
+          '2.5': '10px',
+          '3.5': '13px',
+          '4.5': '18px',
+          '5.5': '22px',
+        },
+        borderRadius: {
+          'gxs': '8px',
+          'gsm': '12px',
+          'gmd': '24px',
+          'glg': '50px',
+          'gxl': '100px',
+        },
+        fontSize: {
+          'gxs': '12px',
+          'gsm': '14px',
+          'gmd': '15px',
+          'glg': '16px',
+          'gxl': '18px',
+          'g2xl': '24px',
+          'g3xl': '36px',
+          'g4xl': '46px',
+        },
+      }
+    }
+  }
+  </script>
   <link rel="stylesheet" href="<%= basePath %>/css/app.css">
   <link rel="manifest" href="<%= basePath %>/manifest.json">
   <meta name="theme-color" content="#000000">
