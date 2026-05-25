@@ -1,5 +1,8 @@
+const env = require('../config/env');
+
 function basePathMiddleware(req, res, next) {
-  res.locals.basePath = req.basePath;
+  res.locals.basePath = env.appBasePath;
+  req.basePath = env.appBasePath;
   next();
 }
 
