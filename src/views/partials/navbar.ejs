@@ -4,12 +4,12 @@
   </button>
   <h2 class="flex-1 text-xl max-sm:text-base font-bold text-gcore-900 truncate"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></h2>
   <div class="flex items-center gap-3 shrink-0">
-    <a href="<%= basePath %>/notifications/unread" class="navbar-icon relative text-gcore-500 p-1.5 rounded-gxs transition-colors hover:text-gcore-accent" aria-label="Notifikasi">
+    <span class="navbar-icon relative text-gcore-500 p-1.5 rounded-gxs" aria-label="Notifikasi">
       <i class="fas fa-bell text-lg"></i>
       <% if (typeof pendingNotifications !== 'undefined' && pendingNotifications > 0) { %>
         <span class="absolute -top-0.5 -right-0.5 bg-gcore-accent text-white text-2xs w-4 h-4 rounded-full flex items-center justify-center font-bold" style="font-size:10px;"><%= pendingNotifications %></span>
       <% } %>
-    </a>
+    </span>
     <div class="flex items-center gap-2">
       <span class="text-sm font-semibold text-gcore-900 max-[480px]:hidden"><%= user ? user.name : 'Guest' %></span>
       <form action="<%= basePath %>/auth/logout" method="POST">
