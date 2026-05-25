@@ -14,7 +14,7 @@
       <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-semibold text-gcore-900"><%= sb.transaction.description %></h3>
+            <h3 class="font-semibold text-gcore-900"><%= sb.description %></h3>
             <p class="text-gxs text-gcore-500 mt-1">
               Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> &middot; <%= sb.participants.length %> peserta &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
             </p>

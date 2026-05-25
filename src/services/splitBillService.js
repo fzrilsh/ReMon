@@ -76,7 +76,15 @@ async function create(userId, { transactionIds, participants }) {
     descriptions.push(transaction.description);
   }
 
-  const participantNames = [...new Set(participants)];
+  const nameList = typeof participants === 'string'
+    ? participants.split(/[\n,]+/).map(s => s.trim()).filter(Boolean)
+    : (Array.isArray(participants) ? participants : []);
+  const participantNames = [...new Set(nameList)];
+  if (participantNames.length === 0) {
+    const error = new Error('Masukkan minimal 1 peserta');
+    error.statusCode = 400;
+    throw error;
+  }
   const amounts = calculateEqualSplit(totalAmount, participantNames.length);
   const slug = nanoid(10);
 
