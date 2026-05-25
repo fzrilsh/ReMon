@@ -1,3 +1,21 @@
+// ─── Radio toggle for transaction type / debt direction ───
+window.toggleTypeRadio = function (el) {
+  var labels = document.querySelectorAll('[data-radio-group] label, label:has(> input[data-radio])');
+  // Simpler approach: use CSS classes
+  var allRadios = document.querySelectorAll('input[name="' + el.name + '"]');
+  allRadios.forEach(function (r) {
+    var label = r.closest('label');
+    if (!label) return;
+    if (r === el) {
+      label.className = label.className.replace(/bg-white/g, 'bg-gray-100').replace(/border-gray-200/g, 'border-gcore-900');
+      if (label.className.indexOf('font-semibold') === -1) label.className += ' font-semibold';
+    } else {
+      label.className = label.className.replace(/bg-gray-100/g, 'bg-white').replace(/border-gcore-900/g, 'border-gray-200');
+      label.className = label.className.replace(/font-semibold/g, '');
+    }
+  });
+};
+
 (function () {
   'use strict';
 

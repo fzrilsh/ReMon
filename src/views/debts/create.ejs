@@ -14,12 +14,12 @@
     <div class="mb-4">
       <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Arah Hutang</label>
       <div class="flex gap-2">
-        <label class="flex-1 py-2.5 border-2 <%= errors && errors.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center cursor-pointer font-medium transition-colors <%= oldInput.direction === 'I_OWE' || !oldInput.direction ? 'bg-gray-100 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="direction" value="I_OWE" <%= oldInput.direction === 'I_OWE' || !oldInput.direction ? 'checked' : '' %> class="hidden" onchange="this.closest('label').classList.add('bg-gray-100','font-semibold');this.closest('label').classList.remove('bg-white','font-medium');document.querySelectorAll('input[name=\\'direction\\']').forEach(function(i){if(i!==this){i.closest('label').classList.add('bg-white','font-medium');i.closest('label').classList.remove('bg-gray-100','font-semibold');}});">
+        <label class="flex-1 py-2.5 border-2 <%= errors && errors.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center cursor-pointer cursor-pointer font-medium transition-all duration-150 <%= oldInput.direction === 'I_OWE' || !oldInput.direction ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
+          <input type="radio" name="direction" value="I_OWE" <%= oldInput.direction === 'I_OWE' || !oldInput.direction ? 'checked' : '' %> class="hidden" onchange="toggleTypeRadio(this)">
           <i class="fas fa-arrow-right text-expense"></i> Saya hutang dia
         </label>
-        <label class="flex-1 py-2.5 border-2 <%= errors && errors.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center cursor-pointer font-medium transition-colors <%= oldInput.direction === 'THEY_OWE' ? 'bg-gray-100 font-semibold' : 'bg-white' %>">
-          <input type="radio" name="direction" value="THEY_OWE" <%= oldInput.direction === 'THEY_OWE' ? 'checked' : '' %> class="hidden" onchange="this.closest('label').classList.add('bg-gray-100','font-semibold');this.closest('label').classList.remove('bg-white','font-medium');document.querySelectorAll('input[name=\\'direction\\']').forEach(function(i){if(i!==this){i.closest('label').classList.add('bg-white','font-medium');i.closest('label').classList.remove('bg-gray-100','font-semibold');}});">
+        <label class="flex-1 py-2.5 border-2 <%= errors && errors.direction ? 'border-expense' : 'border-gcore-500' %> rounded-gsm text-center cursor-pointer cursor-pointer font-medium transition-all duration-150 <%= oldInput.direction === 'THEY_OWE' ? 'bg-gray-100 border-gcore-900 font-semibold' : 'bg-white' %>">
+          <input type="radio" name="direction" value="THEY_OWE" <%= oldInput.direction === 'THEY_OWE' ? 'checked' : '' %> class="hidden" onchange="toggleTypeRadio(this)">
           <i class="fas fa-arrow-left text-income"></i> Dia hutang saya
         </label>
       </div>
