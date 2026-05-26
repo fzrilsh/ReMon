@@ -200,7 +200,7 @@ async function verifyAndUpdatePayment(participantId, verificationResult) {
       type: 'SPLIT_PAID',
       title: 'Split Bill Dibayar',
       message: `${participant.name} telah membayar split bill sebesar Rp ${Number(participant.amount).toLocaleString('id-ID')}`,
-      link: `/ReMon/split-bills/${participant.splitBillId}`,
+      link: `/split-bills/${participant.splitBillId}`,
     });
   } else {
     updates.status = 'DISPUTED';
@@ -211,7 +211,7 @@ async function verifyAndUpdatePayment(participantId, verificationResult) {
       type: 'SPLIT_DISPUTED',
       title: 'Pembayaran Ditolak',
       message: `Pembayaran dari ${participant.name} ditolak: ${verificationResult.reason || 'Bukti tidak valid'}`,
-      link: `/ReMon/split-bills/${participant.splitBillId}`,
+      link: `/split-bills/${participant.splitBillId}`,
     });
   }
 

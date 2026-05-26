@@ -114,7 +114,7 @@
   }
 
   function fetchNotifications() {
-    fetch('/ReMon/notifications/unread')
+    fetch('/notifications/unread')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         renderNotifications(data);
@@ -153,7 +153,7 @@
         var id = item.getAttribute('data-id');
         var link = item.getAttribute('href');
         if (id) {
-          fetch('/ReMon/notifications/' + id + '/read', { method: 'PATCH' })
+          fetch('/notifications/' + id + '/read', { method: 'PATCH' })
             .then(function () {
               fetchNotifications();
               if (link && link !== '#') { window.location.href = link; }
@@ -167,7 +167,7 @@
   // Mark all as read
   if (markAllBtn) {
     markAllBtn.addEventListener('click', function () {
-      fetch('/ReMon/notifications/read-all', { method: 'PATCH' })
+      fetch('/notifications/read-all', { method: 'PATCH' })
         .then(function () {
           renderNotifications([]);
           if (notifBadge) notifBadge.style.display = 'none';
@@ -178,7 +178,7 @@
 
   // Poll notifications every 30 seconds
   setInterval(function () {
-    fetch('/ReMon/notifications/unread')
+    fetch('/notifications/unread')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data && data.length > 0 && notifBadge) {
@@ -207,7 +207,7 @@
   // ─── Service Worker registration ───
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/ReMon/sw.js')
+      navigator.serviceWorker.register('/sw.js')
         .then(function (reg) { console.log('SW registered:', reg.scope); })
         .catch(function (err) { console.log('SW failed:', err); });
     });

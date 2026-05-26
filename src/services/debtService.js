@@ -52,7 +52,7 @@ async function create(userId, data) {
       type: 'DEBT_DUE',
       title: 'Hutang Baru dengan Jatuh Tempo',
       message: `Hutang ${data.direction === 'I_OWE' ? 'kepada' : 'dari'} ${data.otherPersonName} sebesar Rp ${Number(data.amount).toLocaleString('id-ID')} jatuh tempo ${new Date(data.dueDate).toLocaleDateString('id-ID')}`,
-      link: `/ReMon/debts`,
+      link: `/debts`,
     });
   }
 
@@ -74,7 +74,7 @@ async function settle(id, userId) {
     type: 'DEBT_SETTLED',
     title: 'Hutang Lunas',
     message: `Hutang ${debt.direction === 'I_OWE' ? 'kepada' : 'dari'} ${debt.otherPersonName} sebesar Rp ${Number(debt.amount).toLocaleString('id-ID')} telah dilunasi`,
-    link: `/ReMon/debts`,
+    link: `/debts`,
   });
   
   return settled;

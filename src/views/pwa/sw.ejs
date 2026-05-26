@@ -1,9 +1,9 @@
 const CACHE_NAME = 'remon-v<%= typeof version !== 'undefined' ? version : '1' %>';
 const STATIC_ASSETS = [
-  '/ReMon/css/app.css',
-  '/ReMon/js/app.js',
-  '/ReMon/icons/icon-192.svg',
-  '/ReMon/icons/icon-512.svg',
+  '/css/app.css',
+  '/js/app.js',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
 ];
 
 self.addEventListener('install', (event) => {
@@ -32,7 +32,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Only handle ReMon requests
-  if (!url.pathname.startsWith('/ReMon/')) return;
+  if (!url.pathname.startsWith('/')) return;
 
   // Static assets: cache-first
   if (STATIC_ASSETS.includes(url.pathname)) {
@@ -43,7 +43,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // API calls: network-only (no cache for dynamic data)
-  if (url.pathname.startsWith('/ReMon/notifications/') || url.pathname.includes('/api/')) {
+  if (url.pathname.startsWith('/notifications/') || url.pathname.includes('/api/')) {
     return;
   }
 
@@ -57,7 +57,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         return caches.match(event.request).then((cached) => {
-          return cached || caches.match('/ReMon/offline');
+          return cached || caches.match('/offline');
         });
       })
   );
