@@ -1,95 +1,140 @@
 <%- include("../partials/header") %>
 
-<div class="max-w-[640px]">
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-gsm mb-5 text-gsm">
-      <i class="fas fa-exclamation-circle"></i> <%= error %>
-    </div>
-  <% } %>
-  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-    <div>
-      <h2 class="text-2xl font-bold text-gcore-900 mb-1">Detail Split Bill</h2>
-      <p class="text-gsm text-gcore-500"><%= splitBill.description %></p>
-      <p class="text-gsm font-semibold text-gcore-900 mt-1">Total: Rp <%= Number(splitBill.totalAmount).toLocaleString('id-ID') %></p>
-    </div>
-    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-gxs font-semibold <%= splitBill.status === 'ACTIVE' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
-      <i class="fas <%= splitBill.status === 'ACTIVE' ? 'fa-clock' : 'fa-check-circle' %>"></i> <%= splitBill.status === 'ACTIVE' ? 'Aktif' : 'Ditutup' %>
-    </span>
-  </div>
-
-  <!-- Transactions -->
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-5">
-    <h3 class="font-semibold text-gcore-900 mb-3"><i class="fas fa-receipt"></i> Transaksi (<%= splitBill.transactions ? splitBill.transactions.length : 0 %>)</h3>
-    <% if (splitBill.transactions && splitBill.transactions.length > 0) { %>
-      <div class="space-y-2">
-        <% splitBill.transactions.forEach(function(st) { %>
-          <div class="flex items-center justify-between p-2 bg-gray-50 rounded-gsm">
-            <span class="text-gsm text-gcore-900"><%= st.transaction.description %></span>
-            <span class="text-gsm font-semibold text-expense">Rp <%= Number(st.transaction.amount).toLocaleString('id-ID') %></span>
-          </div>
-        <% }) %>
+  <div class="max-w-[640px]">
+    <% if (typeof error !=='undefined' && error) { %>
+      <div class="bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-gsm mb-5 text-gsm">
+        <i class="fas fa-exclamation-circle"></i>
+        <%= error %>
       </div>
-    <% } %>
+      <% } %>
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-gcore-900 mb-1">Detail Split Bill</h2>
+            <p class="text-gsm text-gcore-500">
+              <%= splitBill.description %>
+            </p>
+            <p class="text-gsm font-semibold text-gcore-900 mt-1">Total: Rp <%=
+                Number(splitBill.totalAmount).toLocaleString('id-ID') %>
+            </p>
+          </div>
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-gxs font-semibold <%= splitBill.status === 'ACTIVE' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+            <i class="fas <%= splitBill.status === 'ACTIVE' ? 'fa-clock' : 'fa-check-circle' %>"></i>
+            <%= splitBill.status==='ACTIVE' ? 'Aktif' : 'Ditutup' %>
+          </span>
+        </div>
+
+        <!-- Transactions -->
+        <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-5">
+          <h3 class="font-semibold text-gcore-900 mb-3"><i class="fas fa-receipt"></i> Transaksi (<%=
+              splitBill.transactions ? splitBill.transactions.length : 0 %>)</h3>
+          <% if (splitBill.transactions && splitBill.transactions.length> 0) { %>
+            <div class="space-y-2">
+              <% splitBill.transactions.forEach(function(st) { %>
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded-gsm">
+                  <span class="text-gsm text-gcore-900">
+                    <%= st.transaction.description %>
+                  </span>
+                  <span class="text-gsm font-semibold text-expense">Rp <%=
+                      Number(st.transaction.amount).toLocaleString('id-ID') %></span>
+                </div>
+                <% }) %>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Public Link -->
+        <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-5">
+          <h3 class="font-semibold text-gcore-900 mb-2"><i class="fas fa-link"></i> Link Pembayaran</h3>
+          <div class="flex gap-2">
+            <input id="shareLinkInput" type="text"
+              class="flex-1 px-3.5 py-2.5 font-sans text-gxs text-gcore-900 bg-white border-2 border-gray-200 rounded-gsm"
+              readonly onclick="this.select()" />
+            <button class="btn btn-primary btn-sm whitespace-nowrap"
+              onclick="navigator.clipboard.writeText(`${window.location.origin}<%= basePath %>/split/<%= splitBill.slug %>`); this.innerHTML='<i class=\'fas fa-check\'></i> Tersalin!'; setTimeout(()=>this.innerHTML='<i class=\'fas fa-copy\'></i> Salin',2000);">
+              <i class="fas fa-copy"></i> Salin
+            </button>
+          </div>
+        </div>
+
+        <!-- Participants -->
+        <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
+          <h3 class="font-semibold text-gcore-900 mb-4">Peserta (<%= splitBill.participants ?
+              splitBill.participants.length : 0 %> orang)</h3>
+          <div class="table-wrap">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th
+                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
+                    Nama</th>
+                  <th
+                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
+                    Jumlah</th>
+                  <th
+                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
+                    Status</th>
+                  <th
+                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 max-sm:hidden">
+                    Bukti</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (splitBill.participants) { splitBill.participants.forEach(function(p) { %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="p-2.5 border-b border-gray-100 text-gsm font-semibold text-gcore-900">
+                      <%= p.name %>
+                    </td>
+                    <td class="p-2.5 border-b border-gray-100 text-gsm text-gcore-900">Rp <%=
+                        Number(p.amount).toLocaleString('id-ID') %>
+                    </td>
+                    <td class="p-2.5 border-b border-gray-100">
+                      <% if (p.status==='PAID' ) { %>
+                        <span
+                          class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
+                            class="fas fa-check-circle"></i> Lunas</span>
+                        <% } else if (p.status==='DISPUTED' ) { %>
+                          <span
+                            class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
+                              class="fas fa-exclamation-triangle"></i> Ditolak</span>
+                          <% if (p.aiFeedback) { %><br><span class="text-gxs text-gcore-500">
+                              <%= p.aiFeedback %>
+                            </span>
+                            <% } %>
+                              <% } else { %>
+                                <span
+                                  class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
+                                    class="fas fa-hourglass-half"></i> Menunggu</span>
+                                <% } %>
+                    </td>
+                    <td class="p-2.5 border-b border-gray-100 max-sm:hidden">
+                      <% if (p.paymentVerified) { %>
+                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
+                            class="fas fa-check"></i></span>
+                        <% } else if (p.paymentProofImage) { %>
+                          <span
+                            class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-gxs font-semibold">Pending</span>
+                          <% } else { %>
+                            <span class="text-gxs text-gcore-400">&mdash;</span>
+                            <% } %>
+                    </td>
+                  </tr>
+                  <% }); } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <% if (splitBill.status==='ACTIVE' ) { %>
+          <form action="<%= basePath %>/split-bills/<%= splitBill.id %>/close?_method=PATCH" method="POST"
+            class="text-right mt-5" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');">
+            <button type="submit" class="btn btn-danger"><i class="fas fa-lock"></i> Tutup Split Bill</button>
+          </form>
+          <% } %>
   </div>
 
-  <!-- Public Link -->
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-5">
-    <h3 class="font-semibold text-gcore-900 mb-2"><i class="fas fa-link"></i> Link Pembayaran</h3>
-    <div class="flex gap-2">
-      <input type="text" class="flex-1 px-3.5 py-2.5 font-sans text-gxs text-gcore-900 bg-white border-2 border-gray-200 rounded-gsm" value="https://fazrilsh.com<%= basePath %>/split/<%= splitBill.slug %>" readonly onclick="this.select()" />
-      <button class="btn btn-primary btn-sm whitespace-nowrap" onclick="navigator.clipboard.writeText('https://fazrilsh.com<%= basePath %>/split/<%= splitBill.slug %>');this.textContent='Tersalin!';setTimeout(()=>this.textContent='Salin',2000);"><i class="fas fa-copy"></i> Salin</button>
-    </div>
-  </div>
+  <script>
+    document.getElementById('shareLinkInput').value = `${window.location.origin}<%= basePath %>/split/<%= splitBill.slug %>`;
+  </script>
 
-  <!-- Participants -->
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
-    <h3 class="font-semibold text-gcore-900 mb-4">Peserta (<%= splitBill.participants ? splitBill.participants.length : 0 %> orang)</h3>
-    <div class="table-wrap">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr>
-            <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">Nama</th>
-            <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">Jumlah</th>
-            <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">Status</th>
-            <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 max-sm:hidden">Bukti</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (splitBill.participants) { splitBill.participants.forEach(function(p) { %>
-            <tr class="hover:bg-gray-50">
-              <td class="p-2.5 border-b border-gray-100 text-gsm font-semibold text-gcore-900"><%= p.name %></td>
-              <td class="p-2.5 border-b border-gray-100 text-gsm text-gcore-900">Rp <%= Number(p.amount).toLocaleString('id-ID') %></td>
-              <td class="p-2.5 border-b border-gray-100">
-                <% if (p.status === 'PAID') { %>
-                  <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-check-circle"></i> Lunas</span>
-                <% } else if (p.status === 'DISPUTED') { %>
-                  <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-exclamation-triangle"></i> Ditolak</span>
-                  <% if (p.aiFeedback) { %><br><span class="text-gxs text-gcore-500"><%= p.aiFeedback %></span><% } %>
-                <% } else { %>
-                  <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-hourglass-half"></i> Menunggu</span>
-                <% } %>
-              </td>
-              <td class="p-2.5 border-b border-gray-100 max-sm:hidden">
-                <% if (p.paymentVerified) { %>
-                  <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-check"></i></span>
-                <% } else if (p.paymentProofImage) { %>
-                  <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-gxs font-semibold">Pending</span>
-                <% } else { %>
-                  <span class="text-gxs text-gcore-400">&mdash;</span>
-                <% } %>
-              </td>
-            </tr>
-          <% }); } %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <% if (splitBill.status === 'ACTIVE') { %>
-    <form action="<%= basePath %>/split-bills/<%= splitBill.id %>/close?_method=PATCH" method="POST" class="text-right mt-5" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');">
-      <button type="submit" class="btn btn-danger"><i class="fas fa-lock"></i> Tutup Split Bill</button>
-    </form>
-  <% } %>
-</div>
-
-<%- include("../partials/footer") %>
+  <%- include("../partials/footer") %>
