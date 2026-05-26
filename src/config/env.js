@@ -6,7 +6,7 @@ const env = {
   databaseUrl: process.env.DATABASE_URL,
   sessionSecret: process.env.SESSION_SECRET || 'fallback-dev-secret',
   deepseekApiKey: process.env.DEEPSEEK_API_KEY,
-  appBasePath: process.env.APP_BASE_PATH || '/ReMon',
+  appBasePath: process.env.APP_BASE_PATH,
   uploadDir: process.env.UPLOAD_DIR || 'public/uploads',
   isProduction: process.env.NODE_ENV === 'production',
   isDevelopment: process.env.NODE_ENV !== 'production',
