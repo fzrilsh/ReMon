@@ -22,6 +22,8 @@ app.use(express.json());
 // Method override (for PUT/DELETE forms) — MUST be after body parsers
 app.use(methodOverride('_method'));
 
+app.set('trust proxy', 1);
+
 // Session
 app.use(session({
   secret: env.sessionSecret,
@@ -30,7 +32,8 @@ app.use(session({
   cookie: {
     secure: env.isProduction,
     secure: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: 'lax'
   },
 }));
 
