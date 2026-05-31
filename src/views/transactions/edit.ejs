@@ -36,10 +36,11 @@
       </div>
 
       <div class="mb-4">
-        <label for="amount" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
-        <input type="number" id="amount" name="amount"
+        <label for="amount_display" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
+        <input type="text" id="amount_display" inputmode="numeric"
           class="w-full border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
-          placeholder="0" value="<%= Number(transaction.amount) %>" required />
+          placeholder="0" required />
+        <input type="hidden" id="amount" name="amount" value="<%= Number(transaction.amount) %>" />
         <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1">
             <%= errors.amount[0] %>
           </span>
@@ -86,5 +87,31 @@
       </div>
     </form>
   </div>
+
+  <script>
+    (function() {
+      const displayInput = document.getElementById('amount_display');
+      const hiddenInput = document.getElementById('amount');
+      if (!displayInput || !hiddenInput) return;
+
+      function formatRupiah(value) {
+        let number = value.toString().replace(/[^0-9]/g, '');
+        if (!number) return '';
+        return Number(number).toLocaleString('id-ID');
+      }
+
+      displayInput.addEventListener('input', function(e) {
+        let rawValue = e.target.value.replace(/[^0-9]/g, '');
+        hiddenInput.value = rawValue;
+        e.target.value = formatRupiah(rawValue);
+      });
+
+      if (hiddenInput.value) {
+        let val = Math.round(Number(hiddenInput.value)).toString();
+        hiddenInput.value = val;
+        displayInput.value = formatRupiah(val);
+      }
+    })();
+  </script>
 
   <%- include("../partials/footer") %>
