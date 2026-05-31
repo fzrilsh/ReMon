@@ -204,19 +204,42 @@ label:has(input[name="direction"]:checked) {
   .swipe-hint { display: flex; }
 }
 
+/* Card specific swipe styles */
+.swipe-card-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.swipe-card-wrap.is-open .swipe-content {
+  transform: translateX(-120px);
+}
+.swipe-card-wrap.swipe-card-single.is-open .swipe-content {
+  transform: translateX(-60px);
+}
+.swipe-card-wrap.is-open .swipe-actions {
+  transform: translateX(0);
+}
+
 /* On desktop: actions are always shown inline, no swipe needed */
 @media (min-width: 1025px) {
   .swipe-row-wrap { overflow: visible; }
-  .swipe-content {
+  .swipe-row-wrap .swipe-content {
     transform: none !important;
     display: contents;
     transition: none;
   }
-  .swipe-actions {
+  .swipe-row-wrap .swipe-actions {
     position: static;
     transform: none !important;
     transition: none;
   }
+
+  .swipe-card-wrap { overflow: visible; }
+  .swipe-card-wrap .swipe-actions { display: none !important; }
+  .swipe-card-wrap .swipe-content {
+    transform: none !important;
+    transition: none;
+  }
+
   .swipe-btn {
     width: auto; padding: 6px 10px;
     border-radius: 8px; font-size: 14px;
