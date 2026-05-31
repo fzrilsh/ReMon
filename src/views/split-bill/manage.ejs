@@ -10,21 +10,53 @@
 
 <% if (typeof splitBills !== 'undefined' && splitBills.length > 0) { %>
   <% splitBills.forEach(function(sb) { %>
-    <a href="<%= basePath %>/split-bills/<%= sb.id %>" class="block no-underline">
-      <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="font-semibold text-gcore-900"><%= sb.description %></h3>
-            <p class="text-gxs text-gcore-500 mt-1">
-              Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> &middot; <%= sb.participants.length %> peserta &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
-            </p>
+    <% if (sb.status === 'ACTIVE') { %>
+      <div class="swipe-card-wrap swipe-card-single bg-white border-2 border-gray-200 rounded-gsm mb-3 hover:shadow-md transition-shadow">
+        <div class="swipe-content p-4 flex items-center justify-between gap-3">
+          <a href="<%= basePath %>/split-bills/<%= sb.id %>" class="flex-1 min-w-0 flex items-center justify-between no-underline">
+            <div>
+              <h3 class="font-semibold text-gcore-900"><%= sb.description %></h3>
+              <p class="text-gxs text-gcore-500 mt-1">
+                Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> &middot; <%= sb.participants.length %> peserta &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-gxs font-semibold bg-yellow-100 text-yellow-800">
+                <i class="fas fa-clock"></i> Aktif
+              </span>
+              <div class="swipe-hint max-lg:flex hidden text-gcore-400 text-gxs"><i class="fas fa-chevron-left"></i></div>
+            </div>
+          </a>
+          <!-- Desktop Action -->
+          <div class="max-lg:hidden flex ml-4 shrink-0">
+            <form action="<%= basePath %>/split-bills/<%= sb.id %>/close?_method=PATCH" method="POST" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');" style="display:inline;">
+              <button type="submit" class="swipe-btn swipe-btn-delete" title="Tutup Split Bill"><i class="fas fa-lock"></i></button>
+            </form>
           </div>
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-gxs font-semibold <%= sb.status === 'ACTIVE' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
-            <i class="fas <%= sb.status === 'ACTIVE' ? 'fa-clock' : 'fa-check-circle' %>"></i> <%= sb.status === 'ACTIVE' ? 'Aktif' : 'Ditutup' %>
-          </span>
+        </div>
+        <div class="swipe-actions">
+          <form action="<%= basePath %>/split-bills/<%= sb.id %>/close?_method=PATCH" method="POST" onsubmit="return confirm('Tutup split bill? Pastikan semua sudah bayar.');" style="display:flex;">
+            <button type="submit" class="swipe-btn swipe-btn-delete" title="Tutup Split Bill"><i class="fas fa-lock"></i></button>
+          </form>
         </div>
       </div>
-    </a>
+    <% } else { %>
+      <a href="<%= basePath %>/split-bills/<%= sb.id %>" class="block no-underline mb-3">
+        <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 cursor-pointer hover:shadow-md transition-shadow opacity-70">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold text-gcore-900"><%= sb.description %></h3>
+              <p class="text-gxs text-gcore-500 mt-1">
+                Rp <%= Number(sb.totalAmount).toLocaleString('id-ID') %> &middot; <%= sb.participants.length %> peserta &middot; <%= sb.participants.filter(p => p.status === 'PAID').length %>/<%= sb.participants.length %> bayar
+              </p>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-gxs font-semibold bg-green-100 text-green-800">
+              <i class="fas fa-check-circle"></i> Ditutup
+            </span>
+          </div>
+        </div>
+      </a>
+    <% } %>
   <% }); %>
 <% } else { %>
   <div class="bg-white border-2 border-gray-200 rounded-gsm p-12 text-center">
