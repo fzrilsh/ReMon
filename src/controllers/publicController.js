@@ -6,9 +6,13 @@ const { paySplitBillSchema } = require('../validators/splitBillSchema');
 async function showPay(req, res, next) {
   try {
     const splitBill = await splitBillService.getPublicSplitBill(req.params.slug);
+    const bank = splitBill.user || {};
     res.render('public/split-pay', {
       title: 'Bayar Split Bill',
       splitBill,
+      bankName: bank.bankName || null,
+      bankNumber: bank.bankNumber || null,
+      bankHolder: bank.bankHolder || null,
       errors: null,
       paid: false,
     });
@@ -27,11 +31,18 @@ async function showPay(req, res, next) {
 async function submitPay(req, res, next) {
   try {
     const splitBill = await splitBillService.getPublicSplitBill(req.params.slug);
+    const bank = splitBill.user || {};
+    const bankProps = {
+      bankName: bank.bankName || null,
+      bankNumber: bank.bankNumber || null,
+      bankHolder: bank.bankHolder || null,
+    };
     
     if (splitBill.status === 'CLOSED') {
       return res.render('public/split-pay', {
         title: 'Bayar Split Bill',
         splitBill,
+        ...bankProps,
         errors: { general: 'Split bill ini sudah ditutup' },
         paid: false,
       });
@@ -43,6 +54,7 @@ async function submitPay(req, res, next) {
       return res.status(400).render('public/split-pay', {
         title: 'Bayar Split Bill',
         splitBill,
+        ...bankProps,
         errors,
         paid: false,
       });
@@ -52,6 +64,7 @@ async function submitPay(req, res, next) {
       return res.render('public/split-pay', {
         title: 'Bayar Split Bill',
         splitBill,
+        ...bankProps,
         errors: { proof: 'Bukti transfer wajib diupload' },
         paid: false,
       });
@@ -77,6 +90,7 @@ async function submitPay(req, res, next) {
       res.render('public/split-pay', {
         title: 'Bayar Split Bill',
         splitBill,
+        ...bankProps,
         errors: null,
         paid: true,
         paidParticipant: parsed.data.name,
@@ -87,6 +101,7 @@ async function submitPay(req, res, next) {
       res.render('public/split-pay', {
         title: 'Bayar Split Bill',
         splitBill,
+        ...bankProps,
         errors: { general: `Pembayaran ditolak: ${verificationResult.reason || 'Bukti tidak valid'}` },
         paid: false,
       });
