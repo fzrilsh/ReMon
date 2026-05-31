@@ -29,6 +29,7 @@ async function findBySlug(slug) {
     include: {
       transactions: { include: { transaction: true } },
       participants: true,
+      user: { select: { name: true, bankName: true, bankNumber: true, bankHolder: true } },
     },
   });
 }
