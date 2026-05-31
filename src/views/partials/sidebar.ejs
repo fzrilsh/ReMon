@@ -1,18 +1,19 @@
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
 <aside class="sidebar fixed top-0 left-0 w-[260px] h-screen bg-gcore-surface text-white flex flex-col z-50" id="sidebar">
   <div class="px-5 pt-6 pb-4">
     <a href="<%= basePath %>/dashboard" class="text-2xl font-bold text-white no-underline hover:text-gcore-accent">ReMon</a>
   </div>
   <nav class="flex flex-col gap-1 px-3 flex-1" aria-label="Navigasi utama">
-    <a href="<%= basePath %>/dashboard" class="flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
+    <a href="<%= basePath %>/dashboard" class="sidebar-nav-link flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
       <i class="fas fa-th-large w-5 text-center text-base shrink-0"></i><span>Dashboard</span>
     </a>
-    <a href="<%= basePath %>/transactions" class="flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
+    <a href="<%= basePath %>/transactions" class="sidebar-nav-link flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
       <i class="fas fa-money-bill-wave w-5 text-center text-base shrink-0"></i><span>Transaksi</span>
     </a>
-    <a href="<%= basePath %>/split-bills" class="flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
+    <a href="<%= basePath %>/split-bills" class="sidebar-nav-link flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
       <i class="fas fa-user-friends w-5 text-center text-base shrink-0"></i><span>Split Bill</span>
     </a>
-    <a href="<%= basePath %>/debts" class="flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
+    <a href="<%= basePath %>/debts" class="sidebar-nav-link flex items-center gap-2.5 px-3 py-2.5 rounded-gsm text-white text-gmd font-medium transition-all no-underline hover:bg-gcore-accent hover:text-white">
       <i class="fas fa-hand-holding-usd w-5 text-center text-base shrink-0"></i><span>Hutang</span>
     </a>
   </nav>

@@ -48,7 +48,7 @@
           <div class="mb-4">
             <label for="otherPersonName" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nama Orang</label>
             <input type="text" id="otherPersonName" name="otherPersonName"
-              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.otherPersonName ? 'border-expense' : 'border-gcore-500' %> rounded-gsm"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.otherPersonName ? 'border-expense' : 'border-gray-200' %> rounded-gsm focus:outline-none focus:border-gcore-accent transition-colors"
               placeholder="Nama teman / kenalan" value="<%= oldInput.otherPersonName || '' %>" required />
             <% if (errors && errors.otherPersonName) { %><span class="block text-gxs text-expense mt-1">
                 <%= errors.otherPersonName[0] %>
@@ -59,7 +59,7 @@
           <div class="mb-4">
             <label for="amount" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jumlah (Rp)</label>
             <input type="number" id="amount" name="amount"
-              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gcore-500' %> rounded-gsm"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gray-200' %> rounded-gsm focus:outline-none focus:border-gcore-accent transition-colors"
               placeholder="0" value="<%= oldInput.amount || '' %>" required step="0.01" min="0" />
             <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1">
                 <%= errors.amount[0] %>
@@ -70,7 +70,7 @@
           <div class="mb-4">
             <label for="description" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Deskripsi</label>
             <input type="text" id="description" name="description"
-              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.description ? 'border-expense' : 'border-gcore-500' %> rounded-gsm"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 <%= errors && errors.description ? 'border-expense' : 'border-gray-200' %> rounded-gsm focus:outline-none focus:border-gcore-accent transition-colors"
               placeholder="Mis: Bayarin makan" value="<%= oldInput.description || '' %>" required />
             <% if (errors && errors.description) { %><span class="block text-gxs text-expense mt-1">
                 <%= errors.description[0] %>
@@ -82,7 +82,7 @@
             <label for="dueDate" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Jatuh Tempo
               (opsional)</label>
             <input type="date" id="dueDate" name="dueDate"
-              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 border-gcore-500 rounded-gsm"
+              class="w-full px-3.5 py-2.5 font-sans text-sm font-medium text-gcore-900 bg-white border-2 border-gray-200 rounded-gsm focus:outline-none focus:border-gcore-accent transition-colors"
               value="<%= oldInput.dueDate || '' %>" />
             <span class="block text-gxs text-gcore-400 mt-1">Kosongkan jika tidak ada jatuh tempo</span>
           </div>

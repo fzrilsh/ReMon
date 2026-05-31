@@ -75,7 +75,7 @@
                     class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
                     Status</th>
                   <th
-                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 max-sm:hidden">
+                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
                     Bukti</th>
                 </tr>
               </thead>
@@ -107,13 +107,11 @@
                                     class="fas fa-hourglass-half"></i> Menunggu</span>
                                 <% } %>
                     </td>
-                    <td class="p-2.5 border-b border-gray-100 max-sm:hidden">
+                    <td class="p-2.5 border-b border-gray-100">
                       <% if (p.paymentVerified) { %>
-                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
-                            class="fas fa-check"></i></span>
+                        <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap"><i class="fas fa-check"></i> <span class="max-sm:hidden">Terverifikasi</span></span>
                         <% } else if (p.paymentProofImage) { %>
-                          <span
-                            class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-gxs font-semibold">Pending</span>
+                          <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap"><i class="fas fa-hourglass-half"></i> <span class="max-sm:hidden">Pending</span></span>
                           <% } else { %>
                             <span class="text-gxs text-gcore-400">&mdash;</span>
                             <% } %>
