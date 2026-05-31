@@ -1,20 +1,40 @@
 (function () {
   'use strict';
 
-  // ─── Sidebar toggle ───
+  // ─── Sidebar toggle + overlay ───
   const sidebarToggle = document.getElementById('sidebarToggle');
   const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
   if (sidebarToggle && sidebar) {
     sidebarToggle.addEventListener('click', function () {
-      sidebar.classList.toggle('open');
-    });
-    document.addEventListener('click', function (e) {
-      if (window.innerWidth <= 768 && sidebar.classList.contains('open') &&
-          !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-        sidebar.classList.remove('open');
-      }
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
     });
   }
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
+
+  // ─── Active sidebar nav link ───
+  var currentPath = window.location.pathname.replace(/\/$/, '');
+  document.querySelectorAll('.sidebar-nav-link').forEach(function (link) {
+    var href = link.getAttribute('href') || '';
+    var linkPath = href.replace(/\/$/, '');
+    if (linkPath && (currentPath === linkPath || currentPath.startsWith(linkPath + '/'))) {
+      link.classList.add('active');
+    }
+  });
 
   // ─── Toast system ───
   window.showToast = function (message, type) {
@@ -212,4 +232,102 @@
         .catch(function (err) { console.log('SW failed:', err); });
     });
   }
+
+  // ─── Swipe-to-reveal rows ───
+  function initSwipeRows() {
+    if (window.innerWidth >= 1025) return;
+
+    var SWIPE_THRESHOLD = 40;
+    var REVEAL_DISTANCE = 120;
+    var openRow = null;
+
+    function closeRow(row) {
+      if (!row) return;
+      row.classList.remove('is-open');
+      openRow = null;
+    }
+
+    function openRow_(row) {
+      if (openRow && openRow !== row) closeRow(openRow);
+      row.classList.add('is-open');
+      openRow = row;
+    }
+
+    document.addEventListener('click', function (e) {
+      if (openRow && !openRow.contains(e.target)) closeRow(openRow);
+    });
+
+    document.querySelectorAll('.swipe-row-wrap').forEach(function (wrap) {
+      var startX = 0, startY = 0, isDragging = false, isScrolling = null;
+
+      function onStart(x, y) {
+        startX = x; startY = y;
+        isDragging = true; isScrolling = null;
+      }
+
+      function onMove(x, y, e) {
+        if (!isDragging) return;
+        var dx = x - startX;
+        var dy = y - startY;
+
+        if (isScrolling === null) {
+          isScrolling = Math.abs(dy) > Math.abs(dx);
+        }
+        if (isScrolling) return;
+
+        if (e && e.cancelable) e.preventDefault();
+
+        var content = wrap.querySelector('.swipe-content');
+        var actions = wrap.querySelector('.swipe-actions');
+        if (!content) return;
+
+        var currentOpen = wrap.classList.contains('is-open');
+        var offset = currentOpen ? -REVEAL_DISTANCE + dx : dx;
+        offset = Math.max(-REVEAL_DISTANCE, Math.min(0, offset));
+
+        content.style.transition = 'none';
+        if (actions) actions.style.transition = 'none';
+        content.style.transform = 'translateX(' + offset + 'px)';
+        if (actions) actions.style.transform = 'translateX(' + (REVEAL_DISTANCE + offset) + 'px)';
+      }
+
+      function onEnd(x) {
+        if (!isDragging || isScrolling) { isDragging = false; return; }
+        isDragging = false;
+        var dx = x - startX;
+        var content = wrap.querySelector('.swipe-content');
+        var actions = wrap.querySelector('.swipe-actions');
+
+        if (content) { content.style.transition = ''; content.style.transform = ''; }
+        if (actions) { actions.style.transition = ''; actions.style.transform = ''; }
+
+        var currentOpen = wrap.classList.contains('is-open');
+        if (!currentOpen && dx < -SWIPE_THRESHOLD) {
+          openRow_(wrap);
+        } else if (currentOpen && dx > SWIPE_THRESHOLD) {
+          closeRow(wrap);
+        } else if (currentOpen) {
+          openRow_(wrap);
+        } else {
+          closeRow(wrap);
+        }
+      }
+
+      wrap.addEventListener('touchstart', function (e) {
+        onStart(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+
+      wrap.addEventListener('touchmove', function (e) {
+        onMove(e.touches[0].clientX, e.touches[0].clientY, e);
+      }, { passive: false });
+
+      wrap.addEventListener('touchend', function (e) {
+        onEnd(e.changedTouches[0].clientX);
+      });
+    });
+  }
+
+  initSwipeRows();
+
 })();
+
