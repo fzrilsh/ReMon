@@ -44,19 +44,28 @@
         <div class="bg-white rounded-gsm p-5 mb-4 border border-gray-100">
           <div class="mb-4 border-b border-gray-100 pb-4">
             <p class="text-gxs font-semibold text-gcore-500 mb-1.5 uppercase tracking-wider">Transfer Ke Rekening</p>
-            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <div>
-                <p class="text-sm font-bold text-gcore-900 mb-0.5">SeaBank</p>
-                <p class="text-sm font-mono text-gcore-900 tracking-wide">9011 4210 6970</p>
-                <p class="text-gxs text-gcore-500 mt-0.5">a.n. Fazril Syaveral Hillaby</p>
+            <% if (bankName && bankNumber && bankHolder) { %>
+              <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <div>
+                  <p class="text-sm font-bold text-gcore-900 mb-0.5"><%= bankName %></p>
+                  <p class="text-sm font-mono text-gcore-900 tracking-wide">
+                    <%= bankNumber.replace(/(\d{4})(?=\d)/g, '$1 ') %>
+                  </p>
+                  <p class="text-gxs text-gcore-500 mt-0.5">a.n. <%= bankHolder %></p>
+                </div>
+                <button type="button"
+                  onclick="navigator.clipboard.writeText('<%= bankNumber %>'); this.innerHTML='<i class=\'fas fa-check text-green-500\'></i>'; setTimeout(()=>this.innerHTML='<i class=\'fas fa-copy\'></i>', 2000)"
+                  class="h-10 w-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-gcore-500 hover:text-gcore-900 hover:border-gcore-900 transition-colors"
+                  title="Salin No. Rekening">
+                  <i class="fas fa-copy"></i>
+                </button>
               </div>
-              <button type="button"
-                onclick="navigator.clipboard.writeText('901142106970'); this.innerHTML='<i class=\'fas fa-check text-green-500\'></i>'; setTimeout(()=>this.innerHTML='<i class=\'fas fa-copy\'></i>', 2000)"
-                class="h-10 w-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-gcore-500 hover:text-gcore-900 hover:border-gcore-900 transition-colors"
-                title="Salin No. Rekening">
-                <i class="fas fa-copy"></i>
-              </button>
-            </div>
+            <% } else { %>
+              <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-gxs text-yellow-800">
+                <i class="fas fa-exclamation-triangle text-yellow-500 shrink-0"></i>
+                <span>Pemilik belum mengatur info rekening. Hubungi mereka secara langsung untuk info transfer.</span>
+              </div>
+            <% } %>
           </div>
 
           <div>
