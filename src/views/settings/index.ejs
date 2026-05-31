@@ -1,0 +1,96 @@
+<%- include("../partials/header") %>
+
+<div class="max-w-[560px]">
+  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Pengaturan</h2>
+  <p class="text-gsm text-gcore-400 mb-6">Kelola informasi akun dan rekening bank kamu</p>
+
+  <% if (success) { %>
+    <div class="flex items-center gap-2 bg-green-50 border-2 border-green-200 text-green-800 px-4 py-3 rounded-gsm mb-5 text-gsm">
+      <i class="fas fa-check-circle text-green-500"></i>
+      <span><%= success %></span>
+    </div>
+  <% } %>
+
+  <form action="<%= basePath %>/settings" method="POST" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
+
+    <div class="mb-6">
+      <h3 class="font-semibold text-gcore-900 mb-1 flex items-center gap-2">
+        <i class="fas fa-university text-gcore-accent"></i> Informasi Rekening Bank
+      </h3>
+      <p class="text-gxs text-gcore-400 mb-4">Informasi ini akan ditampilkan kepada peserta saat mereka membayar split bill kamu.</p>
+
+      <% if (user.bankName && user.bankNumber && user.bankHolder) { %>
+        <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-gsm p-3 mb-5">
+          <div>
+            <p class="text-sm font-bold text-gcore-900 mb-0.5"><%= user.bankName %></p>
+            <p class="text-sm font-mono text-gcore-900 tracking-wide">
+              <%= user.bankNumber.replace(/(\d{4})(?=\d)/g, '$1 ') %>
+            </p>
+            <p class="text-gxs text-gcore-500 mt-0.5">a.n. <%= user.bankHolder %></p>
+          </div>
+          <div class="shrink-0 w-10 h-10 flex items-center justify-center bg-green-100 rounded-gsm">
+            <i class="fas fa-check-circle text-green-600"></i>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-gsm p-3 mb-5 text-gxs text-yellow-800">
+          <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+          Belum ada info rekening. Isi form di bawah agar peserta split bill bisa transfer ke kamu.
+        </div>
+      <% } %>
+
+      <div class="mb-4">
+        <label for="bankName" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nama Bank</label>
+        <input type="text" id="bankName" name="bankName"
+          class="w-full border-2 <%= errors && errors.bankName ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
+          placeholder="Contoh: SeaBank, BCA, BRI, BNI, GoPay..."
+          value="<%= user.bankName || '' %>" />
+        <% if (errors && errors.bankName) { %>
+          <span class="block text-gxs text-expense mt-1"><%= errors.bankName %></span>
+        <% } %>
+      </div>
+
+      <div class="mb-4">
+        <label for="bankNumber" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Nomor Rekening</label>
+        <input type="text" id="bankNumber" name="bankNumber"
+          class="w-full border-2 <%= errors && errors.bankNumber ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white font-mono focus:outline-none focus:border-gcore-accent transition-colors"
+          placeholder="Contoh: 9011420106970"
+          value="<%= user.bankNumber || '' %>"
+          inputmode="numeric" />
+        <% if (errors && errors.bankNumber) { %>
+          <span class="block text-gxs text-expense mt-1"><%= errors.bankNumber %></span>
+        <% } %>
+        <span class="block text-gxs text-gcore-400 mt-1">Hanya angka, tanpa spasi atau tanda hubung</span>
+      </div>
+
+      <div class="mb-6">
+        <label for="bankHolder" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Atas Nama</label>
+        <input type="text" id="bankHolder" name="bankHolder"
+          class="w-full border-2 <%= errors && errors.bankHolder ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
+          placeholder="Nama sesuai rekening bank"
+          value="<%= user.bankHolder || '' %>" />
+        <% if (errors && errors.bankHolder) { %>
+          <span class="block text-gxs text-expense mt-1"><%= errors.bankHolder %></span>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="flex gap-2">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+      <% if (user.bankName) { %>
+        <button type="button" class="btn btn-ghost text-expense"
+          onclick="if(confirm('Hapus info rekening?')) { document.getElementById('clearBank').submit(); }">
+          <i class="fas fa-trash"></i> Hapus Rekening
+        </button>
+      <% } %>
+    </div>
+  </form>
+
+  <form id="clearBank" action="<%= basePath %>/settings" method="POST" style="display:none;">
+    <input type="hidden" name="bankName" value="">
+    <input type="hidden" name="bankNumber" value="">
+    <input type="hidden" name="bankHolder" value="">
+  </form>
+</div>
+
+<%- include("../partials/footer") %>
