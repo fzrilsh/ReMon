@@ -44,8 +44,32 @@
 @media (max-width: 1024px) { .app-content { padding: 20px 16px; } }
 
 /* ─── Toast ─── */
-.toast-container { animation: toastIn 300ms ease; }
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+@media (max-width: 640px) { .toast-container { right: 12px; left: 12px; bottom: 16px; } }
 @keyframes toastIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 12px;
+  font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 260px; max-width: 380px;
+  animation: toastIn 300ms ease;
+}
+@media (max-width: 640px) { .toast { min-width: 0; width: 100%; max-width: 100%; } }
+.toast-message { flex: 1; }
+.toast-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 18px; opacity: 0.5; padding: 0; line-height: 1;
+  transition: opacity 150ms;
+}
+.toast-close:hover { opacity: 1; }
+.toast--info    { background: #150c18; color: #ffffff; }
+.toast--success { background: #2d7d2d; color: #ffffff; }
+.toast--error   { background: #c0392b; color: #ffffff; }
+.toast--warning { background: #d97706; color: #ffffff; }
 
 /* ─── Table scroll ─── */
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -58,6 +82,16 @@ table { min-width: 500px; }
 .notif-item { transition: background 150ms; }
 .notif-item:hover { background: #f9fafb; }
 .text-2xs { font-size: 10px; line-height: 1.2; }
+@media (max-width: 640px) {
+  #notifDropdown {
+    position: fixed !important;
+    right: 12px !important;
+    left: 12px !important;
+    top: 60px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
 
 /* ─── Radio toggle (CSS-only, no JS needed) ─── */
 label:has(input[type="radio"]:checked) {
@@ -76,4 +110,121 @@ label:has(input[name="direction"]:checked) {
   background: #f3f4f6 !important;
   border-color: #150c18 !important;
   font-weight: 600 !important;
+}
+
+/* ─── Sidebar overlay (mobile) ─── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 40;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: overlayIn 200ms ease;
+}
+.sidebar-overlay.active { display: block; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ─── Active sidebar nav link ─── */
+.sidebar-nav-link { position: relative; }
+.sidebar-nav-link.active {
+  background: #ff4c00 !important;
+  color: #ffffff !important;
+}
+.sidebar-nav-link.active i { color: #ffffff !important; }
+
+/* ═══════════════════════════════════════════
+   SWIPE-TO-REVEAL ROW SYSTEM
+   ═══════════════════════════════════════════ */
+
+/* The outer wrapper — clips the sliding content */
+.swipe-row-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The row content that slides left on swipe */
+.swipe-content {
+  display: flex;
+  align-items: center;
+  transition: transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  background: #ffffff;
+  width: 100%;
+}
+
+/* The hidden action panel revealed on swipe */
+.swipe-actions {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 2;
+  transform: translateX(100%);
+  transition: transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.swipe-row-wrap.is-open .swipe-content {
+  transform: translateX(-120px);
+}
+.swipe-row-wrap.is-open .swipe-actions {
+  transform: translateX(0);
+}
+
+/* Individual action buttons inside the panel */
+.swipe-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 60px;
+  border: none; cursor: pointer;
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  transition: filter 150ms;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.swipe-btn:hover { filter: brightness(0.9); }
+.swipe-btn:active { filter: brightness(0.75); transform: scale(0.95); }
+.swipe-btn-edit   { background: #3b82f6; color: #ffffff; }
+.swipe-btn-settle { background: #2d7d2d; color: #ffffff; }
+.swipe-btn-delete { background: #c0392b; color: #ffffff; }
+
+/* Swipe hint icon — only shown on mobile to hint swipe gesture */
+.swipe-hint {
+  display: none;
+  color: #d1d5db;
+  font-size: 10px;
+  padding-right: 6px;
+  align-items: center;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+@media (max-width: 1024px) {
+  .swipe-hint { display: flex; }
+}
+
+/* On desktop: actions are always shown inline, no swipe needed */
+@media (min-width: 1025px) {
+  .swipe-row-wrap { overflow: visible; }
+  .swipe-content {
+    transform: none !important;
+    display: contents;
+    transition: none;
+  }
+  .swipe-actions {
+    position: static;
+    transform: none !important;
+    transition: none;
+  }
+  .swipe-btn {
+    width: auto; padding: 6px 10px;
+    border-radius: 8px; font-size: 14px;
+    background: transparent;
+  }
+  .swipe-btn-edit   { color: #3b82f6; }
+  .swipe-btn-settle { color: #2d7d2d; }
+  .swipe-btn-delete { color: #c0392b; }
+  .swipe-btn:hover { background: #f0f0f0; filter: none; }
+  .swipe-btn:active { transform: none; }
 }
