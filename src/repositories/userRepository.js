@@ -13,4 +13,11 @@ async function create(data) {
   return prisma.user.create({ data });
 }
 
-module.exports = { findByEmail, findById, create };
+async function updateBankInfo(id, { bankName, bankNumber, bankHolder }) {
+  return prisma.user.update({
+    where: { id },
+    data: { bankName, bankNumber, bankHolder },
+  });
+}
+
+module.exports = { findByEmail, findById, create, updateBankInfo };
