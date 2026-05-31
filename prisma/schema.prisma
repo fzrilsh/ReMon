@@ -42,18 +42,21 @@ enum NotificationType {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String
+  bankName    String?
+  bankNumber  String?
+  bankHolder  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  transactions Transaction[]
-  splitBills   SplitBill[]
-  debts        Debt[]
+  transactions  Transaction[]
+  splitBills    SplitBill[]
+  debts         Debt[]
   notifications Notification[]
-  categories   Category[]
+  categories    Category[]
 }
 
 model Category {
