@@ -75,37 +75,29 @@ async function submitPay(req, res, next) {
       proofPath: req.file.path,
     });
 
-    // Verify with AI
-    const verificationResult = await aiService.verifyPaymentProof(
-      req.file.path,
-      Number(participant.amount)
-    );
-
-    await splitBillService.verifyAndUpdatePayment(participant.id, verificationResult);
-
-    if (verificationResult.valid) {
-      const paidCount = splitBill.participants.filter(p => p.status === 'PAID' || p.id === participant.id).length + 1;
-      const totalCount = splitBill.participants.length;
-      
-      res.render('public/split-pay', {
-        title: 'Bayar Split Bill',
-        splitBill,
-        ...bankProps,
-        errors: null,
-        paid: true,
-        paidParticipant: parsed.data.name,
-        paidAmount: Number(participant.amount).toLocaleString('id-ID'),
-        progress: `${paidCount}/${totalCount}`,
+    // Verify with AI in the background without blocking the HTTP response
+    aiService.verifyPaymentProof(req.file.path, Number(participant.amount))
+      .then(verificationResult => {
+        return splitBillService.verifyAndUpdatePayment(participant.id, verificationResult);
+      })
+      .catch(err => {
+        console.error('Error during background AI verification:', err);
+        return splitBillService.verifyAndUpdatePayment(participant.id, {
+          valid: false,
+          reason: 'Gagal melakukan verifikasi otomatis (sistem error).'
+        });
       });
-    } else {
-      res.render('public/split-pay', {
-        title: 'Bayar Split Bill',
-        splitBill,
-        ...bankProps,
-        errors: { general: `Pembayaran ditolak: ${verificationResult.reason || 'Bukti tidak valid'}` },
-        paid: false,
-      });
-    }
+
+    res.render('public/split-pay', {
+      title: 'Pembayaran Diproses — ReMon',
+      splitBill,
+      ...bankProps,
+      errors: null,
+      paid: false,
+      processing: true,
+      paidParticipant: parsed.data.name,
+      paidAmount: Number(participant.amount).toLocaleString('id-ID'),
+    });
   } catch (err) {
     if (err.statusCode) {
       return res.status(err.statusCode).render('public/split-pay', {
