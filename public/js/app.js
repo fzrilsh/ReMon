@@ -257,7 +257,7 @@
       if (openRow && !openRow.contains(e.target)) closeRow(openRow);
     });
 
-    document.querySelectorAll('.swipe-row-wrap').forEach(function (wrap) {
+    document.querySelectorAll('.swipe-row-wrap, .swipe-card-wrap').forEach(function (wrap) {
       var startX = 0, startY = 0, isDragging = false, isScrolling = null;
 
       function onStart(x, y) {
@@ -281,14 +281,15 @@
         var actions = wrap.querySelector('.swipe-actions');
         if (!content) return;
 
+        var revealDistance = (actions && actions.offsetWidth > 0) ? actions.offsetWidth : REVEAL_DISTANCE;
         var currentOpen = wrap.classList.contains('is-open');
-        var offset = currentOpen ? -REVEAL_DISTANCE + dx : dx;
-        offset = Math.max(-REVEAL_DISTANCE, Math.min(0, offset));
+        var offset = currentOpen ? -revealDistance + dx : dx;
+        offset = Math.max(-revealDistance, Math.min(0, offset));
 
         content.style.transition = 'none';
         if (actions) actions.style.transition = 'none';
         content.style.transform = 'translateX(' + offset + 'px)';
-        if (actions) actions.style.transform = 'translateX(' + (REVEAL_DISTANCE + offset) + 'px)';
+        if (actions) actions.style.transform = 'translateX(' + (revealDistance + offset) + 'px)';
       }
 
       function onEnd(x) {
