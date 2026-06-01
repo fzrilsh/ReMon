@@ -2,10 +2,34 @@ const transactionService = require('../services/transactionService');
 
 async function index(req, res, next) {
   try {
-    const transactions = await transactionService.getAll(req.session.user.id);
+    const { categoryId, monthYear } = req.query;
+    const filters = {};
+    if (categoryId) {
+      if (categoryId === 'none') {
+        filters.categoryId = null;
+      } else {
+        filters.categoryId = categoryId;
+      }
+    }
+    if (monthYear) {
+      const [yearStr, monthStr] = monthYear.split('-');
+      const year = parseInt(yearStr);
+      const month = parseInt(monthStr) - 1;
+      const startDate = new Date(year, month, 1);
+      const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+      filters.date = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+    const transactions = await transactionService.getAll(req.session.user.id, filters);
+    const categories = await transactionService.getCategories();
     res.render('transactions/list', {
       title: 'Transaksi',
       transactions,
+      categories,
+      selectedCategoryId: categoryId || '',
+      selectedMonthYear: monthYear || '',
     });
   } catch (err) {
     next(err);

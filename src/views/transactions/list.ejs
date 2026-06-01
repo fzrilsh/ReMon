@@ -11,6 +11,36 @@
   </div>
 </div>
 
+<!-- Filter Bar -->
+<div class="bg-gray-50 border-2 border-gray-200 rounded-gsm p-3 mb-6 flex flex-wrap items-center justify-between gap-3">
+  <form action="" method="GET" class="flex items-center gap-4 flex-wrap w-full sm:w-auto" id="filterForm">
+    <!-- Category Filter -->
+    <div class="flex items-center gap-2">
+      <label for="categoryFilter" class="text-gsm font-semibold text-gcore-900 whitespace-nowrap">Kategori:</label>
+      <select id="categoryFilter" name="categoryId" onchange="this.form.submit()" class="bg-white border-2 border-gray-200 rounded-gxs px-3 py-1.5 text-gsm font-medium text-gcore-900 focus:outline-none focus:border-gcore-accent min-w-[150px]">
+        <option value="">Semua Kategori</option>
+        <% if (typeof categories !== 'undefined' && categories) { %>
+          <% categories.forEach(function(cat) { %>
+            <option value="<%= cat.id %>" <%= typeof selectedCategoryId !== 'undefined' && selectedCategoryId === cat.id ? 'selected' : '' %>>
+              <%= cat.icon || '📁' %> <%= cat.name %>
+            </option>
+          <% }) %>
+        <% } %>
+        <option value="none" <%= typeof selectedCategoryId !== 'undefined' && selectedCategoryId === 'none' ? 'selected' : '' %>>📁 Tanpa Kategori</option>
+      </select>
+    </div>
+
+    <!-- Month Year Filter -->
+    <div class="flex items-center gap-2">
+      <label for="monthYearFilter" class="text-gsm font-semibold text-gcore-900 whitespace-nowrap">Bulan & Tahun:</label>
+      <input type="month" id="monthYearFilter" name="monthYear" value="<%= typeof selectedMonthYear !== 'undefined' ? selectedMonthYear : '' %>" onchange="this.form.submit()" class="bg-white border-2 border-gray-200 rounded-gxs px-3 py-1.5 text-gsm font-medium text-gcore-900 focus:outline-none focus:border-gcore-accent">
+    </div>
+  </form>
+  <% if ((typeof selectedCategoryId !== 'undefined' && selectedCategoryId !== '') || (typeof selectedMonthYear !== 'undefined' && selectedMonthYear !== '')) { %>
+    <a href="<%= basePath %>/transactions" class="text-gsm font-semibold text-gcore-accent hover:text-gcore-700 whitespace-nowrap"><i class="fas fa-times-circle"></i> Bersihkan Filter</a>
+  <% } %>
+</div>
+
 <% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
   <div class="border-2 border-gray-200 rounded-gsm overflow-hidden">
     <table class="w-full border-collapse" style="min-width:0;">
@@ -65,9 +95,15 @@
 <% } else { %>
   <div class="bg-white border-2 border-gray-200 rounded-gsm p-12 text-center">
     <div class="text-4xl text-gcore-400 mb-4"><i class="fas fa-receipt"></i></div>
-    <h3 class="font-semibold text-gcore-900 mb-2">Belum ada transaksi</h3>
-    <p class="text-gsm text-gcore-400 mb-4">Catat pemasukan atau pengeluaran pertama kamu</p>
-    <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat Transaksi</a>
+    <% if ((typeof selectedCategoryId !== 'undefined' && selectedCategoryId !== '') || (typeof selectedMonthYear !== 'undefined' && selectedMonthYear !== '')) { %>
+      <h3 class="font-semibold text-gcore-900 mb-2">Tidak ada transaksi ditemukan</h3>
+      <p class="text-gsm text-gcore-400 mb-4">Tidak ada catatan transaksi dengan filter yang dipilih</p>
+      <a href="<%= basePath %>/transactions" class="btn btn-secondary"><i class="fas fa-undo"></i> Bersihkan Filter</a>
+    <% } else { %>
+      <h3 class="font-semibold text-gcore-900 mb-2">Belum ada transaksi</h3>
+      <p class="text-gsm text-gcore-400 mb-4">Catat pemasukan atau pengeluaran pertama kamu</p>
+      <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat Transaksi</a>
+    <% } %>
   </div>
 <% } %>
 
