@@ -1,164 +1,273 @@
 <%- include("../partials/header") %>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-income">
-    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-up text-income"></i> Pemasukan Bulan Ini</p>
-    <p class="text-2xl font-bold text-income"><%= (typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome).toLocaleString('id-ID') : 0) %></p>
-  </div>
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-expense">
-    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-down text-expense"></i> Pengeluaran Bulan Ini</p>
-    <p class="text-2xl font-bold text-expense"><%= (typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense).toLocaleString('id-ID') : 0) %></p>
-  </div>
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gcore-900">
-    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-wallet"></i> Saldo</p>
-    <p class="text-2xl font-bold text-gcore-900">Rp <%= (typeof balance !== 'undefined' ? Number(balance).toLocaleString('id-ID') : 0) %></p>
-  </div>
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gcore-700">
-    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-user-friends"></i> Split Bill Aktif</p>
-    <p class="text-2xl font-bold text-gcore-900"><%= typeof activeSplitBills !== 'undefined' ? activeSplitBills : 0 %></p>
-  </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-6">
-  <h3 class="font-semibold text-gcore-900 mb-3">Aksi Cepat</h3>
-  <div class="flex flex-wrap gap-2">
-    <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat Transaksi</a>
-    <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary"><i class="fas fa-camera"></i> Upload Struk</a>
-    <a href="<%= basePath %>/split-bills/create" class="btn btn-secondary"><i class="fas fa-user-friends"></i> Split Bill</a>
-    <a href="<%= basePath %>/debts/create" class="btn btn-secondary"><i class="fas fa-hand-holding-usd"></i> Catat Hutang</a>
-  </div>
-</div>
-
-<!-- Debt Summary -->
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-expense">
-    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-right text-expense"></i> Hutang Saya</p>
-    <p class="text-xl font-bold text-expense">Rp <%= typeof totalIOwe !== 'undefined' ? Number(totalIOwe).toLocaleString('id-ID') : 0 %></p>
-    <a href="<%= basePath %>/debts" class="text-gxs text-gcore-accent hover:text-gcore-700">Lihat detail</a>
-  </div>
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-income">
-    <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-arrow-left text-income"></i> Dihutangi</p>
-    <p class="text-xl font-bold text-income">Rp <%= typeof totalTheyOwe !== 'undefined' ? Number(totalTheyOwe).toLocaleString('id-ID') : 0 %></p>
-    <a href="<%= basePath %>/debts" class="text-gxs text-gcore-accent hover:text-gcore-700">Lihat detail</a>
-  </div>
-</div>
-
-<!-- Recent Transactions + Chart -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 lg:col-span-2">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="font-semibold text-gcore-900">Transaksi Terbaru</h3>
-      <a href="<%= basePath %>/transactions" class="btn btn-ghost btn-sm">Lihat Semua</a>
+  <!-- Dashboard Header with Filter Toggle -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+    <div>
+      <h2 class="text-xl font-bold text-gcore-900">Ringkasan Keuangan</h2>
+      <p class="text-gsm text-gcore-400 mt-1">Kelola dan pantau keuangan pribadi Anda</p>
     </div>
-    <% if (typeof recentTransactions !== 'undefined' && recentTransactions.length > 0) { %>
-      <div class="table-wrap">
-        <table class="w-full border-collapse table-fixed">
-          <thead>
-            <tr>
-              <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap">Deskripsi</th>
-              <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 max-sm:hidden w-[120px] whitespace-nowrap">Kategori</th>
-              <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 w-[140px] whitespace-nowrap">Jumlah</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% recentTransactions.slice(0, 5).forEach(function(t) { %>
-              <tr class="hover:bg-gray-50">
-                <td class="p-2.5 border-b border-gray-100 text-gsm text-gcore-900 truncate" title="<%= t.description %>"><%= t.description %></td>
-                <td class="p-2.5 border-b border-gray-100 max-sm:hidden truncate"><span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold"><%= t.category ? t.category.name : '-' %></span></td>
-                <td class="p-2.5 border-b border-gray-100 font-semibold whitespace-nowrap <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %>"><%= t.type === 'INCOME' ? '+' : '-' %> Rp <%= Number(t.amount).toLocaleString('id-ID') %></td>
+    <div class="inline-flex rounded-gsm border-2 border-gray-200 p-0.5 bg-gray-50 shrink-0">
+      <a href="?filter=monthly" class="px-4 py-1.5 rounded-gxs text-gsm font-semibold transition-all <%= typeof filter !== 'undefined' && filter === 'all' ? 'text-gcore-500 hover:text-gcore-900' : 'bg-gcore-900 text-white shadow-sm' %>">
+        Bulan Ini
+      </a>
+      <a href="?filter=all" class="px-4 py-1.5 rounded-gxs text-gsm font-semibold transition-all <%= typeof filter !== 'undefined' && filter === 'all' ? 'bg-gcore-900 text-white shadow-sm' : 'text-gcore-500 hover:text-gcore-900' %>">
+        Semua
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-income">
+      <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i
+          class="fas fa-arrow-up text-income"></i> <%= typeof filter !== 'undefined' && filter === 'all' ? 'Total Pemasukan' : 'Pemasukan Bulan Ini' %></p>
+      <p class="text-2xl font-bold text-income">
+        <%= (typeof monthlyIncome !=='undefined' ? Number(monthlyIncome).toLocaleString('id-ID') : 0) %>
+      </p>
+    </div>
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-expense">
+      <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i
+          class="fas fa-arrow-down text-expense"></i> <%= typeof filter !== 'undefined' && filter === 'all' ? 'Total Pengeluaran' : 'Pengeluaran Bulan Ini' %></p>
+      <p class="text-2xl font-bold text-expense">
+        <%= (typeof monthlyExpense !=='undefined' ? Number(monthlyExpense).toLocaleString('id-ID') : 0) %>
+      </p>
+    </div>
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gcore-900">
+      <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-wallet"></i> <%= typeof filter !== 'undefined' && filter === 'all' ? 'Saldo Total' : 'Saldo' %>
+      </p>
+      <p class="text-2xl font-bold text-gcore-900">Rp <%= (typeof balance !=='undefined' ?
+          Number(balance).toLocaleString('id-ID') : 0) %>
+      </p>
+    </div>
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gcore-700">
+      <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i class="fas fa-user-friends"></i>
+        Split Bill Aktif</p>
+      <p class="text-2xl font-bold text-gcore-900">
+        <%= typeof activeSplitBills !=='undefined' ? activeSplitBills : 0 %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-6">
+    <h3 class="font-semibold text-gcore-900 mb-3">Aksi Cepat</h3>
+    <div class="flex flex-wrap gap-2">
+      <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat
+        Transaksi</a>
+      <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary"><i class="fas fa-camera"></i> Upload
+        Struk</a>
+      <a href="<%= basePath %>/split-bills/create" class="btn btn-secondary"><i class="fas fa-user-friends"></i> Split
+        Bill</a>
+      <a href="<%= basePath %>/debts/create" class="btn btn-secondary"><i class="fas fa-hand-holding-usd"></i> Catat
+        Hutang</a>
+    </div>
+  </div>
+
+  <!-- Debt Summary -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-expense">
+      <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i
+          class="fas fa-arrow-right text-expense"></i> Hutang Saya</p>
+      <p class="text-xl font-bold text-expense">Rp <%= typeof totalIOwe !=='undefined' ?
+          Number(totalIOwe).toLocaleString('id-ID') : 0 %>
+      </p>
+      <a href="<%= basePath %>/debts" class="text-gxs text-gcore-accent hover:text-gcore-700">Lihat detail</a>
+    </div>
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-income">
+      <p class="text-gxs font-medium text-gcore-500 uppercase tracking-wide mb-1"><i
+          class="fas fa-arrow-left text-income"></i> Dihutangi</p>
+      <p class="text-xl font-bold text-income">Rp <%= typeof totalTheyOwe !=='undefined' ?
+          Number(totalTheyOwe).toLocaleString('id-ID') : 0 %>
+      </p>
+      <a href="<%= basePath %>/debts" class="text-gxs text-gcore-accent hover:text-gcore-700">Lihat detail</a>
+    </div>
+  </div>
+
+  <!-- Recent Transactions + Chart -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 lg:col-span-2">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gcore-900">Transaksi Terbaru</h3>
+        <a href="<%= basePath %>/transactions" class="btn btn-ghost btn-sm">Lihat Semua</a>
+      </div>
+      <% if (typeof recentTransactions !=='undefined' && recentTransactions.length> 0) { %>
+        <div class="table-wrap">
+          <table class="w-full border-collapse table-fixed">
+            <thead>
+              <tr>
+                <th
+                  class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap">
+                  Deskripsi</th>
+                <th
+                  class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 max-sm:hidden w-[120px] whitespace-nowrap">
+                  Kategori</th>
+                <th
+                  class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 w-[140px] whitespace-nowrap">
+                  Jumlah</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-    <% } else { %>
-      <div class="text-center py-10">
-        <div class="text-3xl text-gcore-400 mb-3"><i class="fas fa-chart-bar"></i></div>
-        <p class="text-gsm text-gcore-400">Belum ada transaksi bulan ini.</p>
-      </div>
-    <% } %>
-  </div>
-  <div class="flex flex-col gap-4">
-    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
-      <h3 class="font-semibold text-gcore-900 mb-4">Grafik Bulanan</h3>
-      <canvas id="monthlyChart" width="200" height="200"></canvas>
-    </div>
-
-    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
-      <h3 class="font-semibold text-gcore-900 mb-4">Pengeluaran Kategori</h3>
-      <% if (typeof categoryExpenses !== 'undefined' && categoryExpenses.length > 0) { %>
-        <canvas id="categoryChart" width="200" height="200"></canvas>
-      <% } else { %>
-        <div class="text-center py-10">
-          <div class="text-3xl text-gcore-400 mb-2"><i class="fas fa-tags"></i></div>
-          <p class="text-gsm text-gcore-400">Belum ada pengeluaran bulan ini.</p>
+            </thead>
+            <tbody>
+              <% recentTransactions.slice(0, 5).forEach(function(t) { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="p-2.5 border-b border-gray-100 text-gsm text-gcore-900 truncate"
+                    title="<%= t.description %>">
+                    <%= t.description %>
+                  </td>
+                  <td class="p-2.5 border-b border-gray-100 max-sm:hidden truncate"><span
+                       class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold">
+                      <%= t.category ? t.category.name : '-' %>
+                    </span></td>
+                  <td
+                    class="p-2.5 border-b border-gray-100 font-semibold whitespace-nowrap <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %>">
+                    <%= t.type==='INCOME' ? '+' : '-' %> Rp <%= Number(t.amount).toLocaleString('id-ID') %>
+                  </td>
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
         </div>
-      <% } %>
+        <% } else { %>
+          <div class="text-center py-10">
+            <div class="text-3xl text-gcore-400 mb-3"><i class="fas fa-chart-bar"></i></div>
+            <p class="text-gsm text-gcore-400">Belum ada transaksi<%= typeof filter !== 'undefined' && filter === 'all' ? '' : ' bulan ini' %>.</p>
+          </div>
+          <% } %>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
+        <h3 class="font-semibold text-gcore-900 mb-4"><%= typeof filter !== 'undefined' && filter === 'all' ? 'Tren Bulanan' : 'Grafik Bulanan' %></h3>
+        <% if (typeof filter !== 'undefined' && filter === 'all') { %>
+          <canvas id="trendChart" width="200" height="200"></canvas>
+        <% } else { %>
+          <canvas id="monthlyChart" width="200" height="200"></canvas>
+        <% } %>
+      </div>
+
+      <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
+        <h3 class="font-semibold text-gcore-900 mb-4">Pengeluaran Kategori</h3>
+        <% if (typeof categoryExpenses !=='undefined' && categoryExpenses.length> 0) { %>
+          <canvas id="categoryChart" width="200" height="200"></canvas>
+          <% } else { %>
+            <div class="text-center py-10">
+              <div class="text-3xl text-gcore-400 mb-2"><i class="fas fa-tags"></i></div>
+              <p class="text-gsm text-gcore-400">Belum ada pengeluaran<%= typeof filter !== 'undefined' && filter === 'all' ? '' : ' bulan ini' %>.</p>
+            </div>
+            <% } %>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-(function() {
-  var ctx = document.getElementById('monthlyChart');
-  if (ctx) {
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Pemasukan', 'Pengeluaran'],
-        datasets: [{
-          data: [<%= typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome) : 0 %>, <%= typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense) : 0 %>],
-          backgroundColor: ['#2d7d2d', '#c0392b'],
-          borderWidth: 0,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        cutout: '70%',
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, color: '#9CA3AF', padding: 12 } }
-        }
-      }
-    });
-  }
-
-  var catCtx = document.getElementById('categoryChart');
-  if (catCtx) {
-    <% 
-      var labels = [];
-      var data = [];
-      if (typeof categoryExpenses !== 'undefined') {
-        categoryExpenses.forEach(function(c) {
-          labels.push(c.name);
-          data.push(c.amount);
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function () {
+      var ctx = document.getElementById('monthlyChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Pemasukan', 'Pengeluaran'],
+            datasets: [{
+              data: [<%= typeof monthlyIncome !== 'undefined' ? Number(monthlyIncome) : 0 %>, <%= typeof monthlyExpense !== 'undefined' ? Number(monthlyExpense) : 0 %>],
+              backgroundColor: ['#2d7d2d', '#c0392b'],
+              borderWidth: 0,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: true,
+            cutout: '70%',
+            plugins: {
+              legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, color: '#9CA3AF', padding: 12 } }
+            }
+          }
         });
       }
-    %>
-    new Chart(catCtx, {
-      type: 'doughnut',
-      data: {
-        labels: <%- JSON.stringify(labels) %>,
-        datasets: [{
-          data: <%- JSON.stringify(data) %>,
-          backgroundColor: [
-            '#ff4c00', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', 
-            '#ec4899', '#374151', '#06b6d4', '#84cc16', '#a855f7'
-          ],
-          borderWidth: 0,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        cutout: '70%',
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 10 }, color: '#9CA3AF', padding: 8 } }
-        }
-      }
-    });
-  }
-})();
-</script>
 
-<%- include("../partials/footer") %>
+      var trendCtx = document.getElementById('trendChart');
+      if (trendCtx) {
+        new Chart(trendCtx, {
+          type: 'bar',
+          data: {
+            labels: <%- typeof trendLabels !== 'undefined' ? JSON.stringify(trendLabels) : '[]' %>,
+            datasets: [
+              {
+                label: 'Pemasukan',
+                data: <%- typeof trendIncomeData !== 'undefined' ? JSON.stringify(trendIncomeData) : '[]' %>,
+                backgroundColor: '#2d7d2d',
+                borderRadius: 4,
+              },
+              {
+                label: 'Pengeluaran',
+                data: <%- typeof trendExpenseData !== 'undefined' ? JSON.stringify(trendExpenseData) : '[]' %>,
+                backgroundColor: '#c0392b',
+                borderRadius: 4,
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { family: 'Montserrat', size: 10 }, color: '#9CA3AF' }
+              },
+              y: {
+                grid: { color: '#f3f4f6' },
+                ticks: {
+                  font: { family: 'Montserrat', size: 10 },
+                  color: '#9CA3AF',
+                  callback: function(value) {
+                    if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+                    if (value >= 1e3) return (value / 1e3).toFixed(0) + 'K';
+                    return value;
+                  }
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { font: { family: 'Montserrat', size: 11 }, color: '#9CA3AF', padding: 12 }
+              }
+            }
+          }
+        });
+      }
+
+      var catCtx = document.getElementById('categoryChart');
+      if (catCtx) {
+        <% 
+        var chartLabels = [];
+        var chartData = [];
+        if (typeof categoryExpenses !== 'undefined' && categoryExpenses) {
+          categoryExpenses.forEach(function (c) {
+            chartLabels.push(c.name);
+            chartData.push(c.amount);
+          });
+        }
+        %>
+        new Chart(catCtx, {
+          type: 'doughnut',
+          data: {
+            labels: <%- JSON.stringify(chartLabels) %>,
+            datasets: [{
+              data: <%- JSON.stringify(chartData) %>,
+                backgroundColor: [
+                  '#ff4c00', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
+                  '#ec4899', '#374151', '#06b6d4', '#84cc16', '#a855f7'
+                ],
+                borderWidth: 0,
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: true,
+              cutout: '70%',
+              plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 10 }, color: '#9CA3AF', padding: 8 } }
+              }
+            }
+          });
+      }
+    })();
+  </script>
+
+  <%- include("../partials/footer") %>
