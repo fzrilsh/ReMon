@@ -238,13 +238,22 @@
         <% 
         var chartLabels = [];
         var chartData = [];
+        var chartIds = [];
         if (typeof categoryExpenses !== 'undefined' && categoryExpenses) {
           categoryExpenses.forEach(function (c) {
             chartLabels.push(c.name);
             chartData.push(c.amount);
+            chartIds.push(c.id);
           });
         }
+        
+        var currentMonthYear = '';
+        if (typeof filter === 'undefined' || filter !== 'all') {
+          var now = new Date();
+          currentMonthYear = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        }
         %>
+        var categoryIds = <%- JSON.stringify(chartIds) %>;
         new Chart(catCtx, {
           type: 'doughnut',
           data: {
@@ -261,6 +270,21 @@
             options: {
               responsive: true, maintainAspectRatio: true,
               cutout: '70%',
+              onClick: function(evt, elements, chart) {
+                if (elements && elements.length > 0) {
+                  var index = elements[0].index;
+                  var categoryId = categoryIds[index];
+                  var monthYear = '<%= currentMonthYear %>';
+                  var url = '<%= basePath %>/transactions?categoryId=' + categoryId;
+                  if (monthYear) {
+                    url += '&monthYear=' + monthYear;
+                  }
+                  window.location.href = url;
+                }
+              },
+              onHover: function(evt, elements) {
+                evt.chart.canvas.style.cursor = elements && elements.length > 0 ? 'pointer' : 'default';
+              },
               plugins: {
                 legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 10 }, color: '#9CA3AF', padding: 8 } }
               }

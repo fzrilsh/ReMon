@@ -110,14 +110,20 @@ async function getDashboardData(userId, filter = 'monthly') {
   monthlyTransactions
     .filter(t => t.type === 'EXPENSE')
     .forEach(t => {
+      const catKey = t.category ? t.categoryId : 'none';
       const catName = t.category ? `${t.category.icon || '📁'} ${t.category.name}` : '📁 Lainnya';
-      categoryExpensesMap[catName] = (categoryExpensesMap[catName] || 0) + Number(t.amount);
+      if (!categoryExpensesMap[catKey]) {
+        categoryExpensesMap[catKey] = {
+          id: catKey,
+          name: catName,
+          amount: 0
+        };
+      }
+      categoryExpensesMap[catKey].amount += Number(t.amount);
     });
 
-  const categoryExpenses = Object.keys(categoryExpensesMap).map(name => ({
-    name,
-    amount: categoryExpensesMap[name],
-  })).sort((a, b) => b.amount - a.amount);
+  const categoryExpenses = Object.values(categoryExpensesMap)
+    .sort((a, b) => b.amount - a.amount);
 
   // 7. General count and debt summaries
   const activeSplitBills = await prisma.splitBill.count({
