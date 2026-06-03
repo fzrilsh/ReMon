@@ -40,27 +40,30 @@ async function showCreate(req, res, next) {
   try {
     const categories = await transactionService.getCategories();
 
-    // Load receipt data from session if present (after synchronous parse)
     let receiptData = {};
     let oldInput = {};
-    if (req.session.pendingReceiptData) {
-      receiptData = req.session.pendingReceiptData;
-      delete req.session.pendingReceiptData;
 
-      // Pre-fill oldInput from receipt data
-      oldInput = {
-        type: 'EXPENSE',
-        amount: receiptData.total_amount,
-        description: receiptData.store_name || '',
-        date: receiptData.date || new Date().toISOString().split('T')[0],
-      };
+    // Load receipt data from notification link query param (?d=base64url)
+    if (req.query.d) {
+      try {
+        receiptData = JSON.parse(Buffer.from(req.query.d, 'base64url').toString('utf8'));
 
-      // Match category by name
-      if (receiptData.category_name) {
-        const matched = categories.find(
-          (c) => c.name.toLowerCase() === receiptData.category_name.toLowerCase()
-        );
-        if (matched) oldInput.categoryId = matched.id;
+        oldInput = {
+          type: 'EXPENSE',
+          amount: receiptData.total_amount,
+          description: receiptData.store_name || '',
+          date: receiptData.date || new Date().toISOString().split('T')[0],
+        };
+
+        // Match category by name from AI
+        if (receiptData.category_name) {
+          const matched = categories.find(
+            (c) => c.name.toLowerCase() === receiptData.category_name.toLowerCase()
+          );
+          if (matched) oldInput.categoryId = matched.id;
+        }
+      } catch (e) {
+        console.error('[showCreate] Failed to decode receipt data from query param:', e.message);
       }
     }
 
@@ -103,44 +106,59 @@ async function showReceipt(req, res) {
 async function parseReceipt(req, res, next) {
   try {
     if (!req.file) {
-      return res.render('transactions/receipt', {
-        title: 'Upload Struk',
-        errors: { receipt: 'File gambar wajib diupload' },
-        receiptData: {},
-      });
+      return res.status(400).json({ ok: false, error: 'File gambar wajib diupload' });
     }
 
-    const aiService = require('../services/aiService');
-    const result = await aiService.parseReceipt(req.file.path);
+    // Capture needed values before handing off to background job
+    const userId = req.session.user.id;
+    const basePath = req.basePath;
+    const filePath = req.file.path;
 
-    if (!result.success) {
-      return res.render('transactions/receipt', {
-        title: 'Upload Struk',
-        errors: { receipt: result.error },
-        receiptData: {},
-      });
-    }
+    // Immediately respond — user can navigate away
+    res.json({ ok: true });
 
-    // Save receipt data to session so showCreate can pick it up
-    req.session.pendingReceiptData = result.data;
+    // Background processing (fire and forget)
+    setImmediate(async () => {
+      const notificationService = require('../services/notificationService');
+      try {
+        const aiService = require('../services/aiService');
+        const result = await aiService.parseReceipt(filePath);
 
-    // Create a notification so user can access receipt data anytime
-    const notificationService = require('../services/notificationService');
-    const storeName = result.data.store_name || 'Struk';
-    const amount = Number(result.data.total_amount || 0).toLocaleString('id-ID');
-    await notificationService.create({
-      userId: req.session.user.id,
-      type: 'RECEIPT_READY',
-      title: '✅ Struk berhasil diproses',
-      message: `Data dari ${storeName} (Rp ${amount}) siap dicatat.`,
-      link: `${req.basePath}/transactions/create`,
-    });
+        if (!result.success) {
+          await notificationService.create({
+            userId,
+            type: 'RECEIPT_FAILED',
+            title: '❌ Gagal memproses struk',
+            message: result.error || 'Tidak dapat membaca struk.',
+            link: null,
+          });
+          return;
+        }
 
-    // Redirect directly to create transaction (synchronous flow)
-    // Use session.save() to ensure the data is persisted before redirect
-    req.session.save((err) => {
-      if (err) return next(err);
-      res.redirect(`${req.basePath}/transactions/create`);
+        // Encode receipt data into link so create page can pre-fill form
+        const encoded = Buffer.from(JSON.stringify(result.data)).toString('base64url');
+        const storeName = result.data.store_name || 'Struk';
+        const amount = Number(result.data.total_amount || 0).toLocaleString('id-ID');
+
+        await notificationService.create({
+          userId,
+          type: 'RECEIPT_READY',
+          title: '✅ Struk berhasil diproses',
+          message: `Data dari ${storeName} (Rp ${amount}) siap dicatat. Klik untuk melanjutkan.`,
+          link: `${basePath}/transactions/create?d=${encoded}`,
+        });
+      } catch (err) {
+        console.error('[parseReceipt background] Error:', err.message);
+        try {
+          await notificationService.create({
+            userId,
+            type: 'RECEIPT_FAILED',
+            title: '❌ Gagal memproses struk',
+            message: 'Terjadi kesalahan saat memproses struk.',
+            link: null,
+          });
+        } catch (_) {}
+      }
     });
   } catch (err) {
     next(err);
