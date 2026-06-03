@@ -39,12 +39,37 @@ async function index(req, res, next) {
 async function showCreate(req, res, next) {
   try {
     const categories = await transactionService.getCategories();
+
+    // Load receipt data from session if present (after synchronous parse)
+    let receiptData = {};
+    let oldInput = {};
+    if (req.session.pendingReceiptData) {
+      receiptData = req.session.pendingReceiptData;
+      delete req.session.pendingReceiptData;
+
+      // Pre-fill oldInput from receipt data
+      oldInput = {
+        type: 'EXPENSE',
+        amount: receiptData.total_amount,
+        description: receiptData.store_name || '',
+        date: receiptData.date || new Date().toISOString().split('T')[0],
+      };
+
+      // Match category by name
+      if (receiptData.category_name) {
+        const matched = categories.find(
+          (c) => c.name.toLowerCase() === receiptData.category_name.toLowerCase()
+        );
+        if (matched) oldInput.categoryId = matched.id;
+      }
+    }
+
     res.render('transactions/create', {
       title: 'Tambah Transaksi',
       categories,
       errors: null,
-      oldInput: {},
-      receiptData: {},
+      oldInput,
+      receiptData,
     });
   } catch (err) {
     next(err);
@@ -96,18 +121,26 @@ async function parseReceipt(req, res, next) {
       });
     }
 
-    const categories = await transactionService.getCategories();
-    res.render('transactions/create', {
-      title: 'Tambah Transaksi',
-      categories,
-      errors: null,
-      oldInput: {
-        type: 'EXPENSE',
-        amount: result.data.total_amount,
-        description: result.data.store_name || '',
-        date: result.data.date || new Date().toISOString().split('T')[0],
-      },
-      receiptData: result.data,
+    // Save receipt data to session so showCreate can pick it up
+    req.session.pendingReceiptData = result.data;
+
+    // Create a notification so user can access receipt data anytime
+    const notificationService = require('../services/notificationService');
+    const storeName = result.data.store_name || 'Struk';
+    const amount = Number(result.data.total_amount || 0).toLocaleString('id-ID');
+    await notificationService.create({
+      userId: req.session.user.id,
+      type: 'RECEIPT_READY',
+      title: '✅ Struk berhasil diproses',
+      message: `Data dari ${storeName} (Rp ${amount}) siap dicatat.`,
+      link: `${req.basePath}/transactions/create`,
+    });
+
+    // Redirect directly to create transaction (synchronous flow)
+    // Use session.save() to ensure the data is persisted before redirect
+    req.session.save((err) => {
+      if (err) return next(err);
+      res.redirect(`${req.basePath}/transactions/create`);
     });
   } catch (err) {
     next(err);
