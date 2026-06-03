@@ -3,8 +3,8 @@
   <!-- Dashboard Header with Filter Toggle -->
   <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
     <div>
-      <h2 class="text-xl font-bold text-gcore-900">Ringkasan Keuangan</h2>
-      <p class="text-gsm text-gcore-400 mt-1">Kelola dan pantau keuangan pribadi Anda</p>
+      <h2 class="text-xl font-bold text-gcore-900">Bagaimana Keuanganmu Saat Ini?</h2>
+      <p class="text-gsm text-gcore-400 mt-1">Mau pantau atau kelola keuangan apa hari ini?</p>
     </div>
     <div class="inline-flex rounded-gsm border-2 border-gray-200 p-0.5 bg-gray-50 shrink-0">
       <a href="?filter=monthly" class="px-4 py-1.5 rounded-gxs text-gsm font-semibold transition-all <%= typeof filter !== 'undefined' && filter === 'all' ? 'text-gcore-500 hover:text-gcore-900' : 'bg-gcore-900 text-white shadow-sm' %>">
@@ -49,7 +49,7 @@
 
   <!-- Quick Actions -->
   <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-6">
-    <h3 class="font-semibold text-gcore-900 mb-3">Aksi Cepat</h3>
+    <h3 class="font-semibold text-gcore-900 mb-3">Mau Lakukan Apa Sekarang?</h3>
     <div class="flex flex-wrap gap-2">
       <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat
         Transaksi</a>
@@ -128,7 +128,7 @@
         <% } else { %>
           <div class="text-center py-10">
             <div class="text-3xl text-gcore-400 mb-3"><i class="fas fa-chart-bar"></i></div>
-            <p class="text-gsm text-gcore-400">Belum ada transaksi<%= typeof filter !== 'undefined' && filter === 'all' ? '' : ' bulan ini' %>.</p>
+            <p class="text-gsm text-gcore-400">Belum ada transaksi<%= typeof filter !== 'undefined' && filter === 'all' ? '' : ' bulan ini' %> nih.</p>
           </div>
           <% } %>
     </div>
@@ -149,7 +149,7 @@
           <% } else { %>
             <div class="text-center py-10">
               <div class="text-3xl text-gcore-400 mb-2"><i class="fas fa-tags"></i></div>
-              <p class="text-gsm text-gcore-400">Belum ada pengeluaran<%= typeof filter !== 'undefined' && filter === 'all' ? '' : ' bulan ini' %>.</p>
+              <p class="text-gsm text-gcore-400">Belum ada pengeluaran<%= typeof filter !== 'undefined' && filter === 'all' ? '' : ' bulan ini' %> nih.</p>
             </div>
             <% } %>
       </div>

@@ -1,8 +1,8 @@
 <%- include("../partials/header") %>
 
 <div class="max-w-[560px]">
-  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Upload Struk</h2>
-  <p class="text-gsm text-gcore-400 mb-6">Foto struk belanja, kami akan ekstrak datanya secara otomatis</p>
+  <h2 class="text-2xl font-bold text-gcore-900 mb-1">Mau upload struk belanjamu?</h2>
+  <p class="text-gsm text-gcore-400 mb-6">Kirim foto struknya di sini, nanti kami bantu ekstrak datanya otomatis buat kamu!</p>
 
   <!-- Upload Form -->
   <div id="uploadSection">
@@ -12,7 +12,7 @@
         <div id="dropzone" class="border-2 border-dashed border-gcore-400 rounded-gsm p-8 text-center cursor-pointer hover:border-gcore-accent hover:bg-gray-50 transition-colors" onclick="document.getElementById('receipt').click()">
           <div class="text-4xl text-gcore-400 mb-2"><i class="fas fa-camera"></i></div>
           <p class="text-gsm text-gcore-500">Klik atau taruh file di sini</p>
-          <p class="text-gxs text-gcore-400 mt-1">JPEG, PNG, WEBP &mdash; Maks 5MB</p>
+          <p class="text-gxs text-gcore-400 mt-1">Bisa pakai JPEG, PNG, atau WEBP (maksimal 5MB ya)</p>
           <input type="file" id="receipt" name="receipt" accept="image/jpeg,image/png,image/webp" required class="hidden" />
           <p id="filename" class="text-gxs font-semibold text-gcore-900 mt-2"></p>
         </div>
@@ -31,8 +31,7 @@
       <div class="mb-5" style="width:56px;height:56px;border:4px solid #f0ece9;border-top:4px solid #ff4c00;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
       <p class="text-glg font-bold text-gcore-900 mb-2">Struk sedang diproses</p>
       <p class="text-gsm text-gcore-400 leading-relaxed mb-5">
-        AI sedang membaca dan menganalisis struk kamu.<br>
-        Kamu bisa navigasi ke halaman lain &mdash; notifikasi akan muncul saat selesai.
+        Kamu mau cek halaman lain dulu? Boleh kok, nanti ada notifikasi kalau sudah selesai.
       </p>
       <!-- Dots -->
       <div style="display:flex;gap:6px;">

@@ -2,8 +2,8 @@
 
 <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
   <div>
-    <h2 class="text-2xl font-bold text-gcore-900">Transaksi</h2>
-    <p class="text-gsm text-gcore-400 mt-1">Semua catatan pemasukan dan pengeluaran</p>
+    <h2 class="text-2xl font-bold text-gcore-900">Ini Daftar Transaksimu</h2>
+    <p class="text-gsm text-gcore-400 mt-1">Mau cek detail catatan pemasukan dan pengeluaran yang mana?</p>
   </div>
   <div class="flex gap-2 flex-wrap">
     <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary"><i class="fas fa-camera"></i> <span class="max-sm:hidden">Upload Struk</span></a>
@@ -97,11 +97,11 @@
     <div class="text-4xl text-gcore-400 mb-4"><i class="fas fa-receipt"></i></div>
     <% if ((typeof selectedCategoryId !== 'undefined' && selectedCategoryId !== '') || (typeof selectedMonthYear !== 'undefined' && selectedMonthYear !== '')) { %>
       <h3 class="font-semibold text-gcore-900 mb-2">Tidak ada transaksi ditemukan</h3>
-      <p class="text-gsm text-gcore-400 mb-4">Tidak ada catatan transaksi dengan filter yang dipilih</p>
+      <p class="text-gsm text-gcore-400 mb-4">Hmm, kami nggak nemu transaksi yang pas sama filter ini. Mau coba ganti filternya?</p>
       <a href="<%= basePath %>/transactions" class="btn btn-secondary"><i class="fas fa-undo"></i> Bersihkan Filter</a>
     <% } else { %>
-      <h3 class="font-semibold text-gcore-900 mb-2">Belum ada transaksi</h3>
-      <p class="text-gsm text-gcore-400 mb-4">Catat pemasukan atau pengeluaran pertama kamu</p>
+      <h3 class="font-semibold text-gcore-900 mb-2">Belum ada transaksi nih!</h3>
+      <p class="text-gsm text-gcore-400 mb-4">Mau mulai catat pemasukan atau pengeluaran pertamamu sekarang?</p>
       <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat Transaksi</a>
     <% } %>
   </div>
