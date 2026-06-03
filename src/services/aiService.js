@@ -80,8 +80,7 @@ Rules:
           },
           { role: 'user', content: prompt },
         ],
-        max_tokens: 1000,
-        temperature: 0.1,
+        temperature: 0.2,
       },
       {
         headers: {
@@ -92,7 +91,19 @@ Rules:
       }
     );
 
-    const content = response.data.choices[0].message.content.trim();
+    console.log(response)
+
+    console.log('[aiService.parseReceipt] HTTP status:', response.status);
+    console.log('[aiService.parseReceipt] Response data:', JSON.stringify(response.data).slice(0, 500));
+
+    const choice = response.data?.choices?.[0];
+    const rawContent = choice?.message?.content ?? choice?.text ?? '';
+    const content = rawContent.trim();
+
+    if (!content) {
+      console.error('[aiService.parseReceipt] Empty content from AI. Full response:', JSON.stringify(response.data));
+      return { success: false, error: 'AI tidak memberikan respons' };
+    }
 
     // Try to extract JSON: strip markdown code fences first
     let jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
