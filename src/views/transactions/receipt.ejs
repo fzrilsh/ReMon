@@ -4,37 +4,46 @@
   <h2 class="text-2xl font-bold text-gcore-900 mb-1">Upload Struk</h2>
   <p class="text-gsm text-gcore-400 mb-6">Foto struk belanja, kami akan ekstrak datanya secara otomatis</p>
 
-  <form action="<%= basePath %>/transactions/receipt/parse" method="POST" enctype="multipart/form-data" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate id="receiptForm">
-    <div class="mb-4">
-      <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Foto Struk</label>
-      <div id="dropzone" class="border-2 border-dashed border-gcore-400 rounded-gsm p-8 text-center cursor-pointer hover:border-gcore-accent hover:bg-gray-50 transition-colors" onclick="document.getElementById('receipt').click()">
-        <div class="text-4xl text-gcore-400 mb-2"><i class="fas fa-camera"></i></div>
-        <p class="text-gsm text-gcore-500">Klik atau taruh file di sini</p>
-        <p class="text-gxs text-gcore-400 mt-1">JPEG, PNG, WEBP &mdash; Maks 5MB</p>
-        <input type="file" id="receipt" name="receipt" accept="image/jpeg,image/png,image/webp" required class="hidden" onchange="document.getElementById('filename').textContent=this.files[0].name" />
-        <p id="filename" class="text-gxs font-semibold text-gcore-900 mt-2"></p>
+  <!-- Upload Form -->
+  <div id="uploadSection">
+    <form id="receiptForm" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
+      <div class="mb-4">
+        <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Foto Struk</label>
+        <div id="dropzone" class="border-2 border-dashed border-gcore-400 rounded-gsm p-8 text-center cursor-pointer hover:border-gcore-accent hover:bg-gray-50 transition-colors" onclick="document.getElementById('receipt').click()">
+          <div class="text-4xl text-gcore-400 mb-2"><i class="fas fa-camera"></i></div>
+          <p class="text-gsm text-gcore-500">Klik atau taruh file di sini</p>
+          <p class="text-gxs text-gcore-400 mt-1">JPEG, PNG, WEBP &mdash; Maks 5MB</p>
+          <input type="file" id="receipt" name="receipt" accept="image/jpeg,image/png,image/webp" required class="hidden" />
+          <p id="filename" class="text-gxs font-semibold text-gcore-900 mt-2"></p>
+        </div>
+        <span id="fileError" class="hidden block text-gxs text-expense mt-1">File gambar wajib dipilih</span>
       </div>
-      <% if (errors && errors.receipt) { %><span class="block text-gxs text-expense mt-1"><%= errors.receipt %></span><% } %>
-    </div>
-    <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 cursor-pointer" id="parseBtn">
-      <i class="fas fa-magic"></i> Ekstrak Data
-    </button>
-  </form>
-</div>
+      <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 cursor-pointer" id="parseBtn">
+        <i class="fas fa-magic"></i> Ekstrak Data
+      </button>
+    </form>
+  </div>
 
-<!-- Processing Overlay -->
-<div id="processingOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);">
-  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; border-radius:16px; padding:36px 32px; max-width:340px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-    <!-- Spinner -->
-    <div style="display:flex; justify-content:center; margin-bottom:20px;">
-      <div style="width:52px; height:52px; border:4px solid #f0ece9; border-top:4px solid #ff4c00; border-radius:50%; animation:spin 0.9s linear infinite;"></div>
+  <!-- Processing Card (hidden until submitted) -->
+  <div id="processingCard" class="hidden bg-white border-2 border-gray-200 rounded-gsm p-6">
+    <div class="flex flex-col items-center text-center py-4">
+      <!-- Spinner -->
+      <div class="mb-5" style="width:56px;height:56px;border:4px solid #f0ece9;border-top:4px solid #ff4c00;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+      <p class="text-glg font-bold text-gcore-900 mb-2">Struk sedang diproses</p>
+      <p class="text-gsm text-gcore-400 leading-relaxed mb-5">
+        AI sedang membaca dan menganalisis struk kamu.<br>
+        Kamu bisa navigasi ke halaman lain &mdash; notifikasi akan muncul saat selesai.
+      </p>
+      <!-- Dots -->
+      <div style="display:flex;gap:6px;">
+        <span style="width:8px;height:8px;background:#ff4c00;border-radius:50%;animation:bounce 1.2s ease-in-out infinite;"></span>
+        <span style="width:8px;height:8px;background:#ff4c00;border-radius:50%;animation:bounce 1.2s ease-in-out 0.2s infinite;"></span>
+        <span style="width:8px;height:8px;background:#ff4c00;border-radius:50%;animation:bounce 1.2s ease-in-out 0.4s infinite;"></span>
+      </div>
     </div>
-    <p style="font-size:16px; font-weight:700; color:#150c18; margin:0 0 8px;">Struk sedang diproses</p>
-    <p style="font-size:13px; color:#9CA3AF; margin:0 0 20px; line-height:1.6;">AI sedang membaca dan menganalisis struk Anda.<br>Mohon tunggu sebentar…</p>
-    <div style="display:flex; gap:6px; justify-content:center; margin-top:4px;">
-      <span style="width:8px; height:8px; background:#ff4c00; border-radius:50%; animation:bounce 1.2s ease-in-out infinite;"></span>
-      <span style="width:8px; height:8px; background:#ff4c00; border-radius:50%; animation:bounce 1.2s ease-in-out 0.2s infinite;"></span>
-      <span style="width:8px; height:8px; background:#ff4c00; border-radius:50%; animation:bounce 1.2s ease-in-out 0.4s infinite;"></span>
+    <div class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-gxs text-gcore-400">
+      <i class="fas fa-bell text-gcore-accent"></i>
+      <span>Pantau notifikasi di pojok kanan atas</span>
     </div>
   </div>
 </div>
@@ -51,26 +60,73 @@
 </style>
 
 <script>
-document.getElementById("receiptForm").addEventListener("submit", function(e) {
-  var fileInput = document.getElementById("receipt");
-  if (!fileInput.files || fileInput.files.length === 0) return;
+(function () {
+  var form = document.getElementById('receiptForm');
+  var fileInput = document.getElementById('receipt');
+  var fileError = document.getElementById('fileError');
+  var uploadSection = document.getElementById('uploadSection');
+  var processingCard = document.getElementById('processingCard');
 
-  // Show processing overlay
-  document.getElementById("processingOverlay").style.display = "block";
+  // Show filename on select
+  fileInput.addEventListener('change', function () {
+    document.getElementById('filename').textContent = this.files[0] ? this.files[0].name : '';
+    fileError.classList.add('hidden');
+  });
 
-  // Disable submit button to prevent double-submit
-  var btn = document.getElementById("parseBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-});
+  // AJAX submit
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-document.getElementById("dropzone").addEventListener("dragover", function(e) { e.preventDefault(); this.style.borderColor="#ff4c00"; this.style.background="#fafafa"; });
-document.getElementById("dropzone").addEventListener("dragleave", function(e) { e.preventDefault(); this.style.borderColor=""; this.style.background=""; });
-document.getElementById("dropzone").addEventListener("drop", function(e) {
-  e.preventDefault(); this.style.borderColor=""; this.style.background="";
-  var file = e.dataTransfer.files[0];
-  if (file) { document.getElementById("receipt").files = e.dataTransfer.files; document.getElementById("filename").textContent = file.name; }
-});
+    if (!fileInput.files || fileInput.files.length === 0) {
+      fileError.classList.remove('hidden');
+      return;
+    }
+
+    var btn = document.getElementById('parseBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+    var formData = new FormData();
+    formData.append('receipt', fileInput.files[0]);
+
+    fetch('<%= basePath %>/transactions/receipt/parse', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.ok) {
+          // Hide form, show processing card
+          uploadSection.classList.add('hidden');
+          processingCard.classList.remove('hidden');
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-magic"></i> Ekstrak Data';
+          fileError.textContent = data.error || 'Terjadi kesalahan, coba lagi.';
+          fileError.classList.remove('hidden');
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic"></i> Ekstrak Data';
+        fileError.textContent = 'Gagal terhubung ke server, coba lagi.';
+        fileError.classList.remove('hidden');
+      });
+  });
+
+  // Drag & drop
+  var dropzone = document.getElementById('dropzone');
+  dropzone.addEventListener('dragover', function (e) { e.preventDefault(); this.style.borderColor = '#ff4c00'; this.style.background = '#fafafa'; });
+  dropzone.addEventListener('dragleave', function (e) { e.preventDefault(); this.style.borderColor = ''; this.style.background = ''; });
+  dropzone.addEventListener('drop', function (e) {
+    e.preventDefault(); this.style.borderColor = ''; this.style.background = '';
+    var file = e.dataTransfer.files[0];
+    if (file) {
+      fileInput.files = e.dataTransfer.files;
+      document.getElementById('filename').textContent = file.name;
+    }
+  });
+})();
 </script>
 
 <%- include("../partials/footer") %>
