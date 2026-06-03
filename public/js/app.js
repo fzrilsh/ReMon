@@ -92,6 +92,10 @@
         icon = 'fa-exclamation-circle'; color = 'text-red-500';
       } else if (n.type === 'DEBT_DUE') {
         icon = 'fa-calendar'; color = 'text-yellow-500';
+      } else if (n.type === 'RECEIPT_READY') {
+        icon = 'fa-receipt'; color = 'text-green-500';
+      } else if (n.type === 'RECEIPT_FAILED') {
+        icon = 'fa-times-circle'; color = 'text-red-500';
       }
       var link = n.link || '#';
       html += '<a href="' + link + '" class="notif-item flex items-start gap-3 p-3 border-b border-gray-100 no-underline hover:bg-gray-50 transition-colors" data-id="' + n.id + '">' +
