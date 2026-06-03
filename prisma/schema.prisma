@@ -39,6 +39,8 @@ enum NotificationType {
   DEBT_DUE
   DEBT_OVERDUE
   DEBT_SETTLED
+  RECEIPT_READY
+  RECEIPT_FAILED
 }
 
 model User {
