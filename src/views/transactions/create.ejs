@@ -89,7 +89,7 @@
             <label for="date" class="block text-gsm font-semibold text-gcore-900 mb-1.5">Tanggal</label>
             <input type="date" id="date" name="date"
               class="w-full border-2 border-gray-200 rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
-              value="<%= new Date().toISOString().split('T')[0] %>" required />
+              value="<%= (locals.oldInput && locals.oldInput.date) ? locals.oldInput.date : new Date().toISOString().split('T')[0] %>" required />
           </div>
 
           <div class="flex gap-2 mt-6">
