@@ -2,12 +2,16 @@ const userRepository = require('../repositories/userRepository');
 
 async function showSettings(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/form', { title: 'Pengaturan' });
+    }
     const user = await userRepository.findById(req.session.user.id);
     res.render('settings/index', {
       title: 'Pengaturan',
       user,
       success: req.session.settingsSuccess || null,
       errors: null,
+      isPartial: true
     });
     delete req.session.settingsSuccess;
   } catch (err) {

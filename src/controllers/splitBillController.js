@@ -2,10 +2,14 @@ const splitBillService = require('../services/splitBillService');
 
 async function index(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/list', { title: 'Split Bill' });
+    }
     const splitBills = await splitBillService.getAll(req.session.user.id);
     res.render('split-bill/manage', {
       title: 'Split Bill',
       splitBills,
+      isPartial: true
     });
   } catch (err) {
     next(err);
@@ -14,12 +18,16 @@ async function index(req, res, next) {
 
 async function showCreate(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/form', { title: 'Buat Split Bill' });
+    }
     const transactions = await splitBillService.getExpenseTransactions(req.session.user.id);
     res.render('split-bill/create', {
       title: 'Buat Split Bill',
       transactions,
       errors: null,
       oldInput: {},
+      isPartial: true
     });
   } catch (err) {
     next(err);
@@ -65,10 +73,14 @@ async function store(req, res, next) {
 
 async function detail(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/list', { title: 'Detail Split Bill' });
+    }
     const splitBill = await splitBillService.getById(req.params.id);
     res.render('split-bill/detail', {
       title: 'Detail Split Bill',
       splitBill,
+      isPartial: true
     });
   } catch (err) {
     if (err.statusCode === 404) {

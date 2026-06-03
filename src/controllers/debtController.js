@@ -3,10 +3,14 @@ const { debtSchema } = require('../validators/debtSchema');
 
 async function index(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/list', { title: 'Hutang' });
+    }
     const data = await debtService.getAll(req.session.user.id);
     res.render('debts/list', {
       title: 'Hutang',
       ...data,
+      isPartial: true
     });
   } catch (err) {
     next(err);
@@ -14,10 +18,14 @@ async function index(req, res, next) {
 }
 
 async function showCreate(req, res) {
+  if (!req.query.content) {
+    return res.render('skeletons/form', { title: 'Catat Hutang' });
+  }
   res.render('debts/create', {
     title: 'Catat Hutang',
     errors: null,
     oldInput: {},
+    isPartial: true
   });
 }
 

@@ -1,5 +1,5 @@
-<%- include("../partials/header") %>
-
+<% if (!locals.isPartial) { %><%- include("../partials/header") %><% } %>
+<div id="appContent" class="animate-in fade-in duration-300">
   <div class="max-w-[640px]">
     <% if (typeof error !=='undefined' && error) { %>
       <div class="bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-gsm mb-5 text-gsm">
@@ -135,4 +135,5 @@
     document.getElementById('shareLinkInput').value = `${window.location.origin}<%= basePath %>/split/<%= splitBill.slug %>`;
   </script>
 
-  <%- include("../partials/footer") %>
+  </div>
+<% if (!locals.isPartial) { %><%- include("../partials/footer") %><% } %>

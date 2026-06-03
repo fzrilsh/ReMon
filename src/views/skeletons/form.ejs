@@ -1,0 +1,53 @@
+<%- include("../partials/header") %>
+
+<!-- Skeleton Container -->
+<div id="appContent" class="animate-pulse max-w-[560px]">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="h-7 bg-gray-200 rounded w-48 mb-2"></div>
+    <div class="h-4 bg-gray-200 rounded w-64"></div>
+  </div>
+
+  <!-- Form Area -->
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-6">
+    <% for(let i=0; i<4; i++) { %>
+    <div class="mb-5">
+      <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+      <div class="h-11 bg-gray-200 rounded-gsm w-full"></div>
+    </div>
+    <% } %>
+    
+    <div class="flex gap-2 mt-6">
+      <div class="h-10 bg-gray-200 rounded-gsm w-24"></div>
+      <div class="h-10 bg-gray-200 rounded-gsm w-32"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var query = window.location.search;
+    var url = window.location.pathname + (query ? query + '&content=1' : '?content=1');
+    
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        var appContent = document.getElementById('appContent');
+        if (appContent) {
+          appContent.outerHTML = html;
+          var scripts = document.querySelectorAll('script[data-eval="true"]');
+          scripts.forEach(function(s) {
+            var newScript = document.createElement('script');
+            if (s.src) { newScript.src = s.src; } else { newScript.textContent = s.textContent; }
+            document.body.appendChild(newScript);
+            s.parentNode.removeChild(s);
+          });
+        }
+      })
+      .catch(function(err) {
+        console.error('Failed to load content:', err);
+      });
+  })();
+</script>
+
+<%- include("../partials/footer") %>

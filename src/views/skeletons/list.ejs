@@ -1,0 +1,70 @@
+<%- include("../partials/header") %>
+
+<!-- Skeleton Container -->
+<div id="appContent" class="animate-pulse">
+  <!-- Header -->
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div>
+      <div class="h-7 bg-gray-200 rounded w-48 mb-2"></div>
+      <div class="h-4 bg-gray-200 rounded w-64"></div>
+    </div>
+    <div class="flex gap-2">
+      <div class="h-10 bg-gray-200 rounded-gsm w-32"></div>
+      <div class="h-10 bg-gray-200 rounded-gsm w-24"></div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="bg-gray-50 border-2 border-gray-200 rounded-gsm p-3 mb-6 flex flex-wrap gap-4">
+    <div class="h-8 bg-gray-200 rounded w-40"></div>
+    <div class="h-8 bg-gray-200 rounded w-40"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="border-2 border-gray-200 rounded-gsm overflow-hidden bg-white">
+    <div class="flex items-center gap-4 p-3 border-b-2 border-gray-200 bg-gray-50">
+      <div class="h-4 bg-gray-200 rounded w-20"></div>
+      <div class="h-4 bg-gray-200 rounded w-20"></div>
+      <div class="h-4 bg-gray-200 rounded w-40 flex-1"></div>
+      <div class="h-4 bg-gray-200 rounded w-24"></div>
+      <div class="h-4 bg-gray-200 rounded w-20"></div>
+    </div>
+    <% for(let i=0; i<6; i++) { %>
+    <div class="flex items-center gap-4 p-4 border-b border-gray-100">
+      <div class="h-4 bg-gray-200 rounded w-16"></div>
+      <div class="h-5 bg-gray-200 rounded-full w-16"></div>
+      <div class="h-4 bg-gray-200 rounded w-48 flex-1"></div>
+      <div class="h-5 bg-gray-200 rounded-full w-20"></div>
+      <div class="h-4 bg-gray-200 rounded w-24"></div>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var query = window.location.search;
+    var url = window.location.pathname + (query ? query + '&content=1' : '?content=1');
+    
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        var appContent = document.getElementById('appContent');
+        if (appContent) {
+          appContent.outerHTML = html;
+          var scripts = document.querySelectorAll('script[data-eval="true"]');
+          scripts.forEach(function(s) {
+            var newScript = document.createElement('script');
+            if (s.src) { newScript.src = s.src; } else { newScript.textContent = s.textContent; }
+            document.body.appendChild(newScript);
+            s.parentNode.removeChild(s);
+          });
+        }
+      })
+      .catch(function(err) {
+        console.error('Failed to load content:', err);
+      });
+  })();
+</script>
+
+<%- include("../partials/footer") %>

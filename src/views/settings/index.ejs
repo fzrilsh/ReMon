@@ -1,5 +1,5 @@
-<%- include("../partials/header") %>
-
+<% if (!locals.isPartial) { %><%- include("../partials/header") %><% } %>
+<div id="appContent" class="animate-in fade-in duration-300">
 <div class="max-w-[560px]">
   <h2 class="text-2xl font-bold text-gcore-900 mb-1">Pengaturan</h2>
   <p class="text-gsm text-gcore-400 mb-6">Kelola informasi akun dan rekening bank kamu</p>
@@ -93,4 +93,5 @@
   </form>
 </div>
 
-<%- include("../partials/footer") %>
+</div>
+<% if (!locals.isPartial) { %><%- include("../partials/footer") %><% } %>

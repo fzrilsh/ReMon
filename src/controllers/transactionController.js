@@ -2,6 +2,9 @@ const transactionService = require('../services/transactionService');
 
 async function index(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/list', { title: 'Transaksi' });
+    }
     const { categoryId, monthYear } = req.query;
     const filters = {};
     if (categoryId) {
@@ -30,6 +33,7 @@ async function index(req, res, next) {
       categories,
       selectedCategoryId: categoryId || '',
       selectedMonthYear: monthYear || '',
+      isPartial: true
     });
   } catch (err) {
     next(err);
@@ -38,6 +42,9 @@ async function index(req, res, next) {
 
 async function showCreate(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/form', { title: 'Tambah Transaksi' });
+    }
     const categories = await transactionService.getCategories();
 
     let receiptData = {};
@@ -73,6 +80,7 @@ async function showCreate(req, res, next) {
       errors: null,
       oldInput,
       receiptData,
+      isPartial: true
     });
   } catch (err) {
     next(err);
@@ -96,10 +104,14 @@ async function store(req, res, next) {
 }
 
 async function showReceipt(req, res) {
+  if (!req.query.content) {
+    return res.render('skeletons/form', { title: 'Upload Struk' });
+  }
   res.render('transactions/receipt', {
     title: 'Upload Struk',
     errors: null,
     receiptData: {},
+    isPartial: true
   });
 }
 
@@ -167,6 +179,9 @@ async function parseReceipt(req, res, next) {
 
 async function showEdit(req, res, next) {
   try {
+    if (!req.query.content) {
+      return res.render('skeletons/form', { title: 'Edit Transaksi' });
+    }
     const transaction = await transactionService.getById(req.params.id);
     const categories = await transactionService.getCategories();
     res.render('transactions/edit', {
@@ -174,6 +189,7 @@ async function showEdit(req, res, next) {
       transaction,
       categories,
       errors: null,
+      isPartial: true
     });
   } catch (err) {
     next(err);

@@ -1,0 +1,109 @@
+<%- include("../partials/header") %>
+
+<!-- Skeleton Container -->
+<div id="appContent" class="animate-pulse">
+  <!-- Dashboard Header with Filter Toggle -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+    <div>
+      <div class="h-7 bg-gray-200 rounded w-64 mb-2"></div>
+      <div class="h-4 bg-gray-200 rounded w-48 mt-1"></div>
+    </div>
+    <div class="inline-flex rounded-gsm border-2 border-gray-200 p-0.5 bg-gray-50 shrink-0">
+      <div class="h-8 bg-gray-200 rounded-gxs w-20"></div>
+      <div class="h-8 bg-transparent w-20 ml-1"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <% for(let i=0; i<4; i++) { %>
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gray-300">
+      <div class="h-4 bg-gray-200 rounded w-32 mb-3"></div>
+      <div class="h-8 bg-gray-200 rounded w-24"></div>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 mb-6">
+    <div class="h-5 bg-gray-200 rounded w-40 mb-4"></div>
+    <div class="flex flex-wrap gap-2">
+      <div class="h-10 bg-gray-200 rounded-gsm w-32"></div>
+      <div class="h-10 bg-gray-200 rounded-gsm w-32"></div>
+      <div class="h-10 bg-gray-200 rounded-gsm w-32"></div>
+      <div class="h-10 bg-gray-200 rounded-gsm w-32"></div>
+    </div>
+  </div>
+
+  <!-- Debt Summary -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    <% for(let i=0; i<2; i++) { %>
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 border-l-4 border-l-gray-300">
+      <div class="h-4 bg-gray-200 rounded w-28 mb-3"></div>
+      <div class="h-7 bg-gray-200 rounded w-32 mb-2"></div>
+      <div class="h-3 bg-gray-200 rounded w-20 mt-2"></div>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Recent Transactions + Chart -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 lg:col-span-2">
+      <div class="flex items-center justify-between mb-4">
+        <div class="h-5 bg-gray-200 rounded w-40"></div>
+        <div class="h-8 bg-gray-200 rounded w-24"></div>
+      </div>
+      <div class="space-y-4">
+        <% for(let i=0; i<5; i++) { %>
+        <div class="flex justify-between border-b border-gray-100 pb-2">
+          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+        </div>
+        <% } %>
+      </div>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 flex flex-col items-center justify-center min-h-[250px]">
+        <div class="h-5 bg-gray-200 rounded w-32 mb-4 self-start"></div>
+        <div class="h-32 w-32 rounded-full bg-gray-200"></div>
+      </div>
+      <div class="bg-white border-2 border-gray-200 rounded-gsm p-4 flex flex-col items-center justify-center min-h-[250px]">
+        <div class="h-5 bg-gray-200 rounded w-40 mb-4 self-start"></div>
+        <div class="h-32 w-32 rounded-full bg-gray-200"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Script untuk fetch konten asli dan menggantikan skeleton
+  (function() {
+    var query = window.location.search;
+    var url = window.location.pathname + (query ? query + '&content=1' : '?content=1');
+    
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        var appContent = document.getElementById('appContent');
+        if (appContent) {
+          appContent.outerHTML = html;
+          // Re-evaluate script tags inside the injected HTML (for charts etc)
+          var scripts = document.querySelectorAll('script[data-eval="true"]');
+          scripts.forEach(function(s) {
+            var newScript = document.createElement('script');
+            if (s.src) {
+              newScript.src = s.src;
+            } else {
+              newScript.textContent = s.textContent;
+            }
+            document.body.appendChild(newScript);
+            s.parentNode.removeChild(s);
+          });
+        }
+      })
+      .catch(function(err) {
+        console.error('Failed to load content:', err);
+      });
+  })();
+</script>
+
+<%- include("../partials/footer") %>
