@@ -93,8 +93,28 @@ Rules:
     );
 
     const content = response.data.choices[0].message.content.trim();
-    const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const result = JSON.parse(jsonStr);
+
+    // Try to extract JSON: strip markdown code fences first
+    let jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    // Fallback: find first { and last } in raw content
+    if (!jsonStr.startsWith('{')) {
+      const start = content.indexOf('{');
+      const end = content.lastIndexOf('}');
+      if (start !== -1 && end !== -1) {
+        jsonStr = content.substring(start, end + 1);
+      }
+    }
+
+    let result;
+    try {
+      result = JSON.parse(jsonStr);
+    } catch (parseErr) {
+      console.error('[aiService.parseReceipt] Failed to parse AI JSON response');
+      console.error('[aiService.parseReceipt] Raw content:', content);
+      console.error('[aiService.parseReceipt] Extracted string:', jsonStr);
+      return { success: false, error: 'Gagal memproses data dari struk' };
+    }
 
     if (result.error) {
       return { success: false, error: result.error };
@@ -118,9 +138,7 @@ Rules:
     if (err.code === 'ECONNABORTED') {
       throw new Error('Koneksi ke AI timeout');
     }
-    if (err instanceof SyntaxError) {
-      return { success: false, error: 'Gagal memproses data dari struk' };
-    }
+    console.error('[aiService.parseReceipt] Unexpected error:', err.message);
     throw err;
   }
 }
