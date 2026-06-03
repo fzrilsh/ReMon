@@ -91,17 +91,11 @@ Rules:
       }
     );
 
-    console.log(response)
-
-    console.log('[aiService.parseReceipt] HTTP status:', response.status);
-    console.log('[aiService.parseReceipt] Response data:', JSON.stringify(response.data).slice(0, 500));
-
     const choice = response.data?.choices?.[0];
     const rawContent = choice?.message?.content ?? choice?.text ?? '';
     const content = rawContent.trim();
 
     if (!content) {
-      console.error('[aiService.parseReceipt] Empty content from AI. Full response:', JSON.stringify(response.data));
       return { success: false, error: 'AI tidak memberikan respons' };
     }
 
@@ -121,9 +115,6 @@ Rules:
     try {
       result = JSON.parse(jsonStr);
     } catch (parseErr) {
-      console.error('[aiService.parseReceipt] Failed to parse AI JSON response');
-      console.error('[aiService.parseReceipt] Raw content:', content);
-      console.error('[aiService.parseReceipt] Extracted string:', jsonStr);
       return { success: false, error: 'Gagal memproses data dari struk' };
     }
 
@@ -149,7 +140,6 @@ Rules:
     if (err.code === 'ECONNABORTED') {
       throw new Error('Koneksi ke AI timeout');
     }
-    console.error('[aiService.parseReceipt] Unexpected error:', err.message);
     throw err;
   }
 }
