@@ -5,9 +5,9 @@ const { createWorker } = require('tesseract.js');
 const env = require('../config/env');
 
 function getApiKey() {
-  const key = env.deepseekApiKey;
-  if (!key || key === 'sk-your-deepseek-api-key') {
-    const error = new Error('DeepSeek API key belum dikonfigurasi');
+  const key = env.aiApiKey;
+  if (!key || key === 'sk-your-api-key') {
+    const error = new Error('AI API key belum dikonfigurasi');
     error.statusCode = 500;
     throw error;
   }
@@ -39,7 +39,7 @@ async function parseReceipt(imagePath) {
     return { success: false, error: 'Tidak dapat membaca teks dari gambar. Pastikan gambar struk jelas.' };
   }
 
-  // Step 2: Send OCR text to DeepSeek for parsing
+  // Step 2: Send OCR text to AI for parsing
   const prompt = `You are a receipt parser. Extract information from the following OCR text of a receipt.
 
 OCR TEXT:
@@ -51,7 +51,8 @@ Return ONLY valid JSON with this exact structure (no markdown, no extra text):
   "date": "string ISO date or null",
   "items": [{"name": "string", "price": number}],
   "total_amount": number,
-  "payment_method": "string or null"
+  "payment_method": "string or null",
+  "category_name": "string or null"
 }
 
 Rules:
@@ -60,13 +61,18 @@ Rules:
 - items: Array of items with their prices
 - total_amount: The total amount paid (number). This is REQUIRED.
 - payment_method: Cash, QRIS, Debit, Credit, or null
+- category_name: Pick the BEST matching category from this list based on the receipt items and store name:
+  ["Makanan", "Transport", "Hiburan", "Belanja", "Tagihan", "Kesehatan", "Pendidikan", "Lainnya", "Gaji", "Freelance", "Investasi"]
+  Use "Makanan" for food/restaurant/cafe, "Transport" for fuel/parking/transportation, "Hiburan" for entertainment/games/cinema,
+  "Belanja" for shopping/supermarket/clothing, "Tagihan" for bills/utilities, "Kesehatan" for pharmacy/hospital/clinic,
+  "Pendidikan" for education/books/courses. Default to "Lainnya" if uncertain.
 - If the text is not a receipt, return: {"error": "Bukan struk atau gambar tidak jelas"}`;
 
   try {
     const response = await axios.post(
-      'https://api.deepseek.com/v1/chat/completions',
+      env.aiBaseUrl,
       {
-        model: 'deepseek-v4-flash',
+        model: env.aiModel,
         messages: [
           {
             role: 'system',
@@ -102,14 +108,15 @@ Rules:
         items: Array.isArray(result.items) ? result.items : [],
         total_amount: typeof result.total_amount === 'number' ? result.total_amount : 0,
         payment_method: result.payment_method || null,
+        category_name: result.category_name || null,
       },
     };
   } catch (err) {
     if (err.response && err.response.status === 401) {
-      throw new Error('DeepSeek API key tidak valid');
+      throw new Error('AI API key tidak valid');
     }
     if (err.code === 'ECONNABORTED') {
-      throw new Error('Koneksi ke DeepSeek timeout');
+      throw new Error('Koneksi ke AI timeout');
     }
     if (err instanceof SyntaxError) {
       return { success: false, error: 'Gagal memproses data dari struk' };
@@ -143,7 +150,7 @@ async function verifyPaymentProof(imagePath, expectedAmount) {
     };
   }
 
-  // Step 2: Send OCR text to DeepSeek for verification
+  // Step 2: Send OCR text to AI for verification
   const prompt = `You are a payment proof verifier. Analyze this OCR text extracted from a transfer receipt/bukti transfer image.
 
 OCR TEXT:
@@ -168,9 +175,9 @@ Compare detected_amount with the expected amount. If they match (within reasonab
 
   try {
     const response = await axios.post(
-      'https://api.deepseek.com/v1/chat/completions',
+      env.aiBaseUrl,
       {
-        model: 'deepseek-v4-flash',
+        model: env.aiModel,
         messages: [
           {
             role: 'system',
@@ -202,7 +209,7 @@ Compare detected_amount with the expected amount. If they match (within reasonab
     };
   } catch (err) {
     if (err.response && err.response.status === 401) {
-      throw new Error('DeepSeek API key tidak valid');
+      throw new Error('AI API key tidak valid');
     }
     return {
       valid: false,
