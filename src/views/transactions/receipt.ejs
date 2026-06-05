@@ -9,13 +9,37 @@
     <form id="receiptForm" class="bg-white border-2 border-gray-200 rounded-gsm p-6" novalidate>
       <div class="mb-4">
         <label class="block text-gsm font-semibold text-gcore-900 mb-1.5">Foto Struk</label>
+
+        <!-- Dropzone (state: empty) -->
         <div id="dropzone" class="border-2 border-dashed border-gcore-400 rounded-gsm p-8 text-center cursor-pointer hover:border-gcore-accent hover:bg-gray-50 transition-colors" onclick="document.getElementById('receipt').click()">
           <div class="text-4xl text-gcore-400 mb-2"><i class="fas fa-camera"></i></div>
           <p class="text-gsm text-gcore-500">Klik atau taruh file di sini</p>
           <p class="text-gxs text-gcore-400 mt-1">Bisa pakai JPEG, PNG, atau WEBP (maksimal 5MB ya)</p>
           <input type="file" id="receipt" name="receipt" accept="image/jpeg,image/png,image/webp" required class="hidden" />
-          <p id="filename" class="text-gxs font-semibold text-gcore-900 mt-2"></p>
         </div>
+
+        <!-- Preview Card (hidden until file selected) -->
+        <div id="previewCard" class="hidden border-2 border-gcore-accent bg-orange-50 rounded-gsm overflow-hidden">
+          <!-- Image preview -->
+          <div class="relative w-full" style="max-height:220px;overflow:hidden;background:#f5f0ec;">
+            <img id="previewImg" src="" alt="Preview struk" style="width:100%;max-height:220px;object-fit:contain;display:block;" />
+          </div>
+          <!-- File info + change button -->
+          <div class="flex items-center gap-3 px-4 py-3">
+            <div class="flex-shrink-0 w-9 h-9 rounded-full bg-gcore-accent flex items-center justify-center">
+              <i class="fas fa-check text-white text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p id="previewName" class="text-gsm font-semibold text-gcore-900 truncate"></p>
+              <p id="previewSize" class="text-gxs text-gcore-400"></p>
+            </div>
+            <button type="button" onclick="document.getElementById('receipt').click()" class="flex-shrink-0 text-gxs text-gcore-accent font-semibold hover:underline cursor-pointer">
+              Ganti Foto
+            </button>
+          </div>
+          <!-- Hidden input still lives here so form keeps ref -->
+        </div>
+
         <span id="fileError" class="hidden block text-gxs text-expense mt-1">File gambar wajib dipilih</span>
       </div>
       <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 cursor-pointer" id="parseBtn">
@@ -56,6 +80,13 @@
   0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
   40% { transform: translateY(-8px); opacity: 1; }
 }
+#previewCard {
+  animation: fadeSlideIn 0.25s ease;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 
 <script>
@@ -65,11 +96,45 @@
   var fileError = document.getElementById('fileError');
   var uploadSection = document.getElementById('uploadSection');
   var processingCard = document.getElementById('processingCard');
+  var dropzone = document.getElementById('dropzone');
+  var previewCard = document.getElementById('previewCard');
+  var previewImg = document.getElementById('previewImg');
+  var previewName = document.getElementById('previewName');
+  var previewSize = document.getElementById('previewSize');
 
-  // Show filename on select
-  fileInput.addEventListener('change', function () {
-    document.getElementById('filename').textContent = this.files[0] ? this.files[0].name : '';
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  function showPreview(file) {
+    if (!file) return;
+    // Show preview card, hide dropzone
+    dropzone.classList.add('hidden');
+    previewCard.classList.remove('hidden');
+
+    previewName.textContent = file.name;
+    previewSize.textContent = formatBytes(file.size);
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      previewImg.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
     fileError.classList.add('hidden');
+  }
+
+  // Show preview on file select
+  fileInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      showPreview(this.files[0]);
+    } else {
+      // Reset to empty dropzone
+      dropzone.classList.remove('hidden');
+      previewCard.classList.add('hidden');
+    }
   });
 
   // AJAX submit
@@ -114,15 +179,17 @@
   });
 
   // Drag & drop
-  var dropzone = document.getElementById('dropzone');
   dropzone.addEventListener('dragover', function (e) { e.preventDefault(); this.style.borderColor = '#ff4c00'; this.style.background = '#fafafa'; });
   dropzone.addEventListener('dragleave', function (e) { e.preventDefault(); this.style.borderColor = ''; this.style.background = ''; });
   dropzone.addEventListener('drop', function (e) {
     e.preventDefault(); this.style.borderColor = ''; this.style.background = '';
     var file = e.dataTransfer.files[0];
     if (file) {
-      fileInput.files = e.dataTransfer.files;
-      document.getElementById('filename').textContent = file.name;
+      // Transfer file to the input via DataTransfer
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+      showPreview(file);
     }
   });
 })();
