@@ -40,6 +40,17 @@
           <!-- Hidden input still lives here so form keeps ref -->
         </div>
 
+        <!-- Upload Progress Bar (hidden until submit) -->
+        <div id="uploadProgress" class="hidden mt-3">
+          <div class="flex justify-between items-center mb-1">
+            <span id="progressLabel" class="text-gxs font-semibold text-gcore-900">Mengupload...</span>
+            <span id="progressPct" class="text-gxs font-semibold text-gcore-accent">0%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full overflow-hidden" style="height:8px;">
+            <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff4c00,#ff7a40);border-radius:9999px;transition:width 0.15s ease;"></div>
+          </div>
+        </div>
+
         <span id="fileError" class="hidden block text-gxs text-expense mt-1">File gambar wajib dipilih</span>
       </div>
       <button type="submit" class="w-full bg-gcore-accent text-white font-semibold py-2.5 px-5 rounded-gsm transition-colors hover:bg-gcore-700 cursor-pointer" id="parseBtn">
@@ -82,6 +93,9 @@
 }
 #previewCard {
   animation: fadeSlideIn 0.25s ease;
+}
+#uploadProgress {
+  animation: fadeSlideIn 0.2s ease;
 }
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(-6px); }
@@ -137,7 +151,19 @@
     }
   });
 
-  // AJAX submit
+  // AJAX submit with upload progress
+  var uploadProgress = document.getElementById('uploadProgress');
+  var progressBar = document.getElementById('progressBar');
+  var progressPct = document.getElementById('progressPct');
+  var progressLabel = document.getElementById('progressLabel');
+
+  function resetUploadUI() {
+    uploadProgress.classList.add('hidden');
+    progressBar.style.width = '0%';
+    progressPct.textContent = '0%';
+    progressLabel.textContent = 'Mengupload...';
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -149,18 +175,40 @@
     var btn = document.getElementById('parseBtn');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    fileError.classList.add('hidden');
+
+    // Show progress bar
+    resetUploadUI();
+    uploadProgress.classList.remove('hidden');
 
     var formData = new FormData();
     formData.append('receipt', fileInput.files[0]);
 
-    fetch('<%= basePath %>/transactions/receipt/parse', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
+    var xhr = new XMLHttpRequest();
+
+    // Upload progress
+    xhr.upload.addEventListener('progress', function (e) {
+      if (e.lengthComputable) {
+        var pct = Math.round((e.loaded / e.total) * 100);
+        progressBar.style.width = pct + '%';
+        progressPct.textContent = pct + '%';
+        if (pct >= 100) {
+          progressLabel.textContent = 'Menunggu server...';
+        }
+      }
+    });
+
+    xhr.upload.addEventListener('load', function () {
+      progressBar.style.width = '100%';
+      progressPct.textContent = '100%';
+      progressLabel.textContent = 'Menunggu server...';
+    });
+
+    xhr.addEventListener('load', function () {
+      uploadProgress.classList.add('hidden');
+      try {
+        var data = JSON.parse(xhr.responseText);
         if (data.ok) {
-          // Hide form, show processing card
           uploadSection.classList.add('hidden');
           processingCard.classList.remove('hidden');
         } else {
@@ -169,13 +217,30 @@
           fileError.textContent = data.error || 'Terjadi kesalahan, coba lagi.';
           fileError.classList.remove('hidden');
         }
-      })
-      .catch(function () {
+      } catch (_) {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-magic"></i> Ekstrak Data';
-        fileError.textContent = 'Gagal terhubung ke server, coba lagi.';
+        fileError.textContent = 'Respons server tidak valid, coba lagi.';
         fileError.classList.remove('hidden');
-      });
+      }
+    });
+
+    xhr.addEventListener('error', function () {
+      uploadProgress.classList.add('hidden');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-magic"></i> Ekstrak Data';
+      fileError.textContent = 'Gagal terhubung ke server, coba lagi.';
+      fileError.classList.remove('hidden');
+    });
+
+    xhr.addEventListener('abort', function () {
+      uploadProgress.classList.add('hidden');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-magic"></i> Ekstrak Data';
+    });
+
+    xhr.open('POST', '<%= basePath %>/transactions/receipt/parse');
+    xhr.send(formData);
   });
 
   // Drag & drop
