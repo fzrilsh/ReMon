@@ -52,7 +52,7 @@
             <input type="text" id="amount_display" inputmode="numeric"
               class="w-full border-2 <%= errors && errors.amount ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
               placeholder="0" required />
-            <input type="hidden" id="amount" name="amount" value="<%= receiptData ? receiptData.total_amount : (oldInput.amount || '') %>" />
+            <input type="hidden" id="amount" name="amount" value="<%= (receiptData && receiptData.total_amount) ? receiptData.total_amount : (locals.oldInput && locals.oldInput.amount ? locals.oldInput.amount : '') %>" />
             <% if (errors && errors.amount) { %><span class="block text-gxs text-expense mt-1">
                 <%= errors.amount[0] %>
               </span>
@@ -99,7 +99,7 @@
         </form>
   </div>
 
-  <script>
+  <script data-eval="true">
     (function() {
       const displayInput = document.getElementById('amount_display');
       const hiddenInput = document.getElementById('amount');
