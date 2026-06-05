@@ -5,7 +5,11 @@ const env = require('../config/env');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const subfolder = file.fieldname === 'proof' ? 'proofs' : 'receipts';
-    cb(null, path.join(env.uploadDir, subfolder));
+    // Resolve ke absolute path agar tidak bergantung pada CWD saat server dijalankan
+    const destPath = path.isAbsolute(env.uploadDir)
+      ? path.join(env.uploadDir, subfolder)
+      : path.join(process.cwd(), env.uploadDir, subfolder);
+    cb(null, destPath);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

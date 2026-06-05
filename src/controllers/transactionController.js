@@ -118,8 +118,11 @@ async function showReceipt(req, res) {
 async function parseReceipt(req, res, next) {
   try {
     if (!req.file) {
+      console.warn('[parseReceipt] No file received in request');
       return res.status(400).json({ ok: false, error: 'File gambar wajib diupload' });
     }
+
+    console.log('[parseReceipt] File received:', req.file.originalname, req.file.size, 'bytes at', req.file.path);
 
     // Capture needed values before handing off to background job
     const userId = req.session.user.id;
@@ -131,10 +134,13 @@ async function parseReceipt(req, res, next) {
 
     // Background processing (fire and forget)
     setImmediate(async () => {
+      console.log('[parseReceipt background] Starting OCR + AI for userId:', userId);
       const notificationService = require('../services/notificationService');
       try {
         const aiService = require('../services/aiService');
         const result = await aiService.parseReceipt(filePath);
+
+        console.log('[parseReceipt background] AI result success:', result.success);
 
         if (!result.success) {
           await notificationService.create({
@@ -159,6 +165,8 @@ async function parseReceipt(req, res, next) {
           message: `Data dari ${storeName} (Rp ${amount}) siap dicatat. Klik untuk melanjutkan.`,
           link: `${basePath}/transactions/create?d=${encoded}`,
         });
+
+        console.log('[parseReceipt background] Notification created for userId:', userId);
       } catch (err) {
         console.error('[parseReceipt background] Error:', err.message);
         try {
