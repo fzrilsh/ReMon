@@ -334,5 +334,8 @@
 
   initSwipeRows();
 
+  // Expose so skeleton loaders can re-init after partial injection
+  window.initSwipeRows = initSwipeRows;
+
 })();
 
