@@ -141,6 +141,7 @@ label:has(input[name="direction"]:checked) {
 .swipe-row-wrap {
   position: relative;
   overflow: hidden;
+  touch-action: pan-y;
 }
 
 /* The row content that slides left on swipe */
@@ -151,6 +152,8 @@ label:has(input[name="direction"]:checked) {
   will-change: transform;
   background: #ffffff;
   width: 100%;
+  position: relative;
+  z-index: 3;
 }
 
 /* The hidden action panel revealed on swipe */
@@ -208,6 +211,7 @@ label:has(input[name="direction"]:checked) {
 .swipe-card-wrap {
   position: relative;
   overflow: hidden;
+  touch-action: pan-y;
 }
 .swipe-card-wrap.is-open .swipe-content {
   transform: translateX(-120px);
