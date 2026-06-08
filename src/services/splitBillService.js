@@ -221,8 +221,36 @@ async function verifyAndUpdatePayment(participantId, verificationResult) {
   });
 }
 
+async function markParticipantPaid(participantId, userId) {
+  const participant = await prisma.splitBillParticipant.findUnique({
+    where: { id: participantId },
+    include: { splitBill: true },
+  });
+  
+  if (!participant) {
+    const error = new Error('Peserta tidak ditemukan');
+    error.statusCode = 404;
+    throw error;
+  }
+  
+  if (participant.splitBill.userId !== userId) {
+    const error = new Error('Unauthorized');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  return prisma.splitBillParticipant.update({
+    where: { id: participantId },
+    data: {
+      status: 'PAID',
+      paidAt: new Date(),
+      paymentVerified: true,
+    },
+  });
+}
+
 module.exports = {
   getAll, getById, getBySlug, create, close,
   getExpenseTransactions, getPublicSplitBill,
-  submitPayment, verifyAndUpdatePayment,
+  submitPayment, verifyAndUpdatePayment, markParticipantPaid,
 };

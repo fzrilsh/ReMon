@@ -111,4 +111,20 @@ async function closeSplitBill(req, res, next) {
   }
 }
 
-module.exports = { index, showCreate, store, detail, closeSplitBill };
+async function markParticipantPaid(req, res, next) {
+  try {
+    await splitBillService.markParticipantPaid(req.params.participantId, req.session.user.id);
+    res.redirect('back');
+  } catch (err) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).render('error', {
+        title: 'Error',
+        message: err.message,
+        error: null,
+      });
+    }
+    next(err);
+  }
+}
+
+module.exports = { index, showCreate, store, detail, closeSplitBill, markParticipantPaid };

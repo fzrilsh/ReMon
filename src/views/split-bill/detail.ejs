@@ -61,65 +61,44 @@
         <div class="bg-white border-2 border-gray-200 rounded-gsm p-4">
           <h3 class="font-semibold text-gcore-900 mb-4">Peserta (<%= splitBill.participants ?
               splitBill.participants.length : 0 %> orang)</h3>
-          <div class="table-wrap">
-            <table class="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th
-                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
-                    Nama</th>
-                  <th
-                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
-                    Jumlah</th>
-                  <th
-                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
-                    Status</th>
-                  <th
-                    class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50">
-                    Bukti</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (splitBill.participants) { splitBill.participants.forEach(function(p) { %>
-                  <tr class="hover:bg-gray-50">
-                    <td class="p-2.5 border-b border-gray-100 text-gsm font-semibold text-gcore-900">
-                      <%= p.name %>
-                    </td>
-                    <td class="p-2.5 border-b border-gray-100 text-gsm text-gcore-900">Rp <%=
-                        Number(p.amount).toLocaleString('id-ID') %>
-                    </td>
-                    <td class="p-2.5 border-b border-gray-100">
+          <div class="space-y-2">
+            <% if (splitBill.participants) { splitBill.participants.forEach(function(p) { %>
+              <div class="swipe-card-wrap swipe-card-single bg-white border border-gray-200 rounded-gsm hover:bg-gray-50 transition-colors">
+                <div class="swipe-content p-3 flex items-center justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gsm font-semibold text-gcore-900"><%= p.name %></p>
+                    <p class="text-gsm text-gcore-500">Rp <%= Number(p.amount).toLocaleString('id-ID') %></p>
+                  </div>
+                  <div class="text-right shrink-0 flex items-center gap-3">
+                    <div class="text-right">
                       <% if (p.status==='PAID' ) { %>
-                        <span
-                          class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
-                            class="fas fa-check-circle"></i> Lunas</span>
-                        <% } else if (p.status==='DISPUTED' ) { %>
-                          <span
-                            class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
-                              class="fas fa-exclamation-triangle"></i> Ditolak</span>
-                          <% if (p.aiFeedback) { %><br><span class="text-gxs text-gcore-500">
-                              <%= p.aiFeedback %>
-                            </span>
-                            <% } %>
-                              <% } else { %>
-                                <span
-                                  class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold"><i
-                                    class="fas fa-hourglass-half"></i> Menunggu</span>
-                                <% } %>
-                    </td>
-                    <td class="p-2.5 border-b border-gray-100">
-                      <% if (p.paymentVerified) { %>
-                        <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap"><i class="fas fa-check"></i> <span class="max-sm:hidden">Terverifikasi</span></span>
-                        <% } else if (p.paymentProofImage) { %>
-                          <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap"><i class="fas fa-hourglass-half"></i> <span class="max-sm:hidden">Pending</span></span>
-                          <% } else { %>
-                            <span class="text-gxs text-gcore-400">&mdash;</span>
-                            <% } %>
-                    </td>
-                  </tr>
-                  <% }); } %>
-              </tbody>
-            </table>
+                        <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-check-circle"></i> Lunas</span>
+                      <% } else if (p.status==='DISPUTED' ) { %>
+                        <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-exclamation-triangle"></i> Ditolak</span>
+                        <% if (p.aiFeedback) { %><p class="text-gxs text-gcore-500 mt-1"><%= p.aiFeedback %></p><% } %>
+                      <% } else { %>
+                        <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold"><i class="fas fa-hourglass-half"></i> Menunggu</span>
+                      <% } %>
+                    </div>
+                    <% if (p.status !== 'PAID') { %>
+                      <div class="swipe-hint max-lg:flex hidden text-gcore-400 text-gxs"><i class="fas fa-chevron-left"></i></div>
+                      <div class="max-lg:hidden flex gap-1 items-center">
+                        <form action="<%= basePath %>/split-bills/participants/<%= p.id %>/paid?_method=PATCH" method="POST" style="display:inline;">
+                          <button type="submit" class="swipe-btn swipe-btn-settle" title="Tandai Lunas" onclick="return confirm('Tandai peserta ini sudah membayar?')"><i class="fas fa-check"></i></button>
+                        </form>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+                <% if (p.status !== 'PAID') { %>
+                  <div class="swipe-actions">
+                    <form action="<%= basePath %>/split-bills/participants/<%= p.id %>/paid?_method=PATCH" method="POST" style="display:flex; height: 100%;">
+                      <button type="submit" class="swipe-btn swipe-btn-settle" title="Tandai Lunas" onclick="return confirm('Tandai peserta ini sudah membayar?')"><i class="fas fa-check"></i></button>
+                    </form>
+                  </div>
+                <% } %>
+              </div>
+            <% }); } %>
           </div>
         </div>
 
