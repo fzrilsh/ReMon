@@ -167,12 +167,13 @@
                   required>
                   <option value="">Pilih nama kamu...</option>
                   <% splitBill.participants.forEach(function(p) { %>
-                    <% const isProcessing = p.status === 'UNPAID' && p.paymentProofImage; %>
-                    <% const isDisabled = p.status === 'PAID' || isProcessing; %>
-                    <option value="<%= p.name %>" <%= isDisabled ? 'disabled' : '' %>>
-                      <%= p.name %> | Rp <%= Number(p.amount).toLocaleString('id-ID') %>
-                      <%= p.status === 'PAID' ? ' (Sudah bayar)' : (isProcessing ? ' (Sedang diproses AI)' : '') %>
-                    </option>
+                    <% if (p.status !== 'PAID') { %>
+                      <% const isProcessing = p.status === 'UNPAID' && p.paymentProofImage; %>
+                      <option value="<%= p.name %>" <%= isProcessing ? 'disabled' : '' %>>
+                        <%= p.name %> | Rp <%= Number(p.amount).toLocaleString('id-ID') %>
+                        <%= isProcessing ? ' (Sedang diproses AI)' : '' %>
+                      </option>
+                    <% } %>
                   <% }) %>
                 </select>
                 <% if (errors && errors.name) { %><span class="block text-gxs text-expense mt-1">
