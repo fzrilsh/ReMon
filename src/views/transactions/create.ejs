@@ -64,7 +64,7 @@
             <input type="text" id="description" name="description"
               class="w-full border-2 <%= errors && errors.description ? 'border-expense' : 'border-gray-200' %> rounded-gsm px-4 py-2.5 text-gsm text-gcore-900 bg-white focus:outline-none focus:border-gcore-accent transition-colors"
               placeholder="Mis: Makan siang di warteg"
-              value="<%= receiptData ? receiptData.store_name : (oldInput.description || '') %>" required />
+              value="<%= (receiptData && receiptData.store_name) ? receiptData.store_name : (locals.oldInput && locals.oldInput.description ? locals.oldInput.description : '') %>" required />
             <% if (errors && errors.description) { %><span class="block text-gxs text-expense mt-1">
                 <%= errors.description[0] %>
               </span>
