@@ -273,12 +273,19 @@
       if (wrap.dataset.swipeInit) return;
       wrap.dataset.swipeInit = '1';
 
+      // Set touch-action inline — CSS alone can be overridden by Tailwind CDN.
+      // pan-y = browser handles vertical scroll, JS handles horizontal.
+      wrap.style.touchAction = 'pan-y';
+      // Apply to children too so child elements don't accidentally consume touches.
+      wrap.querySelectorAll('*').forEach(function(el) {
+        el.style.touchAction = 'pan-y';
+      });
+
       var THRESHOLD = 40;
       var startX, startY, startedLeft, isDragging, direction;
 
       function getRevealWidth() {
         var actions = wrap.querySelector('.swipe-actions');
-        // Calculate based on number of buttons (each is 60px)
         if (actions) {
           var btns = actions.querySelectorAll('.swipe-btn');
           if (btns.length > 0) return btns.length * 60;
@@ -288,8 +295,11 @@
 
       wrap.addEventListener('touchstart', function (e) {
         if (e.touches.length !== 1) return;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
+        var touch = e.touches[0];
+        // Ignore iOS Safari's native back-swipe zone (left 20px of screen)
+        if (touch.clientX < 20) return;
+        startX = touch.clientX;
+        startY = touch.clientY;
         startedLeft = wrap.classList.contains('is-open');
         isDragging = true;
         direction = null;
