@@ -313,14 +313,18 @@
 
         // Determine direction on first significant move
         if (direction === null) {
-          if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
-          direction = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+          if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+            // Bias towards horizontal to handle natural diagonal thumb swipes
+            direction = Math.abs(dx) > Math.abs(dy) * 0.6 ? 'h' : 'v';
+          }
+          // Still deciding? Don't do anything yet
+          if (direction === null) return;
         }
 
         if (direction === 'v') return; // vertical scroll, let browser handle it
 
         // It's a horizontal swipe — take control
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
 
         var content = wrap.querySelector('.swipe-content');
         var actions = wrap.querySelector('.swipe-actions');
