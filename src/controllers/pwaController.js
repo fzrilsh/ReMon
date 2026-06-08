@@ -18,7 +18,7 @@ function manifest(req, res) {
 
 function serviceWorker(req, res) {
   res.type('application/javascript');
-  res.render('pwa/sw', null, (err, html) => {
+  res.render('pwa/sw', { version: '2' }, (err, html) => {
     if (err) {
       // Fallback basic SW
       res.send(`
