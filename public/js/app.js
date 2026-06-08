@@ -238,30 +238,42 @@
   }
 
   // ─── Swipe-to-reveal rows ───
+  var SWIPE_THRESHOLD = 40;
+  var REVEAL_DISTANCE = 120;
+  var _swipeOpenRow = null;
+  var _swipeClickHandlerAdded = false;
+
+  function _swipeCloseRow(row) {
+    if (!row) return;
+    row.classList.remove('is-open');
+    if (_swipeOpenRow === row) _swipeOpenRow = null;
+  }
+
+  function _swipeOpenRow_(row) {
+    if (_swipeOpenRow && _swipeOpenRow !== row) _swipeCloseRow(_swipeOpenRow);
+    row.classList.add('is-open');
+    _swipeOpenRow = row;
+  }
+
   function initSwipeRows() {
     if (window.innerWidth >= 1025) return;
 
-    var SWIPE_THRESHOLD = 40;
-    var REVEAL_DISTANCE = 120;
-    var openRow = null;
-
-    function closeRow(row) {
-      if (!row) return;
-      row.classList.remove('is-open');
-      openRow = null;
+    // Add click-to-close handler only once
+    if (!_swipeClickHandlerAdded) {
+      _swipeClickHandlerAdded = true;
+      document.addEventListener('click', function (e) {
+        if (_swipeOpenRow && !_swipeOpenRow.contains(e.target)) _swipeCloseRow(_swipeOpenRow);
+      });
     }
-
-    function openRow_(row) {
-      if (openRow && openRow !== row) closeRow(openRow);
-      row.classList.add('is-open');
-      openRow = row;
-    }
-
-    document.addEventListener('click', function (e) {
-      if (openRow && !openRow.contains(e.target)) closeRow(openRow);
-    });
 
     document.querySelectorAll('.swipe-row-wrap, .swipe-card-wrap').forEach(function (wrap) {
+      // Skip if already initialized — prevents duplicate listeners on re-init
+      if (wrap.dataset.swipeInit) return;
+      wrap.dataset.swipeInit = '1';
+
+      // Critical for mobile: allow vertical scroll but let JS handle horizontal
+      wrap.style.touchAction = 'pan-y';
+
       var startX = 0, startY = 0, isDragging = false, isScrolling = null;
 
       function onStart(x, y) {
@@ -275,6 +287,8 @@
         var dy = y - startY;
 
         if (isScrolling === null) {
+          // Need a minimum move distance to determine direction
+          if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
           isScrolling = Math.abs(dy) > Math.abs(dx);
         }
         if (isScrolling) return;
@@ -308,13 +322,13 @@
 
         var currentOpen = wrap.classList.contains('is-open');
         if (!currentOpen && dx < -SWIPE_THRESHOLD) {
-          openRow_(wrap);
+          _swipeOpenRow_(wrap);
         } else if (currentOpen && dx > SWIPE_THRESHOLD) {
-          closeRow(wrap);
+          _swipeCloseRow(wrap);
         } else if (currentOpen) {
-          openRow_(wrap);
+          _swipeOpenRow_(wrap);
         } else {
-          closeRow(wrap);
+          _swipeCloseRow(wrap);
         }
       }
 
