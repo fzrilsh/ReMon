@@ -238,14 +238,16 @@
   }
 
   // ─── Swipe-to-reveal rows ───
-  var SWIPE_THRESHOLD = 40;
-  var REVEAL_DISTANCE = 120;
   var _swipeOpenRow = null;
   var _swipeClickHandlerAdded = false;
 
   function _swipeCloseRow(row) {
     if (!row) return;
     row.classList.remove('is-open');
+    var content = row.querySelector('.swipe-content');
+    var actions = row.querySelector('.swipe-actions');
+    if (content) content.style.transform = '';
+    if (actions) actions.style.transform = '';
     if (_swipeOpenRow === row) _swipeOpenRow = null;
   }
 
@@ -258,91 +260,110 @@
   function initSwipeRows() {
     if (window.innerWidth >= 1025) return;
 
-    // Add click-to-close handler only once
     if (!_swipeClickHandlerAdded) {
       _swipeClickHandlerAdded = true;
       document.addEventListener('click', function (e) {
-        if (_swipeOpenRow && !_swipeOpenRow.contains(e.target)) _swipeCloseRow(_swipeOpenRow);
+        if (_swipeOpenRow && !_swipeOpenRow.contains(e.target)) {
+          _swipeCloseRow(_swipeOpenRow);
+        }
       });
     }
 
     document.querySelectorAll('.swipe-row-wrap, .swipe-card-wrap').forEach(function (wrap) {
-      // Skip if already initialized — prevents duplicate listeners on re-init
       if (wrap.dataset.swipeInit) return;
       wrap.dataset.swipeInit = '1';
 
-      // Critical for mobile: allow vertical scroll but let JS handle horizontal
-      wrap.style.touchAction = 'pan-y';
+      var THRESHOLD = 40;
+      var startX, startY, startedLeft, isDragging, direction;
 
-      var startX = 0, startY = 0, isDragging = false, isScrolling = null;
-
-      function onStart(x, y) {
-        startX = x; startY = y;
-        isDragging = true; isScrolling = null;
+      function getRevealWidth() {
+        var actions = wrap.querySelector('.swipe-actions');
+        // Calculate based on number of buttons (each is 60px)
+        if (actions) {
+          var btns = actions.querySelectorAll('.swipe-btn');
+          if (btns.length > 0) return btns.length * 60;
+        }
+        return 120;
       }
 
-      function onMove(x, y, e) {
-        if (!isDragging) return;
-        var dx = x - startX;
-        var dy = y - startY;
+      wrap.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        startedLeft = wrap.classList.contains('is-open');
+        isDragging = true;
+        direction = null;
+      }, { passive: true });
 
-        if (isScrolling === null) {
-          // Need a minimum move distance to determine direction
+      wrap.addEventListener('touchmove', function (e) {
+        if (!isDragging || e.touches.length !== 1) return;
+
+        var dx = e.touches[0].clientX - startX;
+        var dy = e.touches[0].clientY - startY;
+
+        // Determine direction on first significant move
+        if (direction === null) {
           if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
-          isScrolling = Math.abs(dy) > Math.abs(dx);
+          direction = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
         }
-        if (isScrolling) return;
 
-        if (e && e.cancelable) e.preventDefault();
+        if (direction === 'v') return; // vertical scroll, let browser handle it
+
+        // It's a horizontal swipe — take control
+        e.preventDefault();
 
         var content = wrap.querySelector('.swipe-content');
         var actions = wrap.querySelector('.swipe-actions');
         if (!content) return;
 
-        var revealDistance = (actions && actions.offsetWidth > 0) ? actions.offsetWidth : REVEAL_DISTANCE;
-        var currentOpen = wrap.classList.contains('is-open');
-        var offset = currentOpen ? -revealDistance + dx : dx;
-        offset = Math.max(-revealDistance, Math.min(0, offset));
+        var revealWidth = getRevealWidth();
+        var baseOffset = startedLeft ? -revealWidth : 0;
+        var offset = Math.max(-revealWidth, Math.min(0, baseOffset + dx));
 
         content.style.transition = 'none';
-        if (actions) actions.style.transition = 'none';
         content.style.transform = 'translateX(' + offset + 'px)';
-        if (actions) actions.style.transform = 'translateX(' + (revealDistance + offset) + 'px)';
-      }
+        if (actions) {
+          actions.style.transition = 'none';
+          actions.style.transform = 'translateX(' + (revealWidth + offset) + 'px)';
+        }
+      }, { passive: false });
 
-      function onEnd(x) {
-        if (!isDragging || isScrolling) { isDragging = false; return; }
+      function onTouchEnd(e) {
+        if (!isDragging) return;
         isDragging = false;
-        var dx = x - startX;
+        if (direction !== 'h') return; // wasn't a horizontal swipe
+
+        var dx = (e.changedTouches ? e.changedTouches[0].clientX : startX) - startX;
         var content = wrap.querySelector('.swipe-content');
         var actions = wrap.querySelector('.swipe-actions');
 
-        if (content) { content.style.transition = ''; content.style.transform = ''; }
-        if (actions) { actions.style.transition = ''; actions.style.transform = ''; }
+        // Re-enable CSS transitions (but keep current transform so animation starts from drag position)
+        if (content) content.style.transition = '';
+        if (actions) actions.style.transition = '';
 
-        var currentOpen = wrap.classList.contains('is-open');
-        if (!currentOpen && dx < -SWIPE_THRESHOLD) {
+        if (!startedLeft && dx < -THRESHOLD) {
+          // Swipe left far enough: open
           _swipeOpenRow_(wrap);
-        } else if (currentOpen && dx > SWIPE_THRESHOLD) {
+          // Clear inline transforms — CSS class now controls position
+          if (content) content.style.transform = '';
+          if (actions) actions.style.transform = '';
+        } else if (startedLeft && dx > THRESHOLD) {
+          // Swipe right far enough: close
           _swipeCloseRow(wrap);
-        } else if (currentOpen) {
+        } else if (startedLeft) {
+          // Didn't swipe far enough, snap back open
           _swipeOpenRow_(wrap);
+          if (content) content.style.transform = '';
+          if (actions) actions.style.transform = '';
         } else {
-          _swipeCloseRow(wrap);
+          // Didn't swipe far enough, snap back closed
+          if (content) content.style.transform = '';
+          if (actions) actions.style.transform = '';
         }
       }
 
-      wrap.addEventListener('touchstart', function (e) {
-        onStart(e.touches[0].clientX, e.touches[0].clientY);
-      }, { passive: true });
-
-      wrap.addEventListener('touchmove', function (e) {
-        onMove(e.touches[0].clientX, e.touches[0].clientY, e);
-      }, { passive: false });
-
-      wrap.addEventListener('touchend', function (e) {
-        onEnd(e.changedTouches[0].clientX);
-      });
+      wrap.addEventListener('touchend', onTouchEnd);
+      wrap.addEventListener('touchcancel', onTouchEnd);
     });
   }
 
