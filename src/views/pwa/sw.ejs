@@ -1,4 +1,7 @@
-const CACHE_NAME = 'remon-v<%= typeof version !== 'undefined' ? version : '1' %>';
+const CACHE_VERSION = '<%= typeof version !== "undefined" ? version : "1" %>';
+const STATIC_CACHE = 'remon-static-v' + CACHE_VERSION;
+const PAGE_CACHE   = 'remon-pages-v' + CACHE_VERSION;
+
 const STATIC_ASSETS = [
   '/css/app.css',
   '/js/app.js',
@@ -6,68 +9,100 @@ const STATIC_ASSETS = [
   '/icons/icon-512.svg',
 ];
 
+// Pages to pre-cache on install so they work offline even if never visited
+const PRE_CACHE_PAGES = [
+  '/dashboard',
+  '/transactions',
+  '/transactions/new',
+  '/debts',
+  '/split-bills',
+  '/settings',
+];
+
+const OFFLINE_HTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline \u2014 ReMon</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#f9fafb;color:#111827;text-align:center;padding:24px}.icon{font-size:48px;margin-bottom:16px}h1{font-size:22px;font-weight:700;margin-bottom:8px}p{font-size:14px;color:#6b7280;margin-bottom:24px;max-width:300px;line-height:1.5}a{display:inline-block;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px}</style></head><body><div class="icon">\ud83d\udce1</div><h1>Anda Sedang Offline</h1><p>Tidak ada koneksi internet. Silakan kembali ke Dashboard atau coba lagi nanti.</p><a href="/dashboard">Kembali ke Dashboard</a></body></html>';
+
+// ─── Install: pre-cache static assets ───────────────────────────────────────
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install');
+  console.log('[SW] Install v' + CACHE_VERSION);
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
 
+// ─── Activate: clean up old caches, pre-cache pages ─────────────────────────
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate');
+  console.log('[SW] Activate v' + CACHE_VERSION);
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      );
-    })
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys
+          .filter((k) => k !== STATIC_CACHE && k !== PAGE_CACHE)
+          .map((k) => caches.delete(k))
+      ))
+      .then(() => {
+        // Pre-cache pages in the background after activation
+        return caches.open(PAGE_CACHE).then((cache) => {
+          return Promise.allSettled(
+            PRE_CACHE_PAGES.map((page) =>
+              fetch(page, { credentials: 'include' })
+                .then((res) => { if (res.ok) cache.put(page, res); })
+                .catch(() => {}) // Silently ignore if user is not logged in
+            )
+          );
+        });
+      })
   );
   self.clients.claim();
 });
 
+// ─── Fetch handler ───────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Only handle same-origin requests — skip CDN, fonts, external APIs, etc.
+  // Only handle same-origin GET requests
   if (url.origin !== self.location.origin) return;
-
-  // Only handle GET requests for navigation/pages — skip POST/PUT/DELETE entirely
   if (event.request.method !== 'GET') return;
 
-  // Skip notification polling and API endpoints
+  // Skip notification polling and API endpoints (always need fresh data)
   if (url.pathname.startsWith('/notifications/') || url.pathname.includes('/api/')) return;
 
-  // Static assets: cache-first
+  // ── Static assets: cache-first, match by pathname (ignores query strings) ──
   if (STATIC_ASSETS.includes(url.pathname)) {
     event.respondWith(
-      caches.match(event.request).then((cached) => cached || fetch(event.request))
+      caches.open(STATIC_CACHE).then((cache) =>
+        cache.match(url.pathname).then((cached) => {
+          if (cached) return cached;
+          return fetch(event.request).then((res) => {
+            if (res.ok) cache.put(url.pathname, res.clone());
+            return res;
+          });
+        })
+      )
     );
     return;
   }
 
-  // Pages (GET): network-first, fallback to cache, then built-in offline page
+  // ── Pages: network-first, fallback to page cache, then offline HTML ─────────
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Only cache successful HTML responses
-        if (response.ok && response.status < 400) {
+        if (response.ok) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(PAGE_CACHE).then((cache) => cache.put(url.pathname, clone));
         }
         return response;
       })
-      .catch(() => {
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          // Built-in offline fallback — no external dependency needed
-          return new Response(
-            '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline — ReMon</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#f9fafb;color:#111827;text-align:center;padding:24px}.icon{font-size:48px;margin-bottom:16px}h1{font-size:22px;font-weight:700;margin-bottom:8px}p{font-size:14px;color:#6b7280;margin-bottom:24px;max-width:300px;line-height:1.5}a{display:inline-block;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px}</style></head><body><div class="icon">📡</div><h1>Anda Sedang Offline</h1><p>Halaman ini tidak tersedia saat offline. Pastikan Anda sudah membuka halaman ini sebelumnya agar bisa di-cache.</p><a href="/dashboard">Kembali ke Dashboard</a></body></html>',
-            { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
-          );
-        });
-      })
+      .catch(() =>
+        caches.open(PAGE_CACHE).then((cache) =>
+          cache.match(url.pathname).then((cached) => {
+            if (cached) return cached;
+            return new Response(OFFLINE_HTML, {
+              status: 200,
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            });
+          })
+        )
+      )
   );
 });
