@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   '/icons/icon-512.svg',
 ];
 
-// Pages to pre-cache on install so they work offline even if never visited
+// Pages to pre-cache on activate so they work offline even if never visited
 const PRE_CACHE_PAGES = [
   '/dashboard',
   '/transactions',
@@ -25,12 +25,13 @@ const OFFLINE_HTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Of
 self.addEventListener('install', (event) => {
   console.log('[SW] Install v' + CACHE_VERSION);
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(STATIC_CACHE)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// ─── Activate: clean up old caches, pre-cache pages ─────────────────────────
+// ─── Activate: clean up old caches, then pre-cache pages ────────────────────
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activate v' + CACHE_VERSION);
   event.waitUntil(
@@ -38,22 +39,28 @@ self.addEventListener('activate', (event) => {
       .then((keys) => Promise.all(
         keys
           .filter((k) => k !== STATIC_CACHE && k !== PAGE_CACHE)
-          .map((k) => caches.delete(k))
+          .map((k) => { console.log('[SW] Deleting old cache:', k); return caches.delete(k); })
       ))
+      .then(() => self.clients.claim())
       .then(() => {
-        // Pre-cache pages in the background after activation
-        return caches.open(PAGE_CACHE).then((cache) => {
-          return Promise.allSettled(
-            PRE_CACHE_PAGES.map((page) =>
-              fetch(page, { credentials: 'include' })
-                .then((res) => { if (res.ok) cache.put(page, res); })
-                .catch(() => {}) // Silently ignore if user is not logged in
-            )
-          );
-        });
+        // Pre-cache pages after claiming clients — uses session cookie of logged-in user
+        return caches.open(PAGE_CACHE).then((cache) =>
+          Promise.allSettled(
+            PRE_CACHE_PAGES.map((page) => {
+              const req = new Request(page, { credentials: 'include', mode: 'same-origin' });
+              return fetch(req)
+                .then((res) => {
+                  if (res.ok && res.status < 400) {
+                    console.log('[SW] Pre-cached:', page);
+                    return cache.put(req, res);
+                  }
+                })
+                .catch((err) => console.log('[SW] Could not pre-cache:', page, err.message));
+            })
+          )
+        );
       })
   );
-  self.clients.claim();
 });
 
 // ─── Fetch handler ───────────────────────────────────────────────────────────
@@ -67,14 +74,15 @@ self.addEventListener('fetch', (event) => {
   // Skip notification polling and API endpoints (always need fresh data)
   if (url.pathname.startsWith('/notifications/') || url.pathname.includes('/api/')) return;
 
-  // ── Static assets: cache-first, match by pathname (ignores query strings) ──
+  // ── Static assets: cache-first (use Request as key, consistent with addAll) ──
   if (STATIC_ASSETS.includes(url.pathname)) {
     event.respondWith(
       caches.open(STATIC_CACHE).then((cache) =>
-        cache.match(url.pathname).then((cached) => {
+        // ignoreSearch: true so ?v=... query strings don't break matching
+        cache.match(event.request, { ignoreSearch: true }).then((cached) => {
           if (cached) return cached;
           return fetch(event.request).then((res) => {
-            if (res.ok) cache.put(url.pathname, res.clone());
+            if (res.ok) cache.put(event.request, res.clone());
             return res;
           });
         })
@@ -83,26 +91,36 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip PJAX partial requests — server sends fragments, not full pages
+  if (event.request.headers.get('X-Requested-With') === 'XMLHttpRequest') return;
+
   // ── Pages: network-first, fallback to page cache, then offline HTML ─────────
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (response.ok) {
+        if (response.ok && response.status < 400) {
           const clone = response.clone();
-          caches.open(PAGE_CACHE).then((cache) => cache.put(url.pathname, clone));
+          // Use a normalized Request without query string as cache key for pages
+          const cacheKey = new Request(url.origin + url.pathname, { credentials: 'include' });
+          caches.open(PAGE_CACHE).then((cache) => cache.put(cacheKey, clone));
         }
         return response;
       })
-      .catch(() =>
-        caches.open(PAGE_CACHE).then((cache) =>
-          cache.match(url.pathname).then((cached) => {
-            if (cached) return cached;
+      .catch(() => {
+        const cacheKey = new Request(url.origin + url.pathname, { credentials: 'include' });
+        return caches.open(PAGE_CACHE).then((cache) =>
+          cache.match(cacheKey).then((cached) => {
+            if (cached) {
+              console.log('[SW] Serving from page cache:', url.pathname);
+              return cached;
+            }
+            console.log('[SW] No cache for:', url.pathname, '- serving offline page');
             return new Response(OFFLINE_HTML, {
               status: 200,
               headers: { 'Content-Type': 'text/html; charset=utf-8' },
             });
           })
-        )
-      )
+        );
+      })
   );
 });
