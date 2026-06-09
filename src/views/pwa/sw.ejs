@@ -9,15 +9,6 @@ const STATIC_ASSETS = [
   '/icons/icon-512.svg',
 ];
 
-const PRE_CACHE_PAGES = [
-  '/dashboard',
-  '/transactions',
-  '/transactions/new',
-  '/debts',
-  '/split-bills',
-  '/settings',
-];
-
 const OFFLINE_HTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline \u2014 ReMon</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#f9fafb;color:#111827;text-align:center;padding:24px}.icon{font-size:48px;margin-bottom:16px}h1{font-size:22px;font-weight:700;margin-bottom:8px}p{font-size:14px;color:#6b7280;margin-bottom:24px;max-width:300px;line-height:1.5}a{display:inline-block;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px}</style></head><body><div class="icon">\ud83d\udce1</div><h1>Anda Sedang Offline</h1><p>Tidak ada koneksi internet. Silakan kembali ke Dashboard atau coba lagi nanti.</p><a href="/dashboard">Kembali ke Dashboard</a></body></html>';
 
 // ─── Install: pre-cache static assets ───────────────────────────────────────
@@ -30,7 +21,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// ─── Activate: clean up old caches, then pre-cache pages ────────────────────
+// ─── Activate: clean up old caches ─────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activate v' + CACHE_VERSION);
   event.waitUntil(
@@ -41,21 +32,6 @@ self.addEventListener('activate', (event) => {
           .map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
-      .then(() => {
-        return caches.open(PAGE_CACHE).then((cache) =>
-          Promise.allSettled(
-            PRE_CACHE_PAGES.map((page) => {
-              // Only fetch http/https to avoid chrome-extension:// scheme errors
-              const fullUrl = self.location.origin + page;
-              return fetch(new Request(fullUrl, { credentials: 'include', mode: 'same-origin' }))
-                .then((res) => {
-                  if (res.ok) return cache.put(fullUrl, res);
-                })
-                .catch(() => {}); // Silently ignore — user might not be logged in
-            })
-          )
-        );
-      })
   );
 });
 
