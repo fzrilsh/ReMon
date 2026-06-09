@@ -116,6 +116,18 @@
   var previewName = document.getElementById('previewName');
   var previewSize = document.getElementById('previewSize');
 
+  // Handle share target redirection & errors
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('shared') === 'true') {
+    uploadSection.classList.add('hidden');
+    processingCard.classList.remove('hidden');
+  }
+  var errorParam = urlParams.get('error');
+  if (errorParam) {
+    fileError.textContent = decodeURIComponent(errorParam);
+    fileError.classList.remove('hidden');
+  }
+
   function formatBytes(bytes) {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';

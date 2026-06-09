@@ -220,6 +220,74 @@ async function update(req, res, next) {
   }
 }
 
+async function shareReceipt(req, res, next) {
+  try {
+    if (!req.file) {
+      console.warn('[shareReceipt] No file received in request');
+      return res.redirect(`${req.basePath}/transactions/receipt?error=${encodeURIComponent('File gambar wajib diupload')}`);
+    }
+
+    console.log('[shareReceipt] File received via share target:', req.file.originalname, req.file.size, 'bytes at', req.file.path);
+
+    const userId = req.session.user.id;
+    const basePath = req.basePath;
+    const filePath = req.file.path;
+
+    // Redirect the user to /transactions/receipt with shared=true
+    res.redirect(`${basePath}/transactions/receipt?shared=true`);
+
+    // Background processing (fire and forget)
+    setImmediate(async () => {
+      console.log('[shareReceipt background] Starting OCR + AI for userId:', userId);
+      const notificationService = require('../services/notificationService');
+      try {
+        const aiService = require('../services/aiService');
+        const result = await aiService.parseReceipt(filePath);
+
+        console.log('[shareReceipt background] AI result success:', result.success);
+
+        if (!result.success) {
+          await notificationService.create({
+            userId,
+            type: 'RECEIPT_FAILED',
+            title: '❌ Gagal memproses struk',
+            message: result.error || 'Tidak dapat membaca struk.',
+            link: null,
+          });
+          return;
+        }
+
+        const encoded = Buffer.from(JSON.stringify(result.data)).toString('base64url');
+        const storeName = result.data.store_name || 'Struk';
+        const amount = Number(result.data.total_amount || 0).toLocaleString('id-ID');
+
+        await notificationService.create({
+          userId,
+          type: 'RECEIPT_READY',
+          title: '✅ Struk berhasil diproses',
+          message: `Data dari ${storeName} (Rp ${amount}) siap dicatat. Klik untuk melanjutkan.`,
+          link: `${basePath}/transactions/create?d=${encoded}`,
+        });
+
+        console.log('[shareReceipt background] Notification created for userId:', userId);
+      } catch (err) {
+        console.error('[shareReceipt background] Error:', err.message);
+        try {
+          await notificationService.create({
+            userId,
+            type: 'RECEIPT_FAILED',
+            title: '❌ Gagal memproses struk',
+            message: 'Terjadi kesalahan saat memproses struk.',
+            link: null,
+          });
+        } catch (_) {}
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function destroy(req, res, next) {
   try {
     await transactionService.remove(req.params.id, req.session.user.id);
@@ -229,4 +297,4 @@ async function destroy(req, res, next) {
   }
 }
 
-module.exports = { index, showCreate, store, showReceipt, parseReceipt, showEdit, update, destroy };
+module.exports = { index, showCreate, store, showReceipt, parseReceipt, shareReceipt, showEdit, update, destroy };

@@ -1,18 +1,32 @@
 function manifest(req, res) {
+  const basePath = req.basePath || '';
   res.json({
     name: 'ReMon — Pencatat Keuangan',
     short_name: 'ReMon',
     description: 'Catat pengeluaran, split bill, tracking hutang — semua dalam satu aplikasi.',
-    start_url: '/',
+    start_url: basePath + '/',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#000000',
     orientation: 'portrait-primary',
     categories: ['finance', 'productivity'],
     icons: [
-      { src: '/icons/icon-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-      { src: '/icons/icon-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: basePath + '/icons/icon-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: basePath + '/icons/icon-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
     ],
+    share_target: {
+      action: basePath + '/transactions/receipt/share',
+      method: 'POST',
+      enctype: 'multipart/form-data',
+      params: {
+        files: [
+          {
+            name: 'receipt',
+            accept: ['image/*', 'application/pdf']
+          }
+        ]
+      }
+    }
   });
 }
 

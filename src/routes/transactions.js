@@ -18,11 +18,28 @@ function uploadSingleReceipt(req, res, next) {
   });
 }
 
+// Wrapper untuk handle Multer error untuk share target (redirect instead of JSON)
+function uploadShareReceipt(req, res, next) {
+  upload.single('receipt')(req, res, function (err) {
+    if (err) {
+      let errMsg = 'Gagal mengupload file.';
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        errMsg = 'Ukuran file terlalu besar. Maksimal 5MB.';
+      } else if (err.message) {
+        errMsg = err.message;
+      }
+      return res.redirect(`${req.basePath}/transactions/receipt?error=${encodeURIComponent(errMsg)}`);
+    }
+    next();
+  });
+}
+
 router.get('/', requireAuth, transactionController.index);
 router.get('/create', requireAuth, transactionController.showCreate);
 router.post('/', requireAuth, transactionController.store);
 router.get('/receipt', requireAuth, transactionController.showReceipt);
 router.post('/receipt/parse', requireAuth, uploadSingleReceipt, transactionController.parseReceipt);
+router.post('/receipt/share', requireAuth, uploadShareReceipt, transactionController.shareReceipt);
 router.get('/:id/edit', requireAuth, transactionController.showEdit);
 router.put('/:id', requireAuth, transactionController.update);
 router.delete('/:id', requireAuth, transactionController.destroy);
