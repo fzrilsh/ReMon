@@ -68,7 +68,10 @@
                   <% if (p.status === 'PAID') { %>
                     <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-semibold"><i class="fas fa-check-circle"></i> Lunas</span>
                   <% } else if (p.status === 'DISPUTED') { %>
-                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-semibold" title="<%= p.aiFeedback || '' %>"><i class="fas fa-exclamation-triangle"></i> Ditolak</span>
+                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-semibold cursor-pointer" onclick="alert('<%= (p.aiFeedback || \'Verifikasi ditolak\').replace(/\'/g, \'\\\\\'\').replace(/\"/g, \'&quot;\') %>')">
+                      <i class="fas fa-exclamation-triangle"></i> Ditolak
+                      <% if (p.aiFeedback) { %><i class="fas fa-question-circle ml-0.5"></i><% } %>
+                    </span>
                   <% } else if (p.paymentProofImage) { %>
                     <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-semibold animate-pulse"><i class="fas fa-spinner fa-spin"></i> Memproses</span>
                   <% } else { %>
