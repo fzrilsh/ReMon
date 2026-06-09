@@ -402,22 +402,44 @@
   }
 
   // Intercept all form submissions
-  document.addEventListener('submit', function (e) {
-    if (navigator.onLine) return; // Allow normal submission if online
-
+  document.addEventListener('submit', async function (e) {
     const form = e.target;
-    // Skip forms with file inputs or non-POST methods (we only sync mutations like POST/PUT/DELETE)
+    // Skip forms with file inputs
     if (form.querySelector('input[type="file"]')) {
-      e.preventDefault();
-      alert('Upload gambar atau struk tidak didukung saat offline. Harap tunggu hingga koneksi kembali.');
+      if (!navigator.onLine) {
+        e.preventDefault();
+        alert('Upload gambar atau struk tidak didukung saat offline. Harap tunggu hingga koneksi kembali.');
+      }
       return;
     }
 
     const method = (form.querySelector('input[name="_method"]') ? form.querySelector('input[name="_method"]').value : form.method).toUpperCase();
-    if (method === 'GET') return; // Don't queue GET requests (filters, etc.)
+    if (method === 'GET') return; // Don't queue GET requests
 
     e.preventDefault();
 
+    // Check actual network connectivity by pinging an API endpoint that the SW ignores
+    let isReallyOnline = navigator.onLine;
+    if (isReallyOnline) {
+      try {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true; // prevent double click while checking
+
+        await fetch('/api/ping-check-' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+        
+        if (submitBtn) submitBtn.disabled = false;
+      } catch (err) {
+        isReallyOnline = false; // Ping failed, we are actually offline!
+      }
+    }
+
+    if (isReallyOnline) {
+      // Really online, proceed with native browser submission
+      form.submit();
+      return;
+    }
+
+    // --- WE ARE TRULY OFFLINE ---
     // Serialize form data
     const formData = new FormData(form);
     const payload = new URLSearchParams(formData).toString();
@@ -427,7 +449,7 @@
     queue.push({
       id: Date.now().toString(),
       url: actionUrl,
-      method: method === 'PUT' || method === 'DELETE' ? 'POST' : method, // Send as POST because we use body-parser + method-override
+      method: method === 'PUT' || method === 'DELETE' ? 'POST' : method,
       payload: payload,
       timestamp: new Date().toISOString()
     });
