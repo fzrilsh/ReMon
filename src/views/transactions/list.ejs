@@ -43,54 +43,68 @@
 
 <% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
   <div class="border-2 border-gray-200 rounded-gsm overflow-hidden">
-    <table class="w-full border-collapse" style="min-width:0;">
-      <thead>
-        <tr>
-          <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap">Tanggal</th>
-          <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap max-sm:hidden">Tipe</th>
-          <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap">Deskripsi</th>
-          <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap max-sm:hidden">Kategori</th>
-          <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap">Jumlah</th>
-          <th class="text-gxs font-semibold uppercase text-gcore-500 text-left p-2.5 border-b-2 border-gray-200 bg-gray-50 whitespace-nowrap max-lg:hidden">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="w-full min-w-0">
+      <!-- Header (Hidden on Mobile) -->
+      <div class="hidden lg:flex border-b-2 border-gray-200 bg-gray-50">
+        <div class="w-[100px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Tanggal</div>
+        <div class="w-[100px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Tipe</div>
+        <div class="flex-1 min-w-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Deskripsi</div>
+        <div class="w-[120px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Kategori</div>
+        <div class="w-[150px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Jumlah</div>
+        <div class="w-[80px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Aksi</div>
+      </div>
+      
+      <!-- Body -->
+      <div class="flex flex-col">
         <% transactions.forEach(function(t) { %>
-          <tr>
-            <td colspan="6" class="p-0 border-b border-gray-100 max-w-0">
-              <div class="swipe-row-wrap hover:bg-gray-50">
-                <div class="swipe-content">
-                  <div class="p-2.5 text-gsm text-gcore-900 whitespace-nowrap w-[70px] shrink-0"><%= new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %></div>
-                  <div class="p-2.5 max-sm:hidden shrink-0">
-                    <span class="inline-flex items-center gap-1 <%= t.type === 'INCOME' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap">
-                      <i class="fas <%= t.type === 'INCOME' ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i> <%= t.type === 'INCOME' ? 'Masuk' : 'Keluar' %>
-                    </span>
-                  </div>
-                  <div class="p-2.5 text-gsm text-gcore-900 flex-1 min-w-0 truncate"><%= t.description %></div>
-                  <div class="p-2.5 max-sm:hidden shrink-0"><span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap"><%= t.category ? t.category.name : '-' %></span></div>
-                  <div class="p-2.5 font-semibold whitespace-nowrap shrink-0 <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %>">Rp <%= Number(t.amount).toLocaleString('id-ID') %></div>
-                  <div class="max-lg:hidden p-2.5 shrink-0">
-                    <div class="flex gap-1">
-                      <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
-                      <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus transaksi ini?')" style="display:inline;">
-                        <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
-                      </form>
-                    </div>
-                  </div>
-                  <div class="swipe-hint max-lg:flex hidden"><i class="fas fa-chevron-left"></i></div>
-                </div>
-                <div class="swipe-actions">
+          <div class="swipe-row-wrap border-b border-gray-100 hover:bg-gray-50">
+            <div class="swipe-content w-full flex items-center">
+              <div class="w-[100px] shrink-0 p-2.5 text-gsm text-gcore-900 whitespace-nowrap max-lg:w-[70px]">
+                <%= new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %>
+              </div>
+              
+              <div class="w-[100px] shrink-0 p-2.5 max-lg:hidden">
+                <span class="inline-flex items-center gap-1 <%= t.type === 'INCOME' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap">
+                  <i class="fas <%= t.type === 'INCOME' ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i> <%= t.type === 'INCOME' ? 'Masuk' : 'Keluar' %>
+                </span>
+              </div>
+              
+              <div class="flex-1 min-w-0 p-2.5 text-gsm text-gcore-900 truncate">
+                <%= t.description %>
+              </div>
+              
+              <div class="w-[120px] shrink-0 p-2.5 max-lg:hidden">
+                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap truncate max-w-full block">
+                  <%= t.category ? t.category.name : '-' %>
+                </span>
+              </div>
+              
+              <div class="w-[150px] shrink-0 p-2.5 font-semibold whitespace-nowrap <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %> max-lg:w-auto max-lg:ml-auto">
+                Rp <%= Number(t.amount).toLocaleString('id-ID') %>
+              </div>
+              
+              <div class="w-[80px] shrink-0 p-2.5 max-lg:hidden">
+                <div class="flex gap-1">
                   <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
-                  <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus transaksi ini?')" style="display:flex;">
+                  <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus transaksi ini?')" style="display:inline;">
                     <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
                   </form>
                 </div>
               </div>
-            </td>
-          </tr>
+              
+              <div class="swipe-hint max-lg:flex hidden p-2.5"><i class="fas fa-chevron-left"></i></div>
+            </div>
+            
+            <div class="swipe-actions">
+              <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
+              <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus transaksi ini?')" style="display:flex;">
+                <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
+              </form>
+            </div>
+          </div>
         <% }) %>
-      </tbody>
-    </table>
+      </div>
+    </div>
   </div>
 <% } else { %>
   <div class="bg-white border-2 border-gray-200 rounded-gsm p-12 text-center">
