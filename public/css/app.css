@@ -225,16 +225,32 @@ label:has(input[name="direction"]:checked) {
 
 /* On desktop: actions are always shown inline, no swipe needed */
 @media (min-width: 1025px) {
-  .swipe-row-wrap { overflow: visible; }
-  .swipe-row-wrap .swipe-content {
-    transform: none !important;
-    display: contents;
-    transition: none;
+  /* The outer wrapper fills the td and becomes a plain flex row */
+  .swipe-row-wrap {
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    width: 100%;
   }
+  /* Content takes all remaining space, no transforms or transitions */
+  .swipe-row-wrap .swipe-content {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    transform: none !important;
+    transition: none;
+    background: transparent;
+    position: static;
+  }
+  /* Actions shown statically at the right, not absolutely positioned */
   .swipe-row-wrap .swipe-actions {
     position: static;
     transform: none !important;
     transition: none;
+    display: flex;
+    flex-shrink: 0;
+    /* Hide the swipe-actions panel on desktop — inline buttons inside swipe-content handle this */
+    display: none;
   }
 
   .swipe-card-wrap { overflow: visible; }
