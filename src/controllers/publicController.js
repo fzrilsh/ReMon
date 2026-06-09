@@ -76,7 +76,7 @@ async function submitPay(req, res, next) {
     });
 
     // Verify with AI in the background without blocking the HTTP response
-    aiService.verifyPaymentProof(req.file.path, Number(participant.amount))
+    aiService.verifyPaymentProof(req.file.path, Number(participant.amount), bankProps)
       .then(verificationResult => {
         return splitBillService.verifyAndUpdatePayment(participant.id, verificationResult);
       })

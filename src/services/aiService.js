@@ -144,7 +144,7 @@ Rules:
   }
 }
 
-async function verifyPaymentProof(imagePath, expectedAmount) {
+async function verifyPaymentProof(imagePath, expectedAmount, expectedRecipient = null) {
   const apiKey = getApiKey();
 
   // Step 1: OCR the image
@@ -170,27 +170,38 @@ async function verifyPaymentProof(imagePath, expectedAmount) {
   }
 
   // Step 2: Send OCR text to AI for verification
+  const recipientContext = expectedRecipient
+    ? `Expected recipient bank  : ${expectedRecipient.bankName || '-'}
+Expected account holder  : ${expectedRecipient.bankHolder || '-'}
+Expected account number  : ${expectedRecipient.bankNumber || '-'}`
+    : 'Expected recipient info  : Not provided (skip recipient check)';
+
   const prompt = `You are a payment proof verifier. Analyze this OCR text extracted from a transfer receipt/bukti transfer image.
 
 OCR TEXT:
 ${ocrText}
 
+Expected payment amount  : ${expectedAmount}
+${recipientContext}
+
 Return ONLY valid JSON with this exact structure (no markdown, no extra text):
 {
   "valid": boolean,
   "detected_amount": number or null,
+  "detected_recipient": "string or null",
   "detected_purpose": "string or null",
   "reason": "string or null"
 }
 
 Rules:
-- valid: true ONLY if this looks like a legitimate transfer receipt/bukti transfer
-- detected_amount: The amount found in the text
-- detected_purpose: The purpose/description of payment if visible
-- reason: If valid is false, explain why
-- Expected payment amount: ${expectedAmount}
-
-Compare detected_amount with the expected amount. If they match (within reasonable range) and it appears to be a valid transfer receipt, set valid to true.`;
+- valid: true ONLY if ALL of the following conditions are met:
+  1. This looks like a legitimate transfer receipt/bukti transfer
+  2. detected_amount matches the expected payment amount. Note: The receipt may show a Total Amount that includes an administrative fee (Biaya Admin) or a 3-digit unique code. As long as the base transfer amount matches the expected amount, it is considered valid.
+  3. If expected recipient info is provided, the transfer destination (account name or number) must match the expected account holder or account number (partial match is acceptable, case-insensitive)
+- detected_amount: The transfer amount found in the text (number only, no currency symbol)
+- detected_recipient: The destination account name or number as detected in the receipt
+- detected_purpose: The purpose/description/berita of payment if visible
+- reason: Always explain briefly why valid is true or false. If false, specify which check failed (amount mismatch, wrong recipient, or not a valid receipt)`;
 
   try {
     const response = await axios.post(
