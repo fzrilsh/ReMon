@@ -227,7 +227,7 @@ label:has(input[name="direction"]:checked) {
 @media (min-width: 1025px) {
   /* The outer wrapper fills the td and becomes a plain flex row */
   .swipe-row-wrap {
-    overflow: visible;
+    overflow: hidden;
     display: flex;
     align-items: center;
     width: 100%;
