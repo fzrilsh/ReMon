@@ -31,8 +31,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Only handle ReMon requests
-  if (!url.pathname.startsWith('/')) return;
+  // Only handle same-origin requests — skip CDN, fonts, external APIs, etc.
+  if (url.origin !== self.location.origin) return;
+
+  // Only handle GET requests for navigation/pages — skip POST/PUT/DELETE entirely
+  if (event.request.method !== 'GET') return;
+
+  // Skip notification polling and API endpoints
+  if (url.pathname.startsWith('/notifications/') || url.pathname.includes('/api/')) return;
 
   // Static assets: cache-first
   if (STATIC_ASSETS.includes(url.pathname)) {
@@ -42,30 +48,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // API calls: network-only (no cache for dynamic data)
-  if (url.pathname.startsWith('/notifications/') || url.pathname.includes('/api/')) {
-    return;
-  }
-
-  // Pages: network-first, fallback to cache, then offline
+  // Pages (GET): network-first, fallback to cache, then built-in offline page
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        // Only cache successful HTML responses
+        if (response.ok && response.status < 400) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
         return response;
       })
       .catch(() => {
         return caches.match(event.request).then((cached) => {
           if (cached) return cached;
-          return caches.match('/offline').then((offlineCached) => {
-            if (offlineCached) return offlineCached;
-            // Ultimate fallback so we don't throw "returned response is null"
-            return new Response(
-              '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline - ReMon</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background:#f9fafb;color:#111827;text-align:center;padding:20px;}h1{margin-bottom:8px;font-size:24px;}p{color:#6b7280;font-size:14px;margin-bottom:24px;}a{display:inline-block;padding:10px 20px;background:#111827;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;}</style></head><body><h1>Anda Sedang Offline</h1><p>Halaman ini belum tersedia tanpa koneksi internet karena Anda belum pernah membukanya.</p><a href="/dashboard">Kembali ke Dashboard</a></body></html>',
-              { status: 200, headers: { 'Content-Type': 'text/html' } }
-            );
-          });
+          // Built-in offline fallback — no external dependency needed
+          return new Response(
+            '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline — ReMon</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#f9fafb;color:#111827;text-align:center;padding:24px}.icon{font-size:48px;margin-bottom:16px}h1{font-size:22px;font-weight:700;margin-bottom:8px}p{font-size:14px;color:#6b7280;margin-bottom:24px;max-width:300px;line-height:1.5}a{display:inline-block;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px}</style></head><body><div class="icon">📡</div><h1>Anda Sedang Offline</h1><p>Halaman ini tidak tersedia saat offline. Pastikan Anda sudah membuka halaman ini sebelumnya agar bisa di-cache.</p><a href="/dashboard">Kembali ke Dashboard</a></body></html>',
+            { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+          );
         });
       })
   );

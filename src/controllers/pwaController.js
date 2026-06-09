@@ -18,7 +18,11 @@ function manifest(req, res) {
 
 function serviceWorker(req, res) {
   res.type('application/javascript');
-  res.render('pwa/sw', { version: '3' }, (err, html) => {
+  // IMPORTANT: Service Worker must never be cached by the browser.
+  // Without this, the browser will serve the old SW indefinitely.
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.render('pwa/sw', { version: '4' }, (err, html) => {
     if (err) {
       // Fallback basic SW
       res.send(`
