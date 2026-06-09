@@ -1,125 +1,158 @@
-<% if (!locals.isPartial) { %><%- include("../partials/header") %><% } %>
-<div id="appContent" class="animate-in fade-in duration-300">
-<div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-  <div>
-    <h2 class="text-2xl font-bold text-gcore-900">Ini Daftar Transaksimu</h2>
-    <p class="text-gsm text-gcore-400 mt-1">Mau cek detail catatan pemasukan dan pengeluaran yang mana?</p>
-  </div>
-  <div class="flex gap-2 flex-wrap">
-    <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary"><i class="fas fa-camera"></i> <span class="max-sm:hidden">Upload Struk</span></a>
-    <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Baru</a>
-  </div>
-</div>
+<% if (!locals.isPartial) { %><%- include("../partials/header") %>
+    <% } %>
+      <div id="appContent" class="animate-in fade-in duration-300">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-gcore-900">Ini Daftar Transaksimu</h2>
+            <p class="text-gsm text-gcore-400 mt-1">Mau cek detail catatan pemasukan dan pengeluaran yang mana?</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <a href="<%= basePath %>/transactions/receipt" class="btn btn-secondary"><i class="fas fa-camera"></i> <span
+                class="max-sm:hidden">Upload Struk</span></a>
+            <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Baru</a>
+          </div>
+        </div>
 
-<!-- Filter Bar -->
-<div class="bg-gray-50 border-2 border-gray-200 rounded-gsm p-3 mb-6 flex flex-wrap items-center justify-between gap-3">
-  <form action="" method="GET" class="flex items-center gap-4 flex-wrap w-full sm:w-auto" id="filterForm">
-    <!-- Category Filter -->
-    <div class="flex items-center gap-2">
-      <label for="categoryFilter" class="text-gsm font-semibold text-gcore-900 whitespace-nowrap">Kategori:</label>
-      <select id="categoryFilter" name="categoryId" onchange="this.form.submit()" class="bg-white border-2 border-gray-200 rounded-gxs px-3 py-1.5 text-gsm font-medium text-gcore-900 focus:outline-none focus:border-gcore-accent min-w-[150px]">
-        <option value="">Semua Kategori</option>
-        <% if (typeof categories !== 'undefined' && categories) { %>
-          <% categories.forEach(function(cat) { %>
-            <option value="<%= cat.id %>" <%= typeof selectedCategoryId !== 'undefined' && selectedCategoryId === cat.id ? 'selected' : '' %>>
-              <%= cat.icon || '📁' %> <%= cat.name %>
-            </option>
-          <% }) %>
-        <% } %>
-        <option value="none" <%= typeof selectedCategoryId !== 'undefined' && selectedCategoryId === 'none' ? 'selected' : '' %>>📁 Tanpa Kategori</option>
-      </select>
-    </div>
-
-    <!-- Month Year Filter -->
-    <div class="flex items-center gap-2">
-      <label for="monthYearFilter" class="text-gsm font-semibold text-gcore-900 whitespace-nowrap">Bulan & Tahun:</label>
-      <input type="month" id="monthYearFilter" name="monthYear" value="<%= typeof selectedMonthYear !== 'undefined' ? selectedMonthYear : '' %>" onchange="this.form.submit()" class="bg-white border-2 border-gray-200 rounded-gxs px-3 py-1.5 text-gsm font-medium text-gcore-900 focus:outline-none focus:border-gcore-accent">
-    </div>
-  </form>
-  <% if ((typeof selectedCategoryId !== 'undefined' && selectedCategoryId !== '') || (typeof selectedMonthYear !== 'undefined' && selectedMonthYear !== '')) { %>
-    <a href="<%= basePath %>/transactions" class="text-gsm font-semibold text-gcore-accent hover:text-gcore-700 whitespace-nowrap"><i class="fas fa-times-circle"></i> Bersihkan Filter</a>
-  <% } %>
-</div>
-
-<% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
-  <div class="border-2 border-gray-200 rounded-gsm overflow-hidden">
-    <div class="w-full min-w-0">
-      <!-- Header (Hidden on Mobile) -->
-      <div class="hidden lg:flex border-b-2 border-gray-200 bg-gray-50">
-        <div class="w-[100px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Tanggal</div>
-        <div class="w-[100px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Tipe</div>
-        <div class="flex-1 min-w-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Deskripsi</div>
-        <div class="w-[120px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Kategori</div>
-        <div class="w-[150px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Jumlah</div>
-        <div class="w-[80px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Aksi</div>
-      </div>
-      
-      <!-- Body -->
-      <div class="flex flex-col">
-        <% transactions.forEach(function(t) { %>
-          <div class="swipe-row-wrap border-b border-gray-100 hover:bg-gray-50">
-            <div class="swipe-content w-full flex items-center">
-              <div class="w-[100px] shrink-0 p-2.5 text-gsm text-gcore-900 whitespace-nowrap max-lg:w-[70px]">
-                <%= new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %>
-              </div>
-              
-              <div class="w-[100px] shrink-0 p-2.5 max-lg:hidden">
-                <span class="inline-flex items-center gap-1 <%= t.type === 'INCOME' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap">
-                  <i class="fas <%= t.type === 'INCOME' ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i> <%= t.type === 'INCOME' ? 'Masuk' : 'Keluar' %>
-                </span>
-              </div>
-              
-              <div class="flex-1 min-w-0 p-2.5 text-gsm text-gcore-900 truncate">
-                <%= t.description %>
-              </div>
-              
-              <div class="w-[120px] shrink-0 p-2.5 max-lg:hidden">
-                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap truncate max-w-full block">
-                  <%= t.category ? t.category.name : '-' %>
-                </span>
-              </div>
-              
-              <div class="w-[150px] shrink-0 p-2.5 font-semibold whitespace-nowrap <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %> max-lg:w-auto max-lg:ml-auto">
-                Rp <%= Number(t.amount).toLocaleString('id-ID') %>
-              </div>
-              
-              <div class="w-[80px] shrink-0 p-2.5 max-lg:hidden">
-                <div class="flex gap-1">
-                  <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
-                  <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus transaksi ini?')" style="display:inline;">
-                    <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
-                  </form>
-                </div>
-              </div>
-              
-              <div class="swipe-hint max-lg:flex hidden p-2.5"><i class="fas fa-chevron-left"></i></div>
+        <!-- Filter Bar -->
+        <div
+          class="bg-gray-50 border-2 border-gray-200 rounded-gsm p-3 mb-6 flex flex-wrap items-center justify-between gap-3">
+          <form action="" method="GET" class="flex items-center gap-4 flex-wrap w-full sm:w-auto" id="filterForm">
+            <!-- Category Filter -->
+            <div class="flex items-center gap-2">
+              <label for="categoryFilter"
+                class="text-gsm font-semibold text-gcore-900 whitespace-nowrap">Kategori:</label>
+              <select id="categoryFilter" name="categoryId" onchange="this.form.submit()"
+                class="bg-white border-2 border-gray-200 rounded-gxs px-3 py-1.5 text-gsm font-medium text-gcore-900 focus:outline-none focus:border-gcore-accent min-w-[150px]">
+                <option value="">Semua Kategori</option>
+                <% if (typeof categories !=='undefined' && categories) { %>
+                  <% categories.forEach(function(cat) { %>
+                    <option value="<%= cat.id %>" <%=typeof selectedCategoryId !=='undefined' &&
+                      selectedCategoryId===cat.id ? 'selected' : '' %>>
+                      <%= cat.icon || '📁' %>
+                        <%= cat.name %>
+                    </option>
+                    <% }) %>
+                      <% } %>
+                        <option value="none" <%=typeof selectedCategoryId !=='undefined' && selectedCategoryId==='none'
+                          ? 'selected' : '' %>>📁 Tanpa Kategori</option>
+              </select>
             </div>
-            
-            <div class="swipe-actions">
-              <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
-              <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Hapus transaksi ini?')" style="display:flex;">
-                <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
-              </form>
+
+            <!-- Month Year Filter -->
+            <div class="flex items-center gap-2">
+              <label for="monthYearFilter" class="text-gsm font-semibold text-gcore-900 whitespace-nowrap">Bulan &
+                Tahun:</label>
+              <input type="month" id="monthYearFilter" name="monthYear"
+                value="<%= typeof selectedMonthYear !== 'undefined' ? selectedMonthYear : '' %>"
+                onchange="this.form.submit()"
+                class="bg-white border-2 border-gray-200 rounded-gxs px-3 py-1.5 text-gsm font-medium text-gcore-900 focus:outline-none focus:border-gcore-accent">
+            </div>
+          </form>
+          <% if ((typeof selectedCategoryId !=='undefined' && selectedCategoryId !=='' ) || (typeof selectedMonthYear
+            !=='undefined' && selectedMonthYear !=='' )) { %>
+            <a href="<%= basePath %>/transactions"
+              class="text-gsm font-semibold text-gcore-accent hover:text-gcore-700 whitespace-nowrap"><i
+                class="fas fa-times-circle"></i> Bersihkan Filter</a>
+            <% } %>
+        </div>
+
+        <% if (typeof transactions !=='undefined' && transactions.length> 0) { %>
+          <div class="border-2 border-gray-200 rounded-gsm overflow-hidden">
+            <div class="w-full min-w-0">
+              <!-- Header -->
+              <div class="flex border-b-2 border-gray-200 bg-gray-50">
+                <div class="w-[100px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5 max-lg:w-[70px]">Tanggal</div>
+                <div class="w-[100px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5 max-lg:hidden">Tipe</div>
+                <div class="flex-1 min-w-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5">Deskripsi</div>
+                <div class="w-[120px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5 max-lg:hidden">Kategori</div>
+                <div class="w-[150px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5 max-lg:w-auto max-lg:ml-auto">Jumlah</div>
+                <div class="w-[80px] shrink-0 text-gxs font-semibold uppercase text-gcore-500 p-2.5 max-lg:hidden">Aksi</div>
+                <!-- Placeholder spacing for the mobile swipe hint chevron -->
+                <div class="max-lg:block hidden w-[32px] shrink-0"></div>
+              </div>
+
+              <!-- Body -->
+              <div class="flex flex-col">
+                <% transactions.forEach(function(t) { %>
+                  <div class="swipe-row-wrap border-b border-gray-100 hover:bg-gray-50">
+                    <div class="swipe-content w-full flex items-center">
+                      <div class="w-[100px] shrink-0 p-2.5 text-gsm text-gcore-900 whitespace-nowrap max-lg:w-[70px]">
+                        <%= new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric' , month: 'short' }) %>
+                      </div>
+
+                      <div class="w-[100px] shrink-0 p-2.5 max-lg:hidden">
+                        <span
+                          class="inline-flex items-center gap-1 <%= t.type === 'INCOME' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap">
+                          <i class="fas <%= t.type === 'INCOME' ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i>
+                          <%= t.type==='INCOME' ? 'Masuk' : 'Keluar' %>
+                        </span>
+                      </div>
+
+                      <div class="flex-1 min-w-0 p-2.5 text-gsm text-gcore-900 truncate">
+                        <%= t.description %>
+                      </div>
+
+                      <div class="w-[120px] shrink-0 p-2.5 max-lg:hidden">
+                        <span
+                          class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-gxs font-semibold whitespace-nowrap truncate max-w-full block">
+                          <%= t.category ? t.category.name : '-' %>
+                        </span>
+                      </div>
+
+                      <div
+                        class="w-[150px] shrink-0 p-2.5 font-semibold whitespace-nowrap <%= t.type === 'INCOME' ? 'text-income' : 'text-expense' %> max-lg:w-auto max-lg:ml-auto">
+                        Rp <%= Number(t.amount).toLocaleString('id-ID') %>
+                      </div>
+
+                      <div class="w-[80px] shrink-0 p-2.5 max-lg:hidden">
+                        <div class="flex gap-1">
+                          <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit"
+                            title="Edit"><i class="fas fa-edit"></i></a>
+                          <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST"
+                            onsubmit="return confirm('Hapus transaksi ini?')" style="display:inline;">
+                            <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i
+                                class="fas fa-trash"></i></button>
+                          </form>
+                        </div>
+                      </div>
+
+                      <div class="swipe-hint max-lg:flex hidden p-2.5"><i class="fas fa-chevron-left"></i></div>
+                    </div>
+
+                    <div class="swipe-actions">
+                      <a href="<%= basePath %>/transactions/<%= t.id %>/edit" class="swipe-btn swipe-btn-edit"
+                        title="Edit"><i class="fas fa-edit"></i></a>
+                      <form action="<%= basePath %>/transactions/<%= t.id %>?_method=DELETE" method="POST"
+                        onsubmit="return confirm('Hapus transaksi ini?')" style="display:flex;">
+                        <button type="submit" class="swipe-btn swipe-btn-delete" title="Hapus"><i
+                            class="fas fa-trash"></i></button>
+                      </form>
+                    </div>
+                  </div>
+                  <% }) %>
+              </div>
             </div>
           </div>
-        <% }) %>
-      </div>
-    </div>
-  </div>
-<% } else { %>
-  <div class="bg-white border-2 border-gray-200 rounded-gsm p-12 text-center">
-    <div class="text-4xl text-gcore-400 mb-4"><i class="fas fa-receipt"></i></div>
-    <% if ((typeof selectedCategoryId !== 'undefined' && selectedCategoryId !== '') || (typeof selectedMonthYear !== 'undefined' && selectedMonthYear !== '')) { %>
-      <h3 class="font-semibold text-gcore-900 mb-2">Tidak ada transaksi ditemukan</h3>
-      <p class="text-gsm text-gcore-400 mb-4">Hmm, kami nggak nemu transaksi yang pas sama filter ini. Mau coba ganti filternya?</p>
-      <a href="<%= basePath %>/transactions" class="btn btn-secondary"><i class="fas fa-undo"></i> Bersihkan Filter</a>
-    <% } else { %>
-      <h3 class="font-semibold text-gcore-900 mb-2">Belum ada transaksi nih!</h3>
-      <p class="text-gsm text-gcore-400 mb-4">Mau mulai catat pemasukan atau pengeluaran pertamamu sekarang?</p>
-      <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i> Catat Transaksi</a>
-    <% } %>
-  </div>
-<% } %>
+          <% } else { %>
+            <div class="bg-white border-2 border-gray-200 rounded-gsm p-12 text-center">
+              <div class="text-4xl text-gcore-400 mb-4"><i class="fas fa-receipt"></i></div>
+              <% if ((typeof selectedCategoryId !=='undefined' && selectedCategoryId !=='' ) || (typeof
+                selectedMonthYear !=='undefined' && selectedMonthYear !=='' )) { %>
+                <h3 class="font-semibold text-gcore-900 mb-2">Tidak ada transaksi ditemukan</h3>
+                <p class="text-gsm text-gcore-400 mb-4">Hmm, kami nggak nemu transaksi yang pas sama filter ini. Mau
+                  coba ganti filternya?</p>
+                <a href="<%= basePath %>/transactions" class="btn btn-secondary"><i class="fas fa-undo"></i> Bersihkan
+                  Filter</a>
+                <% } else { %>
+                  <h3 class="font-semibold text-gcore-900 mb-2">Belum ada transaksi nih!</h3>
+                  <p class="text-gsm text-gcore-400 mb-4">Mau mulai catat pemasukan atau pengeluaran pertamamu sekarang?
+                  </p>
+                  <a href="<%= basePath %>/transactions/create" class="btn btn-primary"><i class="fas fa-plus"></i>
+                    Catat Transaksi</a>
+                  <% } %>
+            </div>
+            <% } %>
 
-</div>
-<% if (!locals.isPartial) { %><%- include("../partials/footer") %><% } %>
+      </div>
+      <% if (!locals.isPartial) { %><%- include("../partials/footer") %>
+          <% } %>
