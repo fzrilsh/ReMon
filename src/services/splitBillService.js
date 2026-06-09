@@ -162,10 +162,14 @@ async function submitPayment(slug, { name, proofPath }) {
     throw error;
   }
 
-  // Update participant with proof image
+  // Update participant with proof image and reset previous failure state
   await prisma.splitBillParticipant.update({
     where: { id: participant.id },
-    data: { paymentProofImage: proofPath },
+    data: { 
+      paymentProofImage: proofPath,
+      status: 'UNPAID',
+      aiFeedback: null
+    },
   });
 
   // Verify with AI (will be done asynchronously or via separate endpoint)
