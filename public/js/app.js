@@ -386,5 +386,122 @@
   // Expose so skeleton loaders can re-init after partial injection
   window.initSwipeRows = initSwipeRows;
 
+  // ─── Offline Sync Manager (Text Only) ───
+  const OFFLINE_QUEUE_KEY = 'remon_offline_queue';
+
+  function getOfflineQueue() {
+    try {
+      return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function setOfflineQueue(queue) {
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+  }
+
+  // Intercept all form submissions
+  document.addEventListener('submit', function (e) {
+    if (navigator.onLine) return; // Allow normal submission if online
+
+    const form = e.target;
+    // Skip forms with file inputs or non-POST methods (we only sync mutations like POST/PUT/DELETE)
+    if (form.querySelector('input[type="file"]')) {
+      e.preventDefault();
+      alert('Upload gambar atau struk tidak didukung saat offline. Harap tunggu hingga koneksi kembali.');
+      return;
+    }
+
+    const method = (form.querySelector('input[name="_method"]') ? form.querySelector('input[name="_method"]').value : form.method).toUpperCase();
+    if (method === 'GET') return; // Don't queue GET requests (filters, etc.)
+
+    e.preventDefault();
+
+    // Serialize form data
+    const formData = new FormData(form);
+    const payload = new URLSearchParams(formData).toString();
+    const actionUrl = form.action || window.location.href;
+
+    const queue = getOfflineQueue();
+    queue.push({
+      id: Date.now().toString(),
+      url: actionUrl,
+      method: method === 'PUT' || method === 'DELETE' ? 'POST' : method, // Send as POST because we use body-parser + method-override
+      payload: payload,
+      timestamp: new Date().toISOString()
+    });
+    setOfflineQueue(queue);
+
+    window.showToast('Anda sedang offline. Data disimpan lokal dan akan otomatis diunggah saat online.', 'warning');
+    
+    // Redirect back to dashboard or previous page to prevent user being stuck
+    setTimeout(() => {
+      if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+        window.location.href = document.referrer;
+      } else {
+        window.location.href = '/dashboard';
+      }
+    }, 1500);
+  });
+
+  // Background Sync execution
+  let isSyncing = false;
+  async function syncOfflineQueue() {
+    if (!navigator.onLine || isSyncing) return;
+    
+    const queue = getOfflineQueue();
+    if (queue.length === 0) return;
+
+    isSyncing = true;
+    let syncCount = 0;
+
+    // Process sequentially
+    for (let i = 0; i < queue.length; i++) {
+      const item = queue[i];
+      try {
+        const response = await fetch(item.url, {
+          method: item.method,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: item.payload
+        });
+
+        if (response.ok || response.status < 400) {
+          syncCount++;
+          // Remove from queue
+          const currentQueue = getOfflineQueue();
+          setOfflineQueue(currentQueue.filter(q => q.id !== item.id));
+        } else {
+          console.error('[OfflineSync] Server returned error for item', item.id, response.status);
+          // If 400 Bad Request or similar, it might be permanent. For simplicity, we keep it in queue.
+        }
+      } catch (err) {
+        console.error('[OfflineSync] Failed to sync item', item.id, err);
+        // Break the loop if network failed again
+        break;
+      }
+    }
+
+    isSyncing = false;
+    if (syncCount > 0) {
+      window.showToast(syncCount + ' data tersimpan berhasil disinkronkan ke server!', 'success');
+      // Optionally refresh the current page to reflect new data
+      setTimeout(() => window.location.reload(), 2000);
+    }
+  }
+
+  // Listen for online events
+  window.addEventListener('online', syncOfflineQueue);
+
+  // Attempt sync on page load (in case they opened the app while online but have queued data)
+  if (document.readyState === 'complete') {
+    syncOfflineQueue();
+  } else {
+    window.addEventListener('load', syncOfflineQueue);
+  }
+
 })();
 

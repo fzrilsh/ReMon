@@ -57,7 +57,15 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         return caches.match(event.request).then((cached) => {
-          return cached || caches.match('/offline');
+          if (cached) return cached;
+          return caches.match('/offline').then((offlineCached) => {
+            if (offlineCached) return offlineCached;
+            // Ultimate fallback so we don't throw "returned response is null"
+            return new Response(
+              '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline - ReMon</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background:#f9fafb;color:#111827;text-align:center;padding:20px;}h1{margin-bottom:8px;font-size:24px;}p{color:#6b7280;font-size:14px;margin-bottom:24px;}a{display:inline-block;padding:10px 20px;background:#111827;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;}</style></head><body><h1>Anda Sedang Offline</h1><p>Halaman ini belum tersedia tanpa koneksi internet karena Anda belum pernah membukanya.</p><a href="/dashboard">Kembali ke Dashboard</a></body></html>',
+              { status: 200, headers: { 'Content-Type': 'text/html' } }
+            );
+          });
         });
       })
   );
