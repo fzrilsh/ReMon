@@ -9,7 +9,6 @@ const STATIC_ASSETS = [
   '/icons/icon-512.svg',
 ];
 
-// Pages to pre-cache on activate so they work offline even if never visited
 const PRE_CACHE_PAGES = [
   '/dashboard',
   '/transactions',
@@ -39,23 +38,20 @@ self.addEventListener('activate', (event) => {
       .then((keys) => Promise.all(
         keys
           .filter((k) => k !== STATIC_CACHE && k !== PAGE_CACHE)
-          .map((k) => { console.log('[SW] Deleting old cache:', k); return caches.delete(k); })
+          .map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
       .then(() => {
-        // Pre-cache pages after claiming clients — uses session cookie of logged-in user
         return caches.open(PAGE_CACHE).then((cache) =>
           Promise.allSettled(
             PRE_CACHE_PAGES.map((page) => {
-              const req = new Request(page, { credentials: 'include', mode: 'same-origin' });
-              return fetch(req)
+              // Only fetch http/https to avoid chrome-extension:// scheme errors
+              const fullUrl = self.location.origin + page;
+              return fetch(new Request(fullUrl, { credentials: 'include', mode: 'same-origin' }))
                 .then((res) => {
-                  if (res.ok && res.status < 400) {
-                    console.log('[SW] Pre-cached:', page);
-                    return cache.put(req, res);
-                  }
+                  if (res.ok) return cache.put(fullUrl, res);
                 })
-                .catch((err) => console.log('[SW] Could not pre-cache:', page, err.message));
+                .catch(() => {}); // Silently ignore — user might not be logged in
             })
           )
         );
@@ -65,62 +61,69 @@ self.addEventListener('activate', (event) => {
 
 // ─── Fetch handler ───────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  let url;
+  try {
+    url = new URL(event.request.url);
+  } catch (e) {
+    return; // Malformed URL — let browser handle it
+  }
 
-  // Only handle same-origin GET requests
+  // Only handle http/https same-origin GET requests
+  // This explicitly excludes chrome-extension://, data:, blob:, etc.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   if (url.origin !== self.location.origin) return;
   if (event.request.method !== 'GET') return;
 
   // Skip notification polling and API endpoints (always need fresh data)
   if (url.pathname.startsWith('/notifications/') || url.pathname.includes('/api/')) return;
 
-  // ── Static assets: cache-first (use Request as key, consistent with addAll) ──
+  // Skip PJAX partial requests — server sends fragments, not full pages
+  if (event.request.headers.get('X-Requested-With') === 'XMLHttpRequest') return;
+
+  const offlineFallback = new Response(OFFLINE_HTML, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+
+  // ── Static assets: cache-first, ignoreSearch so ?v= doesn't break matching ──
   if (STATIC_ASSETS.includes(url.pathname)) {
     event.respondWith(
-      caches.open(STATIC_CACHE).then((cache) =>
-        // ignoreSearch: true so ?v=... query strings don't break matching
-        cache.match(event.request, { ignoreSearch: true }).then((cached) => {
-          if (cached) return cached;
-          return fetch(event.request).then((res) => {
-            if (res.ok) cache.put(event.request, res.clone());
-            return res;
-          });
-        })
-      )
+      caches.open(STATIC_CACHE)
+        .then((cache) =>
+          cache.match(url.pathname, { ignoreSearch: true })
+            .then((cached) => {
+              if (cached) return cached;
+              return fetch(event.request)
+                .then((res) => {
+                  if (res.ok) cache.put(url.pathname, res.clone());
+                  return res;
+                })
+                .catch(() => {
+                  // Static asset not in cache and offline — return empty 404
+                  return new Response('', { status: 404 });
+                });
+            })
+        )
     );
     return;
   }
 
-  // Skip PJAX partial requests — server sends fragments, not full pages
-  if (event.request.headers.get('X-Requested-With') === 'XMLHttpRequest') return;
-
   // ── Pages: network-first, fallback to page cache, then offline HTML ─────────
+  const cacheKey = url.origin + url.pathname; // Normalize: strip query strings
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (response.ok && response.status < 400) {
+        if (response.ok) {
           const clone = response.clone();
-          // Use a normalized Request without query string as cache key for pages
-          const cacheKey = new Request(url.origin + url.pathname, { credentials: 'include' });
           caches.open(PAGE_CACHE).then((cache) => cache.put(cacheKey, clone));
         }
         return response;
       })
-      .catch(() => {
-        const cacheKey = new Request(url.origin + url.pathname, { credentials: 'include' });
-        return caches.open(PAGE_CACHE).then((cache) =>
-          cache.match(cacheKey).then((cached) => {
-            if (cached) {
-              console.log('[SW] Serving from page cache:', url.pathname);
-              return cached;
-            }
-            console.log('[SW] No cache for:', url.pathname, '- serving offline page');
-            return new Response(OFFLINE_HTML, {
-              status: 200,
-              headers: { 'Content-Type': 'text/html; charset=utf-8' },
-            });
-          })
-        );
-      })
+      .catch(() =>
+        caches.open(PAGE_CACHE)
+          .then((cache) => cache.match(cacheKey))
+          .then((cached) => cached || offlineFallback)
+          .catch(() => offlineFallback)
+      )
   );
 });

@@ -22,7 +22,7 @@ function serviceWorker(req, res) {
   // Without this, the browser will serve the old SW indefinitely.
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
-  res.render('pwa/sw', { version: '6' }, (err, html) => {
+  res.render('pwa/sw', { version: '7' }, (err, html) => {
     if (err) {
       // Fallback basic SW
       res.send(`
