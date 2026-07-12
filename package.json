@@ -1,7 +1,7 @@
 {
   "name": "remon",
   "version": "1.0.0",
-  "description": "ReMon — Pencatat keuangan pribadi dengan split bill, tracking hutang, dan AI receipt parser",
+  "description": "Web-based personal finance tracker with AI-powered receipt parsing, split bill management, and debt tracking",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
@@ -17,7 +17,7 @@
     "split-bill",
     "pwa"
   ],
-  "author": "",
+  "author": "Fazril Syaveral Hillaby",
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^6.x",
